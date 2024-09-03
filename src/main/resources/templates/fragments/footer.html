@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+    <style>
+        html {
+            height: 100%;
+        }
+
+        body {
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        footer {
+            /*background-color: rgba(13, 14, 13, 0.99);*/
+            position: fixed;
+            right: 75px;
+            bottom: 2px;
+            text-align: right;
+            width: 100%;
+            font-size: 15px;
+            font-weight: bold;
+            color: #da0202;
+        }
+    </style>
+    <div th:fragment="footer"> &copy 2024 Sergey Basov | v0.1.03 </div>
+</body>
+</html>
