@@ -2,8 +2,10 @@ package bsshelper.externalapi.configurationmng.plannedserv.service;
 
 import bsshelper.externalapi.auth.entity.Token;
 import bsshelper.globalutil.GlobalUtil;
+import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.Verb;
 import bsshelper.externalapi.configurationmng.plannedserv.entity.PlannedServBodySettings;
+import bsshelper.globalutil.entity.MessageEntity;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,36 +22,45 @@ import java.util.List;
 public class PlanServServiceImpl implements PlanServService {
 
     @Override
-    public void activateArea(String dataAreaId, Token token) {
-        String result = "area successfully activated";
+    public MessageEntity activateArea(String dataAreaId, Token token) {
+        MessageEntity result = null;
         try {
             HttpRequest httpRequest = activateAreaRequest(dataAreaId, token);
             HttpResponse<String> httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
             String response = httpResponse.body();
             if (response.contains("\"code\":0")) {
                 log.info(" >> planned area successfully activated: {}: {}", dataAreaId, response);
+                result = new MessageEntity(Severity.SUCCESS, "Planned area successfully activated!");
             } else {
                 log.info(" >> planned area activation failed: {}: {}", dataAreaId, response);
+                result = new MessageEntity(Severity.ERROR, "Planned area activation failed! " + response);
             }
         } catch (IOException | InterruptedException e) {
             log.error(" >> error in sending http request: {}", e.toString());
+            result = new MessageEntity(Severity.ERROR, "Network connection error!");
         }
+        return result;
     }
 
     @Override
-    public void dataConfigUnassociated(String dataAreaId, Token token, PlannedServBodySettings bodySettings) {
+    public MessageEntity dataConfigUnassociated(String dataAreaId, Token token, PlannedServBodySettings bodySettings) {
+        MessageEntity result = null;
         try {
             HttpRequest httpRequest = dataConfigUnsRequest(dataAreaId, token, bodySettings);
             HttpResponse<String> httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
             String response = httpResponse.body();
             if (response.contains("\"code\":0")) {
                 log.info(" >> configuration data successfully modified in planned area: {}: {}", dataAreaId, response);
+                result = new MessageEntity(Severity.SUCCESS, "Planned area data successfully modified!");
             } else {
                 log.info(" >> configuration data modifying failed: {}: {}", dataAreaId, response);
+                result = new MessageEntity(Severity.ERROR, "Planned area data modification failed! " + response);
             }
         } catch (IOException | InterruptedException e) {
             log.error(" >> error in sending http request: {}", e.toString());
+            result = new MessageEntity(Severity.ERROR, "Network connection error!");
         }
+        return result;
     }
 
     private HttpRequest dataConfigUnsRequest(String dataAreaId, Token token, PlannedServBodySettings bodySettings) {

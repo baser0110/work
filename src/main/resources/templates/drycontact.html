@@ -28,9 +28,6 @@
         <button type="submit" class="btn btn-secondary">Search</button>
     </form>
 
-    <div th:if="${errorInSearchingMessage != null}" th:text="${errorInSearchingMessage}" class="alert alert-danger" role="alert" id="alert-danger">
-    </div>
-
     <style>
         legend {
             display: flex;
@@ -175,9 +172,18 @@
     <form th:if="${managedElement != null}" id="add" action="#" th:action="@{/helper/dryContact/add}" method="post">
         <button type="submit" class="btn btn-primary">Add DryContact</button>
     </form>
+
 </div>
-
-
+    <br />
+    <div th:if="${message != null && message.getSeverity().toString.equals('SUCCESS')}"
+         th:text="${message.getMessage()}" class="alert alert-success" role="alert" id="alert-success">
+    </div>
+    <div th:if="${message != null && message.getSeverity().toString.equals('ERROR')}"
+         th:text="${message.getMessage()}" class="alert alert-danger" role="alert" id="alert-danger">
+    </div>
+    <div th:if="${message != null && message.getSeverity().toString.equals('INFO')}"
+         th:text="${message.getMessage()}" class="alert alert-info" role="alert" id="alert-info">
+    </div>
 
 </div>
 <footer>
