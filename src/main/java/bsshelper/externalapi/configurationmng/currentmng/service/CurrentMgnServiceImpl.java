@@ -1,14 +1,10 @@
 package bsshelper.externalapi.configurationmng.currentmng.service;
 
 import bsshelper.externalapi.auth.entity.Token;
-import bsshelper.externalapi.configurationmng.currentmng.entity.CurrentMngBodySettings;
-import bsshelper.externalapi.configurationmng.currentmng.entity.DryContactCableMoc;
-import bsshelper.externalapi.configurationmng.currentmng.entity.DryContactDeviceMoc;
-import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
+import bsshelper.externalapi.configurationmng.currentmng.entity.*;
 import bsshelper.externalapi.configurationmng.currentmng.mapper.ManagedElementMapper;
-import bsshelper.externalapi.configurationmng.currentmng.to.DryContactCableMocTo;
-import bsshelper.externalapi.configurationmng.currentmng.to.DryContactDeviceMocTo;
-import bsshelper.externalapi.configurationmng.currentmng.to.ManagedElementMocTo;
+import bsshelper.externalapi.configurationmng.currentmng.to.*;
+import bsshelper.externalapi.configurationmng.currentmng.util.CurrentMngBodySettings;
 import bsshelper.globalutil.GlobalUtil;
 import bsshelper.globalutil.ManagedElementType;
 import bsshelper.globalutil.Verb;
@@ -32,14 +28,26 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
     public String rawDataQuery(Token token, ManagedElement managedElement, String mocName) {
         HttpResponse<String> httpResponse = null;
         String response = null;
+        ErrorEntity error = null;
         try {
             HttpRequest httpRequest = dataQueryRequest(token, managedElement, mocName);
             httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
-//            System.out.println(httpResponse.body());
+            System.out.println(httpResponse.body());
             response = httpResponse.body();
             if (response.contains("\"code\":0")) {
                 log.info(" >> {} for {} successfully found", mocName, managedElement.getUserLabel());
+            } else {
+                response = null;
+                try {
+                    error = new Gson().fromJson(response, ErrorEntity.class);
+                } catch (JsonSyntaxException e2) {
+                    log.error(" >> error in MessageEntity parsing: {}", e2.toString());
+                }
+                if (error != null) {
+                    log.error(" >> error {} code({})", error.getMessage(), error.getCode());
+                }
             }
+
         } catch (IOException | InterruptedException e) {
             log.error(" >> error in sending http request: {}", e.toString());
         }
@@ -150,6 +158,75 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         return dryContactCableMocList;
     }
 
+    @Override
+    public List<ULocalCellMoc> getULocalCellMoc(Token token, ManagedElement managedElement) {
+        String mocName = "ULocalCell";
+        List<ULocalCellMoc> ULocalCellMocList = null;
+        ULocalCellMocTo uLocalCellMocTo = null;
+        ErrorEntity error = null;
+        String json = rawDataQuery(token, managedElement, mocName);
+//        System.out.println(json);
+        if (json != null) {
+            try {
+                uLocalCellMocTo = new Gson().fromJson(json, ULocalCellMocTo.class);
+            } catch (JsonSyntaxException e1) {
+                e1.printStackTrace();
+                log.error(" >> error in uLocalCellMocListTo parsing: {}", e1.toString());
+                try {
+                    error = new Gson().fromJson(json, ErrorEntity.class);
+                } catch (JsonSyntaxException e2) {
+                    log.error(" >> error in ErrorEntity parsing: {}", e2.toString());
+                }
+                if (error != null) {
+                    log.error(" >> error {} code({})", error.getMessage(), error.getCode());
+                }
+//            System.out.println(uLocalCellMocTo);
+            }
+        }
+        if (uLocalCellMocTo != null) {
+            ULocalCellMocList = uLocalCellMocTo.getResult().get(0).getMoData();
+        }
+        log.info(" >> uLocalCellMocList: {}", ULocalCellMocList);
+//        System.out.println(uLocalCellMocList);
+        return ULocalCellMocList;
+    }
+
+    @Override
+    public List<EUtranCellNBIoTMoc> getEUtranCellNBIoTMoc(Token token, ManagedElement managedElement) {
+        String mocName = "EUtranCellNBIoT";
+        List<EUtranCellNBIoTMoc> eUtranCellNBIoTMocList = null;
+        EUtranCellNBIoTMocTo eUtranCellNBIoTMocTo = null;
+        ErrorEntity error = null;
+        String json = rawDataQuery(token, managedElement, mocName);
+//        System.out.println(json);
+        if (json != null) {
+            try {
+                eUtranCellNBIoTMocTo = new Gson().fromJson(json, EUtranCellNBIoTMocTo.class);
+            } catch (JsonSyntaxException e1) {
+                e1.printStackTrace();
+                log.error(" >> error in eUtranCellNBIoTMocListTo parsing: {}", e1.toString());
+                try {
+                    error = new Gson().fromJson(json, ErrorEntity.class);
+                } catch (JsonSyntaxException e2) {
+                    log.error(" >> error in ErrorEntity parsing: {}", e2.toString());
+                }
+                if (error != null) {
+                    log.error(" >> error {} code({})", error.getMessage(), error.getCode());
+                }
+//            System.out.println(uLocalCellMocTo);
+            }
+        }
+        if (eUtranCellNBIoTMocTo != null) {
+            try {
+                eUtranCellNBIoTMocList = eUtranCellNBIoTMocTo.getResult().get(0).getMoData();
+            } catch (NullPointerException e1) {
+//                log.info(" >> " + managedElement.
+            }
+        }
+        log.info(" >> eUtranCellNBIoTMocList: {}", eUtranCellNBIoTMocList);
+//        System.out.println(uLocalCellMocList);
+        return eUtranCellNBIoTMocList;
+    }
 
     private HttpRequest dataQueryRequest(Token token, ManagedElement managedElement, String mocName) {
         return HttpRequest.newBuilder()

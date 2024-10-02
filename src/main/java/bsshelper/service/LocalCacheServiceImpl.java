@@ -1,7 +1,5 @@
 package bsshelper.service;
 
-import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
-import bsshelper.externalapi.configurationmng.plannedserv.repository.MocDataRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -10,8 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;

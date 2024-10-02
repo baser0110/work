@@ -1,38 +1,36 @@
 package bsshelper.externalapi.configurationmng.plannedserv.repository;
 
-import bsshelper.externalapi.configurationmng.plannedserv.entity.DryContactCableMocData;
 import bsshelper.externalapi.configurationmng.plannedserv.entity.MocData;
-import bsshelper.externalapi.configurationmng.plannedserv.mapper.DryContactCableMocDataMapper;
-import bsshelper.externalapi.configurationmng.plannedserv.to.DryContactCableMocDataTo;
+import bsshelper.externalapi.configurationmng.plannedserv.mapper.DryContactDeviceMocDataMapper;
+import bsshelper.externalapi.configurationmng.plannedserv.to.DryContactDeviceMocDataTo;
 import bsshelper.externalapi.configurationmng.plannedserv.util.Operation;
 import bsshelper.externalapi.configurationmng.plannedserv.util.drycontactenums.AlmStatus;
 import bsshelper.externalapi.configurationmng.plannedserv.util.drycontactenums.AlmUserLabel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Data
 @RequiredArgsConstructor
-public class DryContactCableMocDataRepository implements MocDataRepository {
-    private List<DryContactCableMocDataTo> data;
+public class DryContactDeviceMocDataWrapper implements MocDataWrapper {
+    private List<DryContactDeviceMocDataTo> data;
     private final List<Integer> constMoIds = new ArrayList<>();
 
-    public DryContactCableMocDataRepository(List<DryContactCableMocDataTo> list) {
+    public DryContactDeviceMocDataWrapper(List<DryContactDeviceMocDataTo> list) {
         if (list == null) data = new ArrayList<>();
         else {
-            list.sort(Comparator.comparingInt(DryContactCableMocDataTo::getMoId));
+            list.sort(Comparator.comparingInt(DryContactDeviceMocDataTo::getDryNo));
             data = list;
             list.forEach((entry) -> constMoIds.add(entry.getMoId()));
         }
     }
 
     public void addNew() {
-        DryContactCableMocDataTo newData = new DryContactCableMocDataTo(
+        DryContactDeviceMocDataTo newData = new DryContactDeviceMocDataTo(
                 Operation.A.toString(),
-                16,
+                32,
+                15,
                 AlmUserLabel.AC_MAINS_FAILURE.toString(),
                 AlmStatus.OPEN.toString());
         data.add(newData);
@@ -43,7 +41,7 @@ public class DryContactCableMocDataRepository implements MocDataRepository {
         if (data != null) {
             data.forEach((entry) -> {
                 if (entry.getMoOp().equals(Operation.D.toString()))
-                    result.add(DryContactCableMocDataMapper.toDryContactDeviceMocData(entry));
+                    result.add(DryContactDeviceMocDataMapper.toDryContactDeviceMocData(entry));
             });
         }
         return result;
@@ -53,7 +51,7 @@ public class DryContactCableMocDataRepository implements MocDataRepository {
         if (data != null) {
             data.forEach((entry) -> {
                 if (entry.getMoOp().equals(Operation.A.toString()) || entry.getMoOp().equals(Operation.M.toString()))
-                    result.add(DryContactCableMocDataMapper.toDryContactDeviceMocData(entry));
+                    result.add(DryContactDeviceMocDataMapper.toDryContactDeviceMocData(entry));
             });
         }
         return result;

@@ -1,9 +1,7 @@
 package bsshelper.externalapi.configurationmng.currentmng.service;
 
 import bsshelper.externalapi.auth.entity.Token;
-import bsshelper.externalapi.configurationmng.currentmng.entity.DryContactCableMoc;
-import bsshelper.externalapi.configurationmng.currentmng.entity.DryContactDeviceMoc;
-import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
+import bsshelper.externalapi.configurationmng.currentmng.entity.*;
 
 import java.util.List;
 
@@ -12,4 +10,6 @@ public interface CurrentMgnService {
     ManagedElement getManagedElementByNeName (Token token, String NE_Name);
     List<DryContactDeviceMoc> getDryContactDeviceMoc (Token token, ManagedElement managedElement);
     List<DryContactCableMoc> getDryContactCableMoc(Token token, ManagedElement managedElement);
+    List<ULocalCellMoc> getULocalCellMoc(Token token, ManagedElement managedElement);
+    List<EUtranCellNBIoTMoc> getEUtranCellNBIoTMoc(Token token, ManagedElement managedElement);
 }

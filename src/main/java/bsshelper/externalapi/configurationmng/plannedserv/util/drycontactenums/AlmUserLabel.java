@@ -78,4 +78,11 @@ public enum AlmUserLabel {
         }
         return AC_MAINS_FAILURE;
     }
+
+    public static AlmUserLabel valueOfCode(int almNo) {
+        for (AlmUserLabel almUserLabel : AlmUserLabel.values()) {
+            if (almUserLabel.code == almNo) return almUserLabel;
+        }
+        return AC_MAINS_FAILURE;
+    }
 }

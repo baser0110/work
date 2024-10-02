@@ -16,7 +16,7 @@ public class DryContactDeviceMocDataMapper {
                 Operation.NO.toString(),
                 data.getMoId(),
                 data.getDryNo(),
-                AlmUserLabel.valueOfUserLabel(data.getUserLabel()).toString(),
+                AlmUserLabel.valueOfCode(data.getAlmNo()).toString(),
                 AlmStatus.valueOfAlmStatus(data.getAlmStatus()).toString());
     }
 

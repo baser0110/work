@@ -1,4 +1,4 @@
-package bsshelper.externalapi.configurationmng.currentmng.entity;
+package bsshelper.externalapi.configurationmng.currentmng.util;
 
 import com.google.gson.Gson;
 import lombok.Builder;

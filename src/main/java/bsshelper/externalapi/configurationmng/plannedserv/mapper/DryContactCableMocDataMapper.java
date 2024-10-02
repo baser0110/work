@@ -15,7 +15,7 @@ public class DryContactCableMocDataMapper {
         return new DryContactCableMocDataTo(
                 Operation.NO.toString(),
                 data.getMoId(),
-                AlmUserLabel.valueOfUserLabel(data.getUserLabel()).toString(),
+                AlmUserLabel.valueOfCode(data.getAlarmNameOfInput()).toString(),
                 AlmStatus.valueOfAlmStatus(data.getAlarmStatus()).toString());
     }
 
@@ -28,7 +28,7 @@ public class DryContactCableMocDataMapper {
         return result;
     }
 
-    static public DryContactCableMocData toDryContactDeviceMocData(DryContactCableMocDataTo data) {
+    static public DryContactCableMocData toDryContactCableMocData(DryContactCableMocDataTo data) {
         return new DryContactCableMocData(
                 Operation.valueOf(data.getMoOp()),
                 data.getMoId(),
@@ -36,11 +36,11 @@ public class DryContactCableMocDataMapper {
                 AlmStatus.valueOf(data.getAlarmStatus()));
     }
 
-    static public List<DryContactCableMocData> toDryContactDeviceMocData(List<DryContactCableMocDataTo> data) {
+    static public List<DryContactCableMocData> toDryContactCableMocData(List<DryContactCableMocDataTo> data) {
         if (data == null) return null;
         List<DryContactCableMocData> result = new ArrayList<DryContactCableMocData>();
         for (DryContactCableMocDataTo data1 : data) {
-            result.add(toDryContactDeviceMocData(data1));
+            result.add(toDryContactCableMocData(data1));
         }
         return result;
     }

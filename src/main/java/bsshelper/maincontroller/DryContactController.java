@@ -3,14 +3,13 @@ package bsshelper.maincontroller;
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
 import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnService;
 import bsshelper.externalapi.configurationmng.plannedmng.service.PlanMgnService;
-import bsshelper.externalapi.configurationmng.plannedserv.entity.DryContactDeviceMocData;
 import bsshelper.externalapi.configurationmng.plannedserv.entity.MocData;
 import bsshelper.externalapi.configurationmng.plannedserv.entity.PlannedServBodySettings;
 import bsshelper.externalapi.configurationmng.plannedserv.mapper.DryContactCableMocDataMapper;
 import bsshelper.externalapi.configurationmng.plannedserv.mapper.DryContactDeviceMocDataMapper;
-import bsshelper.externalapi.configurationmng.plannedserv.repository.DryContactCableMocDataRepository;
-import bsshelper.externalapi.configurationmng.plannedserv.repository.DryContactDeviceMocDataRepository;
-import bsshelper.externalapi.configurationmng.plannedserv.repository.MocDataRepository;
+import bsshelper.externalapi.configurationmng.plannedserv.repository.DryContactCableMocDataWrapper;
+import bsshelper.externalapi.configurationmng.plannedserv.repository.DryContactDeviceMocDataWrapper;
+import bsshelper.externalapi.configurationmng.plannedserv.repository.MocDataWrapper;
 import bsshelper.externalapi.configurationmng.plannedserv.service.PlanServService;
 import bsshelper.globalutil.ManagedElementType;
 import bsshelper.globalutil.Severity;
@@ -24,7 +23,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 @Slf4j
@@ -58,23 +56,23 @@ public class DryContactController {
         String id = session.getId();
         setMessage(id, model);
         ManagedElement managedElement = currentMgnService.getManagedElementByNeName(tokenService.getToken(), userLabel);
-        MocDataRepository mocDataRepository = null;
+        MocDataWrapper mocDataWrapper = null;
         if (managedElement == null) {
             localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "userLabel '" + userLabel + "' couldn't be found"));
             return "redirect:/helper/dryContact";
         }
         if (managedElement.getManagedElementType() == ManagedElementType.SDR) {
-            mocDataRepository = new DryContactDeviceMocDataRepository(DryContactDeviceMocDataMapper.
+            mocDataWrapper = new DryContactDeviceMocDataWrapper(DryContactDeviceMocDataMapper.
                     toDryContactDeviceMocDataTo(currentMgnService.getDryContactDeviceMoc(tokenService.getToken(), managedElement)));
         } else {
-            mocDataRepository = new DryContactCableMocDataRepository(DryContactCableMocDataMapper.
+            mocDataWrapper = new DryContactCableMocDataWrapper(DryContactCableMocDataMapper.
                     toDryContactCableMocDataTo(currentMgnService.getDryContactCableMoc(tokenService.getToken(), managedElement)));
         }
-        localCacheService.mocDataRepositoryMap.put(id, mocDataRepository);
+        localCacheService.mocDataRepositoryMap.put(id, mocDataWrapper);
         localCacheService.managedElementMap.put(id, managedElement);
 
         model.addAttribute("managedElement", managedElement);
-        model.addAttribute("repo", mocDataRepository);
+        model.addAttribute("repo", mocDataWrapper);
         return "drycontact";
     }
 
@@ -88,7 +86,7 @@ public class DryContactController {
     }
 
     @PostMapping ("/dryContact/updateSDR")
-    public String dryContactUpdateSDR(@ModelAttribute("repo") DryContactDeviceMocDataRepository repo, Model model, HttpSession session) {
+    public String dryContactUpdateSDR(@ModelAttribute("repo") DryContactDeviceMocDataWrapper repo, Model model, HttpSession session) {
         String id = session.getId();
         MessageEntity resultD = null;
         MessageEntity resultAM = null;
@@ -110,7 +108,7 @@ public class DryContactController {
     }
 
     @PostMapping ("/dryContact/updateITBBU")
-    public String dryContactUpdateITBBU(@ModelAttribute("repo") DryContactCableMocDataRepository repo, Model model, HttpSession session) {
+    public String dryContactUpdateITBBU(@ModelAttribute("repo") DryContactCableMocDataWrapper repo, Model model, HttpSession session) {
         String id = session.getId();
         MessageEntity resultD = null;
         MessageEntity resultAM = null;

@@ -21,5 +21,10 @@ public class GlobalUtil {
     public static final String PLANNEDSERV_ACTIVATE = "/activate";
     public static final String PLANNEDSERV_MO_CONFIG_UNS = "/moconfig";
 
+    public static final String API_OSE = "/api/ofd-access/v1/ose/executions";
+    public static final String OSE_UCLI_BATCH_SCRIPT = "/packet/303";
+    public static final String OSE_UPLOAD_FILE = "/parameter-files";
+    public static final String OSE_QUERY_EXEC_STATUS = "/state";
+
     public static final String DRY_CONTACT_LDN_SDR_SLOT13 = "Equipment=1,Rack=1,SubRack=1,Slot=13,PlugInUnit=1,SdrDeviceGroup=1,DryContactDeviceSet=1,DryContactDevice=";
 }

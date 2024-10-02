@@ -13,7 +13,7 @@ public class DryContactDeviceMoc {
     private final String ldn;
     private final int isSelfDefineAlm;
     private final int dryNo;
-    private final String almNo;
+    private final int almNo;
     private final int dryType;
     private final String outDryName;
     private final int moId;
