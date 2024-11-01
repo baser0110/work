@@ -14,4 +14,10 @@ public enum SmoothlyBlock {
         this.code = code;
         this.userLabel = userLabel;
     }
+
+    public static String getTextSmoothlyBlock(int code) {
+        if (code == 0) return UNBLOCKED.userLabel;
+        if (code == 1) return BLOCKED.userLabel;
+        return "Undefined(" + code + ")";
+    }
 }

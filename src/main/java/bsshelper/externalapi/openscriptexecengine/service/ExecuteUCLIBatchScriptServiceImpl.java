@@ -1,10 +1,6 @@
 package bsshelper.externalapi.openscriptexecengine.service;
 
 import bsshelper.externalapi.auth.entity.Token;
-import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
-import bsshelper.externalapi.configurationmng.currentmng.to.ULocalCellMocTo;
-import bsshelper.externalapi.openscriptexecengine.entity.ULocalCellStatus;
-import bsshelper.externalapi.openscriptexecengine.util.BatchFileBuilder;
 import bsshelper.externalapi.openscriptexecengine.util.StringFileEntity;
 import bsshelper.globalutil.GlobalUtil;
 import bsshelper.globalutil.Verb;
@@ -17,17 +13,11 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @Slf4j

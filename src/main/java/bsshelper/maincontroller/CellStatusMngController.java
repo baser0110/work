@@ -3,19 +3,23 @@ package bsshelper.maincontroller;
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
 import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnService;
 import bsshelper.externalapi.openscriptexecengine.entity.CellStatus;
-import bsshelper.externalapi.openscriptexecengine.mapper.EUtranCellNBIoTStatusMapper;
-import bsshelper.externalapi.openscriptexecengine.mapper.ULocalCellStatusMapper;
+import bsshelper.externalapi.openscriptexecengine.entity.GCellStatus;
+import bsshelper.externalapi.openscriptexecengine.mapper.*;
 import bsshelper.externalapi.openscriptexecengine.service.ExecuteUCLIBatchScriptService;
 import bsshelper.externalapi.openscriptexecengine.util.BatchFileBuilder;
 import bsshelper.externalapi.openscriptexecengine.util.ExecuteStatus;
 import bsshelper.externalapi.openscriptexecengine.util.StringFileEntity;
 import bsshelper.externalapi.openscriptexecengine.wrapper.EUtranCellNBIoTStatusListWrapper;
+import bsshelper.externalapi.openscriptexecengine.wrapper.GCellStatusListWrapper;
 import bsshelper.externalapi.openscriptexecengine.wrapper.ULocalCellStatusListWrapper;
+import bsshelper.externalapi.perfmng.entity.HistoryVSWR;
+import bsshelper.externalapi.perfmng.perfquery.HistoryQueryService;
 import bsshelper.globalutil.ManagedElementType;
 import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.entity.MessageEntity;
 import bsshelper.service.LocalCacheService;
 import bsshelper.service.TokenService;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,17 +39,21 @@ public class CellStatusMngController {
     private final LocalCacheService localCacheService;
     private final ExecuteUCLIBatchScriptService executeUCLIBatchScriptService;
 
+    private final HistoryQueryService historyQueryService;
+
+
     @GetMapping("/cellStatus")
     public String cellStatus(Model model, HttpSession session) {
         String id = session.getId();
         setMessage(id, model);
         model.addAttribute("managedElement", null);
-        model.addAttribute("repoUMTS", null);
+//        model.addAttribute("repoUMTS", null);
         return "cellstatus";
     }
 
     @GetMapping("/cellStatus/{userLabel}")
     public String search(@PathVariable(value = "userLabel") String userLabel, Model model, HttpSession session) {
+
         String id = session.getId();
         setMessage(id, model);
         ManagedElement managedElement = currentMgnService.getManagedElementByNeName(tokenService.getToken(), userLabel);
@@ -53,6 +61,7 @@ public class CellStatusMngController {
             localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "userLabel '" + userLabel + "' couldn't be found"));
             return "redirect:/helper/cellStatus";
         }
+
 //        System.out.println(currentMgnService.rawDataQuery(tokenService.getToken(),managedElement,"EUtranCellNBIoT"));
         ULocalCellStatusListWrapper uLocalCellMocListWrapper = null;
         EUtranCellNBIoTStatusListWrapper eUtranCellNBIoTMocListWrapper = null;
@@ -63,46 +72,60 @@ public class CellStatusMngController {
         }
         if (managedElement.getManagedElementType() == ManagedElementType.SDR) {
             uLocalCellMocListWrapper = new ULocalCellStatusListWrapper(ULocalCellStatusMapper.
-                    toULocalCellStatusEntity(currentMgnService.getULocalCellMoc(tokenService.getToken(), managedElement)));
+                    toULocalCellStatusEntity(currentMgnService.getULocalCellMocSimplified(tokenService.getToken(), managedElement)));
             eUtranCellNBIoTMocListWrapper = new EUtranCellNBIoTStatusListWrapper(EUtranCellNBIoTStatusMapper.
-                    toEUtranCellNBIoTStatusEntity(currentMgnService.getEUtranCellNBIoTMoc(tokenService.getToken(), managedElement)));
+                    toEUtranCellNBIoTStatusEntity(currentMgnService.getEUtranCellNBIoTMocSimplified(tokenService.getToken(), managedElement)));
         } else {
-                    // for ITBBU
+            uLocalCellMocListWrapper = new ULocalCellStatusListWrapper(ITBBUULocalCellStatusMapper.
+                    toULocalCellStatusEntity(currentMgnService.getITBBUULocalCellMocSimplified(tokenService.getToken(), managedElement)));
+            eUtranCellNBIoTMocListWrapper = new EUtranCellNBIoTStatusListWrapper(ITBBUCUEUtranCellNBIoTStatusMapper.
+                    toEUtranCellNBIoTStatusEntity(currentMgnService.getITBBUCUEUtranCellNBIoTMocSimplified(tokenService.getToken(), managedElement)));
         }
+        GCellStatusListWrapper gCellStatusListWrapper = new GCellStatusListWrapper(
+                GCellStatusMapper.toGCellStatusEntity(currentMgnService.getGGsmCellMocSimplified(tokenService.getToken(), managedElement)));
 
-        System.out.println(uLocalCellMocListWrapper);
+//        System.out.println(uLocalCellMocListWrapper);
+//        System.out.println(gCellStatusListWrapper);
 
         localCacheService.managedElementMap.put(id, managedElement);
 
         model.addAttribute("managedElement", managedElement);
         model.addAttribute("repoUMTS", uLocalCellMocListWrapper);
         model.addAttribute("repoNBIoT", eUtranCellNBIoTMocListWrapper);
-        return "cellStatus";
+        model.addAttribute("repoGSM", gCellStatusListWrapper);
+        return "cellstatus";
     }
 
     @PostMapping("/cellStatus/changeStatus")
     public String cellChangeStatus(@ModelAttribute("repoUMTS") ULocalCellStatusListWrapper repoUMTS, Integer operationUMTS,
                                    @ModelAttribute("repoNBIoT") EUtranCellNBIoTStatusListWrapper repoNBIoT, Integer operationNBIoT,
+                                   @ModelAttribute("repoGSM") GCellStatusListWrapper repoGSM, Integer operationGSM,
                                    Model model, HttpSession session) {
         String id = session.getId();
         setMessage(id, model);
         String execResult = null;
-        System.out.println(operationUMTS);
-        System.out.println(repoUMTS.getDataUMTS());
-        System.out.println(operationNBIoT);
-        System.out.println(repoNBIoT.getDataNBIOT());
-        if ((operationUMTS == null || operationUMTS == 0) && (operationNBIoT == null || operationNBIoT == 0)) {
+//        System.out.println(operationUMTS);
+//        System.out.println(repoUMTS.getDataUMTS());
+//        System.out.println(operationNBIoT);
+//        System.out.println(repoNBIoT.getDataNBIOT());
+//        System.out.println(operationGSM);
+//        System.out.println(repoGSM.getDataGSM());
+        if ((operationUMTS == null || operationUMTS == 0)
+                && (operationNBIoT == null || operationNBIoT == 0)
+                && (operationGSM == null || operationGSM == 0)) {
             localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "No any operation selected!"));
             return "redirect:/helper/cellStatus/" + localCacheService.managedElementMap.get(id).getUserLabel();
         }
-        if ((repoUMTS.getDataUMTS() == null || !repoUMTS.isAnySelected()) && (repoNBIoT.getDataNBIOT() == null || !repoNBIoT.isAnySelected())) {
+        if ((repoUMTS.getDataUMTS() == null || !repoUMTS.isAnySelected())
+                && (repoNBIoT.getDataNBIOT() == null || !repoNBIoT.isAnySelected())
+                && (repoGSM.getDataGSM() == null || !repoGSM.isAnySelected())) {
             localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "No any data selected!"));
             return "redirect:/helper/cellStatus/" + localCacheService.managedElementMap.get(id).getUserLabel();
         }
-        if (operationUMTS == 3 || operationUMTS == 6) {}
+//        if (operationUMTS == 3 || operationUMTS == 6) {}
         else {
             execResult = oneOperationWithResponse(localCacheService.managedElementMap.get(id),
-                    repoUMTS.getExtensionData(), operationUMTS, repoNBIoT.getExtensionData(), operationNBIoT);
+                    repoUMTS.getExtensionData(), operationUMTS, repoNBIoT.getExtensionData(), operationNBIoT, repoGSM.getDataGSM(), operationGSM);
             if (execResult.equals("SUCCEEDED")) {
                 localCacheService.messageMap.put(id, new MessageEntity(Severity.SUCCESS, "Script execution result: " + execResult));
             } else {
@@ -114,10 +137,13 @@ public class CellStatusMngController {
 
     private String operate(ManagedElement managedElement,
                            List<CellStatus> UMTSData, Integer UMTSCellOperation,
-                           List<CellStatus> NBIoTData, Integer NBIoTCellOperation) {
+                           List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
+                           List<GCellStatus> GSMData, Integer GSMCellOperation) {
         StringFileEntity file = BatchFileBuilder.buildAllData(managedElement,
                 UMTSData, UMTSCellOperation,
-                NBIoTData, NBIoTCellOperation);
+                NBIoTData, NBIoTCellOperation,
+                GSMData, GSMCellOperation);
+        System.out.println(file.getFile());
         String path = executeUCLIBatchScriptService.uploadParamFile(file, tokenService.getToken());
 //        System.out.println(path);
         return executeUCLIBatchScriptService.executeBatch(path,tokenService.getToken());
@@ -125,12 +151,12 @@ public class CellStatusMngController {
 
     private String oneOperationWithResponse(ManagedElement managedElement,
                                             List<CellStatus> UMTSData, Integer UMTSCellOperation,
-                                            List<CellStatus> NBIoTData, Integer NBIoTCellOperation) {
+                                            List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
+                                            List<GCellStatus> GSMData, Integer GSMCellOperation) {
         int tryings = 10;
         int response = -1;
-        String execId = operate(managedElement, UMTSData, UMTSCellOperation, NBIoTData, NBIoTCellOperation);
+        String execId = operate(managedElement, UMTSData, UMTSCellOperation, NBIoTData, NBIoTCellOperation, GSMData, GSMCellOperation);
         try {
-
             while ((response == -1 || response == 2) && tryings > 0) {
                 Thread.sleep(5000);
                 response = executeUCLIBatchScriptService.queryExecStatus(execId, tokenService.getToken());

@@ -1,6 +1,6 @@
 package bsshelper.externalapi.configurationmng.plannedserv.mapper;
 
-import bsshelper.externalapi.configurationmng.currentmng.entity.DryContactCableMoc;
+import bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.DryContactCableMoc;
 import bsshelper.externalapi.configurationmng.plannedserv.entity.DryContactCableMocData;
 import bsshelper.externalapi.configurationmng.plannedserv.to.DryContactCableMocDataTo;
 import bsshelper.externalapi.configurationmng.plannedserv.util.Operation;

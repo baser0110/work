@@ -22,6 +22,6 @@ public enum AdminState {
         if (code == 0) return UNLOCKED.userLabel;
         if (code == 1) return LOCKED.userLabel;
         if (code == 4194304) return SHUTTING_DOWN.userLabel;
-        return "Code: " + code;
+        return "Undefined(" + code + ")";
     }
 }

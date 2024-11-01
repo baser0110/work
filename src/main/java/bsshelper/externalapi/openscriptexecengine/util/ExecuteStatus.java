@@ -16,7 +16,7 @@ public enum ExecuteStatus {
             case 0 -> FAILED.name();
             case 1 -> SUCCEEDED.name();
             case 2 -> RUNNING.name();
-            case 3 -> PARTIALLY_SUCCESSFUL.name();
+            case 4 -> PARTIALLY_SUCCESSFUL.name();
             default -> "UNDEFINED CODE: " + code;
         };
     }

@@ -13,14 +13,27 @@
 <body>
 <!--<div th:replace="fragments/header :: header"></div>-->
 <div class="container my-2">
-    <h1>Cell Status Manager</h1>
-    <br>
-    <h2>Single NE Management</h2>
+    <div class="row">
+        <div class="col-md-8">
+            <h1>Cell Status Manager (Single NE)</h1>
+        </div>
+        <div class="col-md-4">
+            <form>
+                <a class="btn btn-primary text-center width-250px float-right" th:href="@{/helper}"> < to Main Page</a>
+            </form>
+        </div>
+    </div>
+
     <script>
         function searchByUserLabel() {
             let inputValue = document.getElementById("userlabel").value;
-            let form = document.getElementById("search");
-            form.action = "/helper/cellStatus/" + inputValue;
+            if (inputValue === "") {
+                event.preventDefault();
+                alert("Search form is empty!")
+            } else {
+                let form = document.getElementById("search");
+                form.action = "/helper/cellStatus/" + inputValue;
+            }
         }
     </script>
 
@@ -35,43 +48,29 @@
             justify-content: space-between;
             align-items: center;
         }
+
         .legend-title {
             flex-grow: 1;
             margin-left: auto;
             align-items: start;
         }
+
         .legend-button {
             margin-right: auto;
             align-items: end;
         }
+
         input[type="checkbox"] {
             transform: scale(1.5);
             /*margin-right: 10px;*/
         }
+
         .radio-container {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: flex-start;
         }
-        /*tr {*/
-        /*    height: 20px;*/
-        /*}*/
-        /*th:nth-child(1),th:nth-child(1) {*/
-        /*    width: 30px;*/
-        /*    justify-content: center;*/
-        /*}*/
-        /*th:nth-child(2),th:nth-child(2) {*/
-        /*    width: 100px;*/
-        /*}*/
-        /*th:nth-child(3),th:nth-child(3) {*/
-        /*    width: 250px;*/
-        /*}*/
-        /*table {*/
-        /*    border-collapse: collapse;*/
-        /*    margin-left: 0;*/
-        /*    width: 60%;*/
-        /*}*/
     </style>
 
     <script>
@@ -81,13 +80,15 @@
             // updateCheckAll(tableId);
 
         }
+
         function updateCheckAll(tableId) {
             const checkboxes = document.querySelectorAll(`#${tableId} input[type="checkbox"][name$=".selected"]`);
             const checkAllBox = document.querySelector(`#${tableId} .checkAllBox`);
             const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked)
             checkAllBox.checked = allChecked;
         }
-        window.onload = function() {
+
+        window.onload = function () {
             const umtsCheckboxes = document.querySelectorAll('#UMTS-table input[type="checkbox"][name$=".selected"]');
             const nbIoTCheckboxes = document.querySelectorAll('#NBIOT-table input[type="checkbox"][name$=".selected"]');
             umtsCheckboxes.forEach(checkbox => {
@@ -97,86 +98,167 @@
                 checkbox.addEventListener('change', () => updateCheckAll('NBIOT-table'));
             });
         }
+
+        function clickOnRowChecking(row) {
+            const checkbox = row.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.checked = !checkbox.checked;
+            }
+        }
+
     </script>
     <div th:if="${managedElement != null}">
-        <form th:if="${managedElement.getManagedElementType().toString.equals('SDR')}" id="repoSDR" action="#" th:action="@{/helper/cellStatus/changeStatus}" method="post">
+        <form action="#" th:action="@{/helper/cellStatus/changeStatus}" method="post">
             <fieldset>
                 <legend>
                     <span class="legend-title" th:text="${managedElement.userLabel} + ' (' + ${managedElement.ManagedElementType} + ') '
                         + ${managedElement.getParsedNe()}"> </span>
-                    <button  type="submit" class="btn btn-danger legend-button">! Change status</button>
+                    <button type="submit" class="btn btn-danger legend-button">! Change status</button>
                 </legend>
                 <div th:if="${repoUMTS.getDataUMTS() != null}" class="row">
-                <div class="col-md-8" >
-                <table th:object="${repoUMTS}" id="UMTS-table" border="1" class="table table-striped table-sm table-bordered">
-                    <thead>
-                        <tr>
-                            <th class="text-center" width=10%>
-                                <input type="checkbox" class="checkAllBox" onclick="checkAll(this, 'UMTS-table')"></th>
-                            <th width=40% class="pl-5">userLabel</th>
-                            <th class="pl-5">adminState</th>
-                        </tr>
-                    </thead>
-                    <tbody th:if="${!repoUMTS.getDataUMTS().isEmpty()}">
-                        <tr th:each="cell, cellStat : *{dataUMTS}">
-                            <td class="text-center">
-                                <input type="checkbox" class="UMTS-checkbox" th:field="*{dataUMTS[__${cellStat.index}__].selected}">
-                                <input type="hidden" th:field="*{dataUMTS[__${cellStat.index}__].userLabel}">
-                                <input type="hidden" th:field="*{dataUMTS[__${cellStat.index}__].adminState}">
-                                <input type="hidden" th:field="*{dataUMTS[__${cellStat.index}__].ldn}">
-                            </td>
-                            <td class="pl-5" th:text="${cell.userLabel}"></td>
-                            <td class="pl-5" th:text="${cell.adminState}"></td>
-                        </tr>
-                    </tbody>
-                </table>
-                </div>
-                <div class="col-md-4">
-                    <table border="1" class="table table-striped table-sm table-bordered">
-                        <thead>
-                        <tr>
-                            <th class="pl-5">operation</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td class="pl-5">
-                                <div class="radio-container">
-                                    <label><input type="radio" name="operationUMTS" value="0" checked> No Operation</label>
-                                    <label><input type="radio" name="operationUMTS" value="1"> Block</label>
-                                    <label><input type="radio" name="operationUMTS" value="2"> Smoothly Block</label>
-                                    <label><input type="radio" name="operationUMTS" value="3"> Smoothly Block / Block</label>
-                                    <label><input type="radio" name="operationUMTS" value="4"> Unblock</label>
-                                    <label><input type="radio" name="operationUMTS" value="5"> Smoothly Unblock</label>
-                                    <label><input type="radio" name="operationUMTS" value="6"> Unblock / Smoothly Unblock </label>
-                                </div>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                </div>
-                <div th:if="${repoNBIoT.getDataNBIOT() != null}" class="row">
                     <div class="col-md-8">
-                        <table th:object="${repoNBIoT}" id="NBIOT-table" border="1" class="table table-striped table-sm table-bordered">
+                        <table th:object="${repoUMTS}" id="UMTS-table" border="1"
+                               class="table table-striped table-sm table-bordered">
                             <thead>
                             <tr>
-                                <th class="text-center" width=10%>
-                                    <input type="checkbox" class="checkAllBox" onclick="checkAll(this, 'NBIOT-table')"></th>
-                                <th width=40% class="pl-5">userLabel</th>
+                                <th class="text-center" width=5%>
+                                    <input type="checkbox" class="checkAllBox" onclick="checkAll(this, 'UMTS-table')">
+                                </th>
+                                <th class="pl-5">userLabel</th>
+                                <th th:if="${managedElement.getManagedElementType().toString.equals('SDR')}"
+                                    class="pl-5">adminState
+                                </th>
+                                <th th:if="${managedElement.getManagedElementType().toString.equals('ITBBU')}"
+                                    class="pl-5">adminState / smoothlyBlock
+                                </th>
+                                <th class="pl-5">operState</th>
+                            </tr>
+                            </thead>
+                            <tbody th:if="${!repoUMTS.getDataUMTS().isEmpty()}">
+                            <tr th:each="cell, cellStat : *{dataUMTS}">
+                                <td class="text-center">
+                                    <input type="checkbox" class="UMTS-checkbox"
+                                           th:field="*{dataUMTS[__${cellStat.index}__].selected}">
+                                    <input type="hidden" th:field="*{dataUMTS[__${cellStat.index}__].userLabel}">
+                                    <input type="hidden" th:field="*{dataUMTS[__${cellStat.index}__].adminState}">
+                                    <input type="hidden" th:field="*{dataUMTS[__${cellStat.index}__].operState}">
+                                    <input type="hidden" th:field="*{dataUMTS[__${cellStat.index}__].ldn}">
+                                </td>
+                                <td class="pl-5" th:text="${cell.userLabel}"></td>
+                                <td class="pl-5" th:text="${cell.adminState}"></td>
+                                <td class="pl-5" th:text="${cell.operState}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-4">
+                        <table border="1" class="table table-striped table-sm table-bordered">
+                            <thead>
+                            <tr>
+                                <th class="pl-5">operation</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="pl-5">
+                                    <div class="radio-container">
+                                        <label><input type="radio" name="operationUMTS" value="0" checked> No Operation</label>
+                                        <label><input type="radio" name="operationUMTS" value="1"> Block</label>
+                                        <label th:if="${managedElement.getManagedElementType().toString.equals('SDR')}">
+                                            <input type="radio" name="operationUMTS" value="2"> Smoothly Block</label>
+                                        <!--                                    <label th:if="${managedElement.getManagedElementType().toString.equals('SDR')}">-->
+                                        <!--                                        <input type="radio" name="operationUMTS" value="3"> Smoothly Block / Block</label>-->
+                                        <label><input type="radio" name="operationUMTS" value="4"> Unblock</label>
+                                        <label th:if="${managedElement.getManagedElementType().toString.equals('SDR')}">
+                                            <input type="radio" name="operationUMTS" value="5"> Smoothly Unblock</label>
+                                        <!--                                    <label th:if="${managedElement.getManagedElementType().toString.equals('SDR')}">-->
+                                        <!--                                        <input type="radio" name="operationUMTS" value="6"> Unblock / Smoothly Unblock </label>-->
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div th:if="${repoGSM.getDataGSM() != null}" class="row">
+                    <div class="col-md-8">
+                        <table th:object="${repoGSM}" id="GSM-table" border="1"
+                               class="table table-striped table-sm table-bordered">
+                            <thead>
+                            <tr>
+                                <th class="text-center" width=5%>
+                                    <input type="checkbox" class="checkAllBox" onclick="checkAll(this, 'GSM-table')">
+                                </th>
+                                <th class="pl-5">userLabel</th>
+                                <th class="pl-5">hasAlarm</th>
+                            </tr>
+                            </thead>
+                            <tbody th:if="${!repoGSM.getDataGSM().isEmpty()}">
+                            <tr th:each="cell, cellStat : *{dataGSM}">
+                                <td class="text-center">
+                                    <input type="checkbox" class="GSM-checkbox"
+                                           th:field="*{dataGSM[__${cellStat.index}__].selected}">
+                                    <input type="hidden" th:field="*{dataGSM[__${cellStat.index}__].userLabel}">
+                                    <input type="hidden" th:field="*{dataGSM[__${cellStat.index}__].ldn}">
+                                    <input type="hidden" th:field="*{dataGSM[__${cellStat.index}__].hasAlarm}">
+                                </td>
+                                <td class="pl-5" th:text="${cell.userLabel}"></td>
+                                <td class="pl-5" th:text="${cell.hasAlarm}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-4">
+                        <table border="1" class="table table-striped table-sm table-bordered">
+                            <thead>
+                            <tr>
+                                <th class="pl-5">operation</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="pl-5">
+                                    <div class="radio-container">
+                                        <label><input type="radio" name="operationGSM" value="0" checked> No
+                                            Operation</label>
+                                        <label><input type="radio" name="operationGSM" value="1"> Block</label>
+                                        <label><input type="radio" name="operationGSM" value="4"> Unblock</label>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div th:if="${repoNBIoT.getDataNBIOT() != null}" class="row">
+                    <div class="col-md-8">
+                        <table th:object="${repoNBIoT}" id="NBIOT-table" border="1"
+                               class="table table-striped table-sm table-bordered">
+                            <thead>
+                            <tr>
+                                <th class="text-center" width=5%>
+                                    <input type="checkbox" class="checkAllBox" onclick="checkAll(this, 'NBIOT-table')">
+                                </th>
+                                <th class="pl-5">userLabel</th>
                                 <th class="pl-5">adminState</th>
+                                <th class="pl-5">operState</th>
                             </tr>
                             </thead>
                             <tbody th:if="${!repoNBIoT.getDataNBIOT().isEmpty()}">
                             <tr th:each="cell, cellStat : *{dataNBIOT}">
                                 <td class="text-center">
-                                    <input type="checkbox" class="NBIOT-checkbox" th:field="*{dataNBIOT[__${cellStat.index}__].selected}">
+                                    <input type="checkbox" class="NBIOT-checkbox"
+                                           th:field="*{dataNBIOT[__${cellStat.index}__].selected}">
                                     <input type="hidden" th:field="*{dataNBIOT[__${cellStat.index}__].userLabel}">
                                     <input type="hidden" th:field="*{dataNBIOT[__${cellStat.index}__].adminState}">
+                                    <input type="hidden" th:field="*{dataNBIOT[__${cellStat.index}__].operState}">
                                     <input type="hidden" th:field="*{dataNBIOT[__${cellStat.index}__].ldn}">
                                 </td>
                                 <td class="pl-5" th:text="${cell.userLabel}"></td>
                                 <td class="pl-5" th:text="${cell.adminState}"></td>
+                                <td class="pl-5" th:text="${cell.operState}"></td>
                             </tr>
                             </tbody>
                         </table>
@@ -202,21 +284,22 @@
                         </table>
                     </div>
                 </div>
+
             </fieldset>
         </form>
     </div>
-<!--    <br />-->
-<!--        <h2>Batch Management</h2>-->
-    <br />
-        <div th:if="${message != null && message.getSeverity().toString.equals('SUCCESS')}"
-             th:text="${message.getMessage()}" class="alert alert-success" role="alert" id="alert-success">
-        </div>
-        <div th:if="${message != null && message.getSeverity().toString.equals('ERROR')}"
-             th:text="${message.getMessage()}" class="alert alert-danger" role="alert" id="alert-danger">
-        </div>
-        <div th:if="${message != null && message.getSeverity().toString.equals('INFO')}"
-             th:text="${message.getMessage()}" class="alert alert-info" role="alert" id="alert-info">
-        </div>
+    <!--    <br />-->
+    <!--        <h2>Batch Management</h2>-->
+    <br/>
+    <div th:if="${message != null && message.getSeverity().toString.equals('SUCCESS')}"
+         th:text="${message.getMessage()}" class="alert alert-success" role="alert" id="alert-success">
+    </div>
+    <div th:if="${message != null && message.getSeverity().toString.equals('ERROR')}"
+         th:text="${message.getMessage()}" class="alert alert-danger" role="alert" id="alert-danger">
+    </div>
+    <div th:if="${message != null && message.getSeverity().toString.equals('INFO')}"
+         th:text="${message.getMessage()}" class="alert alert-info" role="alert" id="alert-info">
+    </div>
 </div>
 
 
@@ -231,6 +314,7 @@
             display: flex;
             flex-direction: column;
         }
+
         footer {
             /*background-color: #ea0505;*/
             position: fixed;
@@ -243,7 +327,7 @@
             color: #da0202;
         }
     </style>
-    <div> &copy 2024 Sergey Basov | v0.1.03f </div>
+    <div> &copy 2024 Sergey Basov | v0.1.06a</div>
 </footer>
 <!--<div th:replace="fragments/footer :: footer"></div>-->
 </body>

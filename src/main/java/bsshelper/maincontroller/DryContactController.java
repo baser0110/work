@@ -4,12 +4,12 @@ import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
 import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnService;
 import bsshelper.externalapi.configurationmng.plannedmng.service.PlanMgnService;
 import bsshelper.externalapi.configurationmng.plannedserv.entity.MocData;
-import bsshelper.externalapi.configurationmng.plannedserv.entity.PlannedServBodySettings;
+import bsshelper.externalapi.configurationmng.plannedserv.util.PlannedServBodySettings;
 import bsshelper.externalapi.configurationmng.plannedserv.mapper.DryContactCableMocDataMapper;
 import bsshelper.externalapi.configurationmng.plannedserv.mapper.DryContactDeviceMocDataMapper;
-import bsshelper.externalapi.configurationmng.plannedserv.repository.DryContactCableMocDataWrapper;
-import bsshelper.externalapi.configurationmng.plannedserv.repository.DryContactDeviceMocDataWrapper;
-import bsshelper.externalapi.configurationmng.plannedserv.repository.MocDataWrapper;
+import bsshelper.externalapi.configurationmng.plannedserv.wrapper.DryContactCableMocDataWrapper;
+import bsshelper.externalapi.configurationmng.plannedserv.wrapper.DryContactDeviceMocDataWrapper;
+import bsshelper.externalapi.configurationmng.plannedserv.wrapper.MocDataWrapper;
 import bsshelper.externalapi.configurationmng.plannedserv.service.PlanServService;
 import bsshelper.globalutil.ManagedElementType;
 import bsshelper.globalutil.Severity;
@@ -36,11 +36,6 @@ public class DryContactController {
     private final TokenService tokenService;
     private final LocalCacheService localCacheService;
 
-
-//    @GetMapping("/helper")
-//    public String homepage(Model model) {
-//        return "home";
-//    }
 
     @GetMapping("/dryContact")
     public String dryContact(Model model, HttpSession session) {

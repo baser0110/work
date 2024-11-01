@@ -13,4 +13,5 @@ public class ULocalCellStatus implements CellStatus{
     private String userLabel;
     private String ldn;
     private String adminState;
+    private String operState;
 }

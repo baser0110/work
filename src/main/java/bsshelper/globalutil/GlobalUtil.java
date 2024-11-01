@@ -26,5 +26,10 @@ public class GlobalUtil {
     public static final String OSE_UPLOAD_FILE = "/parameter-files";
     public static final String OSE_QUERY_EXEC_STATUS = "/state";
 
+    public static final String API_PERFMNG = "/api/rest/performanceManagement/V3/pm-analysis/kpiQuery";
+
+    public static final String API_EXEC_NE_SERV = "/api/moaction/v1";
+    public static final String EXEC_NE_SERV_BOARD_DIAGNOSIS = "/moaction/diagnoseBoard";
+
     public static final String DRY_CONTACT_LDN_SDR_SLOT13 = "Equipment=1,Rack=1,SubRack=1,Slot=13,PlugInUnit=1,SdrDeviceGroup=1,DryContactDeviceSet=1,DryContactDevice=";
 }

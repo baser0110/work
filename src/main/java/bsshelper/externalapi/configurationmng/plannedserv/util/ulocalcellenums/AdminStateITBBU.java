@@ -14,4 +14,10 @@ public enum AdminStateITBBU {
         this.code = code;
         this.userLabel = userLabel;
     }
+
+    public static String getTextAdminState(int code) {
+        if (code == 0) return UNBLOCKED.userLabel;
+        if (code == 1) return BLOCKED.userLabel;
+        return "Undefined(" + code + ")";
+    }
 }

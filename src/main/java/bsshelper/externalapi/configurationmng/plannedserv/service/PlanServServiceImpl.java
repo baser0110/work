@@ -4,7 +4,7 @@ import bsshelper.externalapi.auth.entity.Token;
 import bsshelper.globalutil.GlobalUtil;
 import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.Verb;
-import bsshelper.externalapi.configurationmng.plannedserv.entity.PlannedServBodySettings;
+import bsshelper.externalapi.configurationmng.plannedserv.util.PlannedServBodySettings;
 import bsshelper.globalutil.entity.MessageEntity;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
