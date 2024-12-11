@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @RequiredArgsConstructor
-public class OpticInfo {
+public class DiagnosisRow {
     private final String elementId;
     private final String result;
     private final String functionId;

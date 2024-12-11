@@ -1,6 +1,9 @@
 package bsshelper.maincontroller;
 
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
+import bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.ITBBUULocalCellMocSimplified;
+import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.UCellMocSimplified;
+import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.ULocalCellMocSimplified;
 import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnService;
 import bsshelper.externalapi.openscriptexecengine.entity.CellStatus;
 import bsshelper.externalapi.openscriptexecengine.entity.GCellStatus;
@@ -12,14 +15,11 @@ import bsshelper.externalapi.openscriptexecengine.util.StringFileEntity;
 import bsshelper.externalapi.openscriptexecengine.wrapper.EUtranCellNBIoTStatusListWrapper;
 import bsshelper.externalapi.openscriptexecengine.wrapper.GCellStatusListWrapper;
 import bsshelper.externalapi.openscriptexecengine.wrapper.ULocalCellStatusListWrapper;
-import bsshelper.externalapi.perfmng.entity.HistoryVSWR;
-import bsshelper.externalapi.perfmng.perfquery.HistoryQueryService;
 import bsshelper.globalutil.ManagedElementType;
 import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.entity.MessageEntity;
 import bsshelper.service.LocalCacheService;
 import bsshelper.service.TokenService;
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Controller
@@ -38,16 +38,14 @@ public class CellStatusMngController {
     private final TokenService tokenService;
     private final LocalCacheService localCacheService;
     private final ExecuteUCLIBatchScriptService executeUCLIBatchScriptService;
-
-    private final HistoryQueryService historyQueryService;
-
+//    private final ActiveAlarmService activeAlarmService;
 
     @GetMapping("/cellStatus")
     public String cellStatus(Model model, HttpSession session) {
         String id = session.getId();
         setMessage(id, model);
         model.addAttribute("managedElement", null);
-//        model.addAttribute("repoUMTS", null);
+        model.addAttribute("title", "Cell Status Manager (Single NE)");
         return "cellstatus";
     }
 
@@ -65,19 +63,28 @@ public class CellStatusMngController {
 //        System.out.println(currentMgnService.rawDataQuery(tokenService.getToken(),managedElement,"EUtranCellNBIoT"));
         ULocalCellStatusListWrapper uLocalCellMocListWrapper = null;
         EUtranCellNBIoTStatusListWrapper eUtranCellNBIoTMocListWrapper = null;
+        Map<Integer, UCellMocSimplified> uCellMap = new TreeMap<>();
+        List<ULocalCellMocSimplified> uLocalCellList = null;
+        List<ITBBUULocalCellMocSimplified> iTBBUULocalCellList = null;
 
         if (managedElement == null) {
             localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "userLabel '" + userLabel + "' couldn't be found"));
             return "redirect:/helper/cellStatus";
         }
+
+//        System.out.println(activeAlarmService.rawDataQuery(tokenService.getToken(),managedElement));
+
         if (managedElement.getManagedElementType() == ManagedElementType.SDR) {
-            uLocalCellMocListWrapper = new ULocalCellStatusListWrapper(ULocalCellStatusMapper.
-                    toULocalCellStatusEntity(currentMgnService.getULocalCellMocSimplified(tokenService.getToken(), managedElement)));
+            uCellMap = UCellMocSimplified.toMap(currentMgnService.getUCellMocSimplified(tokenService.getToken(), managedElement));
+            uLocalCellList = currentMgnService.getULocalCellMocSimplified(tokenService.getToken(), managedElement);
+            uLocalCellMocListWrapper = new ULocalCellStatusListWrapper(ULocalCellStatusMapper.toULocalCellStatusEntity(uLocalCellList, uCellMap));
             eUtranCellNBIoTMocListWrapper = new EUtranCellNBIoTStatusListWrapper(EUtranCellNBIoTStatusMapper.
                     toEUtranCellNBIoTStatusEntity(currentMgnService.getEUtranCellNBIoTMocSimplified(tokenService.getToken(), managedElement)));
         } else {
+            uCellMap = UCellMocSimplified.toMap(currentMgnService.getUCellMocSimplified(tokenService.getToken(), managedElement));
+            iTBBUULocalCellList = currentMgnService.getITBBUULocalCellMocSimplified(tokenService.getToken(), managedElement);
             uLocalCellMocListWrapper = new ULocalCellStatusListWrapper(ITBBUULocalCellStatusMapper.
-                    toULocalCellStatusEntity(currentMgnService.getITBBUULocalCellMocSimplified(tokenService.getToken(), managedElement)));
+                    toULocalCellStatusEntity(iTBBUULocalCellList, uCellMap));
             eUtranCellNBIoTMocListWrapper = new EUtranCellNBIoTStatusListWrapper(ITBBUCUEUtranCellNBIoTStatusMapper.
                     toEUtranCellNBIoTStatusEntity(currentMgnService.getITBBUCUEUtranCellNBIoTMocSimplified(tokenService.getToken(), managedElement)));
         }
@@ -86,13 +93,20 @@ public class CellStatusMngController {
 
 //        System.out.println(uLocalCellMocListWrapper);
 //        System.out.println(gCellStatusListWrapper);
-
+        if (uLocalCellList != null) {
+            localCacheService.cellStatusDetailsMap.put(id, CellStatusDetailsMapper.toULocalCellStatusEntitySDR(uLocalCellList, uCellMap));
+        } else {
+            if (iTBBUULocalCellList != null) {
+                localCacheService.cellStatusDetailsMap.put(id, CellStatusDetailsMapper.toULocalCellStatusEntityITBBU(iTBBUULocalCellList, uCellMap));
+            }
+        }
         localCacheService.managedElementMap.put(id, managedElement);
 
         model.addAttribute("managedElement", managedElement);
         model.addAttribute("repoUMTS", uLocalCellMocListWrapper);
         model.addAttribute("repoNBIoT", eUtranCellNBIoTMocListWrapper);
         model.addAttribute("repoGSM", gCellStatusListWrapper);
+        model.addAttribute("title", "Cell Status Manager (Single NE)");
         return "cellstatus";
     }
 

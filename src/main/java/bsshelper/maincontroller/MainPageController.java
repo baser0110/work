@@ -15,6 +15,7 @@ public class MainPageController {
 
     @GetMapping("")
     public String homepage(Model model) {
+        model.addAttribute("title", "Main Page");
         return "main";
     }
 }

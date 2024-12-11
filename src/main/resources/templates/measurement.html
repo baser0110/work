@@ -14,18 +14,8 @@
 
 
 <body>
-<!--<div th:replace="fragments/header :: header"></div>-->
+    <header th:replace="~{fragments/header :: header}"></header>
 <div class="container my-2">
-    <div class="row">
-        <div class="col-md-8">
-            <h1>Acceptance Measurement</h1>
-        </div>
-        <div class="col-md-4">
-            <form>
-                <a class="btn btn-primary text-center width-250px float-right" th:href="@{/helper}"> < to Main Page</a>
-            </form>
-        </div>
-    </div>
 
     <script>
         function searchByUserLabel() {
@@ -45,9 +35,38 @@
                 }
             }
         }
+
+        function getChartRTWP() {
+            const checkboxes = document.querySelectorAll('#RTWP-table input[type="checkbox"]')
+            const isAnyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked)
+            if (!isAnyChecked) {
+                event.preventDefault();
+                alert("No cells selected!")
+            } else {
+                let form = document.getElementById("getChartRTWP");
+                form.action = "/helper/chartRTWP";
+            }
+        }
+
+        function getCustomChart() {
+            const checkboxesCells = document.querySelectorAll('#Cell-table input[type="checkbox"]')
+            const isAnyCheckedCells = Array.from(checkboxesCells).some(checkbox => checkbox.checked)
+            const checkboxesKPI = document.querySelectorAll('#KPI-table input[type="checkbox"]')
+            const isAnyCheckedKPIs = Array.from(checkboxesKPI).some(checkbox => checkbox.checked)
+            if (!isAnyCheckedCells) {
+                event.preventDefault();
+                alert("No cells selected!")
+            } else {
+                if (!isAnyCheckedKPIs) {
+                    event.preventDefault();
+                    alert("No KPIs selected!")
+                // } else {
+                //     let form = document.getElementById("getCustomChart");
+                //     form.action = "/helper/customCharts";
+                }
+            }
+        }
     </script>
-
-
 
     <script>
         function checkAll(source, tableId) {
@@ -64,8 +83,16 @@
 
         window.onload = function () {
             const rtwpCheckboxes = document.querySelectorAll('#RTWP-table .select-checkbox');
+            const cellCheckboxes = document.querySelectorAll('#Cell-table .select-checkbox');
+            const kpiCheckboxes = document.querySelectorAll('#KPI-table .select-checkbox');
             rtwpCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', () => updateCheckAll('RTWP-table'));
+            });
+            cellCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', () => updateCheckAll('Cell-table'));
+            });
+            kpiCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', () => updateCheckAll('KPI-table'));
             });
         }
     </script>
@@ -105,26 +132,36 @@
 
     <form id="search" method="get" onsubmit="searchByUserLabel()">
         <div class="row">
-            <div class="col-md-6">
-                <input type="text" id="userlabel" name="userlabel" th:value="${sitename}" placeholder="Enter sitename">
-                <button type="submit" class="btn btn-secondary">Search</button>
+            <div class="col-md-4">
+                <input type="text" id="userlabel" name="userlabel"
+                       th:value="${managedElement != null} ? ${managedElement.getUserLabel()} : ${sitename}"
+                       placeholder="Enter sitename">
+                <button type="submit" class="btn btn-success">Search</button>
             </div>
-            <div class="col-md-6">
-                <table id="Request-table" border="0" class="table-sm">
+<!--            <div class="inline-container col-md-1">-->
+<!--                <label for="time" style="font-weight: bold">Query time (h):</label>-->
+<!--                <input style="width: 70px" type="number" id="time" name="time" th:value="${time}" placeholder="1..168" min="1" max="168">-->
+<!--            </div>-->
+            <div class="col-md-8">
+                <table id="Request-table" border="0">
                     <thead>
-                    <tr>
-                        <th class="pl-2"><label><input type="checkbox" th:name="cells" th:checked="*{cells}"> Cells Info</label>
-                        </th>
-<!--                        <th class="pl-2"><label><input type="checkbox" th:name="pandr1" th:checked="*{codes1}"> P&R</label>-->
-<!--                        </th>-->
-                        <th class="pl-2"><label><input type="checkbox" th:name="rtwp" th:checked="*{rtwp}">
-                            RTWP</label></th>
-                        <th class="pl-2"><label><input type="checkbox" th:name="vswr" th:checked="*{vswr}">
-                            VSWR</label></th>
-                        <th class="pl-2"><label><input type="checkbox" th:name="optic" th:checked="*{optic}"> Optic
-                            Levels (SDR only)</label></th>
+<!--                    <tr >-->
+                        <tr>
+                            <th th:each="object: *{repoQueryType.getDataQueryType()}" class="pl-1 pr-1">
+                            <input type="checkbox" class="select-checkbox" name="measurementQuerySet"
+                                   th:value="${object.getQueryType()}"
+                                   th:checked="${object.isSelected()}">
+                            <label th:text="${object.getQueryType()}"></label>
+                            </th>
+                        </tr>
 
-                    </tr>
+<!--                        <th><label><input type="checkbox" th:name="cells" th:checked="*{cells}"> Cells Info</label></th>-->
+<!--                        <th><label><input type="checkbox" th:name="rtwp" th:checked="*{rtwp}"> RTWP(24h)</label></th>-->
+<!--                        <th><label><input type="checkbox" th:name="vswr" th:checked="*{vswr}"> VSWR</label></th>-->
+<!--                        <th><label><input type="checkbox" th:name="optic" th:checked="*{optic}"> Optic Levels</label></th>-->
+<!--                        <th><label><input type="checkbox" th:name="sync" th:checked="*{sync}"> Sync</label></th>-->
+<!--                        <th><label><input type="checkbox" th:name="custom" th:checked="*{custom}"> Custom History Query</label></th>-->
+<!--                    </tr>-->
                     </thead>
                 </table>
             </div>
@@ -138,7 +175,7 @@
                         + ${managedElement.getParsedNe()}"> </span>
                 <!--                    <button  type="submit" class="btn btn-danger legend-button">! Change status</button>-->
             </legend>
-            <div th:if="${isSelected.get(0)}">
+            <div th:if="${isSelected.contains('Cell Info')}">
                 <h2>Cells Info</h2>
                 <div th:if="${repoGSMCodes.getDataCodesGSM() != null || repoUMTSCodes.getDataCodesUMTS() != null}"
                      class="row">
@@ -180,80 +217,71 @@
                 <div th:if="${repoGSMCodes.getDataCodesGSM() == null && repoUMTSCodes.getDataCodesUMTS() == null}">
                     <h5>PSC/BCCH data couldn't be found, please, check the site status!</h5>
                 </div>
-            </div>
-
-            <div th:if="${isSelected.get(1)}">
-                <h2>RTWP</h2>
-
-                <div th:if="${repoRTWP.getDataRTWP() != null}" class="row">
-                    <div class="col-md-8">
-                        <table th:object="${repoRTWP}" id="RTWP-table" border="1"
+                <div>
+                    <div th:if="${repoInfoCell.getDataCellUMTS() != null}">
+                        <table th:object="${repoInfoCell}" id="UMTSCells-table" border="1"
                                class="table table-striped table-sm table-bordered">
                             <thead>
                             <tr>
-                                <th class="text-center" width=5%>
-                                    <input type="checkbox" class="checkAllBox" onclick="checkAll(this, 'RTWP-table')">
-                                <th class="pl-5">object</th>
-                                <th class="pl-5">avgRTWP</th>
-                                <th class="pl-5">maxRTWP</th>
-                                <th class="pl-5">lastRTWP</th>
+                                <th class="pl-5">cellName</th>
+                                <th class="pl-5">CI(RNC)</th>
+                                <th class="pl-5">CI(SDR)</th>
+                                <th class="pl-5">PWR(RNC)</th>
+                                <th class="pl-5">PWR(SDR)</th>
+                                <th class="pl-5">RAD(RNC)</th>
+                                <th class="pl-5">RAD(SDR)</th>
                             </tr>
                             </thead>
-                            <tbody th:if="${!repoRTWP.getDataRTWP().isEmpty()}">
-                            <tr th:each="object: *{dataRTWP}">
-                                <td class="text-center">
-                                    <input type="checkbox" class="select-checkbox" name="RTWP-checkbox" th:checked="${object.value.isSelected()}">
-                                </td>
-                                <td class="pl-5" th:text="${object.key}"></td>
-                                <td class="pl-5" th:text="${object.value.getAvg()}"
-                                    th:style="${object.value.getAvg() == -112.0 ? 'color: lightgray;' : (object.value.getAvg() > -93.0 ? 'color: red;' : (object.value.getAvg() > -99.0 ? 'color: blue;' : 'color: black;'))}"></td>
-                                <td class="pl-5" th:text="${object.value.getMax()}"
-                                    th:style="${object.value.getMax() == -112.0 ? 'color: lightgray;' : (object.value.getMax() > -93.0 ? 'color: red;' : (object.value.getMax() > -99.0 ? 'color: blue;' : 'color: black;'))}"></td>
-                                <td class="pl-5" th:text="${object.value.getLast()}"
-                                    th:style="${object.value.getLast() == -112.0 ? 'color: lightgray;' : (object.value.getLast() > -93.0 ? 'color: red;' : (object.value.getLast() > -99.0 ? 'color: blue;' : 'color: black;'))}"></td>
+                            <tbody th:if="${!repoInfoCell.getDataCellUMTS().isEmpty()}">
+                            <tr th:each="object: *{dataCellUMTS}">
+                                <td class="pl-5" th:text="${object.getCellName()}"></td>
+                                <td class="pl-5" th:text="${object.getCiRNC()}"></td>
+                                <td class="pl-5" th:text="${object.getCiSDR() == null ? '-' : object.getCiSDR()}"></td>
+                                <td class="pl-5" th:text="${object.getPowerRNC()}"></td>
+                                <td class="pl-5" th:text="${object.getPowerSDR() == null ? '-' : object.getPowerSDR()}"></td>
+                                <td class="pl-5" th:text="${object.getRadiusRNC()}"></td>
+                                <td class="pl-5" th:text="${object.getRadiusSDR() == null ? '-' : object.getRadiusSDR()}"></td>
                             </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-                <div th:if="${repoRTWP.getDataRTWP() == null}">
-                    <h5>History RTWP data couldn't be found, please, check the site status!</h5>
-                </div>
             </div>
 
-            <div th:if="${isSelected.get(2)}">
+            <div th:if="${isSelected.contains('VSWR')}">
                 <h2>VSWR</h2>
                 <div th:if="${repoVSWR.getDataVSWR() != null}" class="row">
-                    <div class="col-md-8">
+                    <div class="col-md-5">
                         <table th:object="${repoVSWR}" id="VSWR-table" border="1"
                                class="table table-striped table-sm table-bordered">
                             <thead>
                             <tr>
-                                <th class="pl-5">object</th>
-                                <th class="pl-5">avgVSWR</th>
-                                <th class="pl-5">maxVSWR</th>
-                                <th class="pl-5">lastVSWR</th>
+                                <th class="pl-5" width="45%">object</th>
+                                <th class="pl-5">value</th>
                             </tr>
                             </thead>
                             <tbody th:if="${!repoVSWR.getDataVSWR().isEmpty()}">
                             <tr th:each="object: *{dataVSWR}">
-                                <td class="pl-5" th:text="${object.key}"></td>
-                                <td class="pl-5" th:text="${object.value.getAvg()}"
-                                    th:style="${object.value.getAvg() > 1.4 ? 'color: red;' : (object.value.getAvg() > 1.3 ? 'color: blue;' : 'color: black;')}"></td>
-                                <td class="pl-5" th:text="${object.value.getMax()}"
-                                    th:style="${object.value.getMax() > 1.4 ? 'color: red;' : (object.value.getMax() > 1.3 ? 'color: blue;' : 'color: black;')}"></td>
-                                <td class="pl-5" th:text="${object.value.getLast()}"
-                                    th:style="${object.value.getLast() > 1.4 ? 'color: red;' : (object.value.getLast() > 1.3 ? 'color: blue;' : 'color: black;')}"></td>
-                            </tr>
+                                <td class="pl-5" th:text="${object.ruAntName}"></td>
+                                <td class="pl-5" th:text="${object.vswrValue.equals('Invalid Value') ? 'Not used' : object.vswrValue}"></td>
                             </tbody>
                         </table>
+                    </div>
+                    <div class="col-md-7">
+                        <form class="inline-container" method="post" target="_blank">
+                            <button type="submit" class="btn btn-primary legend-button" formaction="/helper/chartVSWR">Get Chart</button>
+                            <input type="hidden" name="acceptanceMeasurementId" th:value="${acceptanceMeasurementId}">
+                            <label for="timeVSWR" style="font-weight: bold" class="pl-3">Query time (h):</label>
+                            <input style="width: 70px" type="number" id="timeVSWR" name="timeVSWR" th:value="${timeVSWR}" placeholder="1..168" min="1" max="168">
+                        </form>
                     </div>
                 </div>
                 <div th:if="${repoVSWR.getDataVSWR() == null}">
                     <h5>History VSWR data couldn't be found, please, check the site status!</h5>
                 </div>
             </div>
-            <div th:if="${isSelected.get(3)}">
+
+            <div th:if="${isSelected.contains('Optic Levels')}">
                 <h2>Optic levels</h2>
                 <div th:if="${repoOptic != null}" class="row">
                     <div class="col-md-12">
@@ -285,7 +313,7 @@
                             </tbody>
                         </table>
                         <table th:if="${!repoOptic.getDataOpticLink().isEmpty()}" th:object="${repoOptic}" id="LINK-table" border="1"
-                               class="table table-striped table-sm table-bordered col-md-9">
+                               th:class="${repoOptic.getDataOpticLink().size() == 1 ? 'table table-striped table-sm table-bordered col-md-3' : 'table table-striped table-sm table-bordered col-md-9'}">
                             <tbody>
                             <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSize().get(3) - 1)}"
                                 th:style="${rowIndex == 0 ? 'font-weight: bold' : ''}">
@@ -293,7 +321,113 @@
                             </tr>
                             </tbody>
                         </table>
+                        <table th:if="${!repoOptic.getDataOpticDevItbbu1_1().isEmpty()}" th:object="${repoOptic}" id="DEVItbbu1_1-table" border="1"
+                               class="table table-striped table-sm table-bordered">
+                            <tbody>
+                            <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSizeItbbu().get(0) - 1)}"
+                                th:style="${rowIndex == 0 || rowIndex == 4 || rowIndex == 5 || rowIndex == 9 || rowIndex == 10 || rowIndex == 14 || rowIndex == 15 ? 'font-weight: bold' : ''}">
+                                <td class="col-md-2" align="center" th:each="col : ${repoOptic.getDataOpticDevItbbu1_1()}" th:text="${rowIndex < col.size() ? col[rowIndex] : ''}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <table th:if="${!repoOptic.getDataOpticDevItbbu1_2().isEmpty()}" th:object="${repoOptic}" id="DEVItbbu1_2-table" border="1"
+                               class="table table-striped table-sm table-bordered col-md-8">
+                            <tbody>
+                            <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSizeItbbu().get(1) - 1)}"
+                                th:style="${rowIndex == 0 || rowIndex == 4 || rowIndex == 5 || rowIndex == 9 || rowIndex == 10 || rowIndex == 14 || rowIndex == 15 ? 'font-weight: bold' : ''}">
+                                <td class="col-md-2" align="center" th:each="col : ${repoOptic.getDataOpticDevItbbu1_2()}" th:text="${rowIndex < col.size() ? col[rowIndex] : ''}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <table th:if="${!repoOptic.getDataOpticDevItbbu2_1().isEmpty()}" th:object="${repoOptic}" id="DEVItbbu2_1-table" border="1"
+                               class="table table-striped table-sm table-bordered">
+                            <tbody>
+                            <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSizeItbbu().get(2) - 1)}"
+                                th:style="${rowIndex == 0 || rowIndex == 4 || rowIndex == 5 || rowIndex == 9 || rowIndex == 10 || rowIndex == 14 || rowIndex == 15 ? 'font-weight: bold' : ''}">
+                                <td class="col-md-2" align="center" th:each="col : ${repoOptic.getDataOpticDevItbbu2_1()}" th:text="${rowIndex < col.size() ? col[rowIndex] : ''}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <table th:if="${!repoOptic.getDataOpticDevItbbu2_2().isEmpty()}" th:object="${repoOptic}" id="DEVItbbu2_2-table" border="1"
+                               class="table table-striped table-sm table-bordered col-md-8">
+                            <tbody>
+                            <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSizeItbbu().get(3) - 1)}"
+                                th:style="${rowIndex == 0 || rowIndex == 4 || rowIndex == 5 || rowIndex == 9 || rowIndex == 10 || rowIndex == 14 || rowIndex == 15 ? 'font-weight: bold' : ''}">
+                                <td class="col-md-2" align="center" th:each="col : ${repoOptic.getDataOpticDevItbbu2_2()}" th:text="${rowIndex < col.size() ? col[rowIndex] : ''}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <table th:if="${!repoOptic.getDataOpticLinkItbbu().isEmpty()}" th:object="${repoOptic}" id="LINKItbbu-table" border="1"
+                               class="table table-striped table-sm table-bordered col-md-8">
+                            <tbody>
+                            <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSizeItbbu().get(4) - 1)}"
+                                th:style="${rowIndex == 0 ? 'font-weight: bold' : ''}">
+                                <td class="col-md-3" align="center" th:each="col : ${repoOptic.getDataOpticLinkItbbu()}" th:text="${rowIndex < col.size() ? col[rowIndex] : ''}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
+                </div>
+            </div>
+            <div th:if="${isSelected.contains('Sync')}">
+                <h2>Sync (Coming soon...)</h2>
+            </div>
+            <div th:if="${isSelected.contains('Custom History')}">
+                <h2>Custom History Query</h2>
+                <form id="getCustom" method="post" target="_blank" onsubmit="getCustomChart()">
+                    <div class="row">
+                    <div class="col-md-3" th:if="${repoCell.getDataCell() != null}" >
+                            <table th:object="${repoCell}" id="Cell-table" border="1"
+                                   class="table table-striped table-sm table-bordered">
+                                <thead>
+                                <tr>
+                                    <th class="text-center" width="40px">
+                                        <input type="checkbox" class="checkAllBox" onclick="checkAll(this, 'Cell-table')">
+                                    <th class="pl-5">cellName</th>
+                                </tr>
+                                </thead>
+                                <tbody th:if="${!repoCell.getDataCell().isEmpty()}">
+                                <tr th:each="object: *{dataCell}">
+                                    <td class="text-center">
+                                        <input type="checkbox" class="select-checkbox" name="checkedCustomCellsList" th:value="${object.cell.getUserLabel()}" th:checked="${object.isSelected()}">
+                                    </td>
+                                    <td class="pl-5" th:text="${object.cell.getUserLabel()}"></td>
+                                   </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <div>
+<!--                            <button type="submit" class="btn btn-primary legend-button">Get Chart</button>-->
+                            <button type="submit" class="btn btn-primary legend-button" formaction="/helper/customCharts">Get Chart</button>
+                            <label for="time" style="font-weight: bold" class="pl-3">Query time (h):</label>
+                            <input style="width: 70px" type="number" id="time" name="time" th:value="${time}" placeholder="1..168" min="1" max="168">
+                            <input type="hidden" name="acceptanceMeasurementId" th:value="${acceptanceMeasurementId}">
+                            </div>
+                            <br>
+                            <table th:object="${repoKPI}" id="KPI-table" border="1"
+                                   class="table table-striped table-sm table-bordered">
+                                <thead>
+                                <tr>
+                                    <th class="text-center" width="40px">
+                                        <input type="checkbox" class="checkAllBox" onclick="checkAll(this, 'KPI-table')">
+                                    <th class="pl-5">KPI</th>
+                                </tr>
+                                </thead>
+                                <tbody th:if="${!repoKPI.getDataKPI().isEmpty()}">
+                                <tr th:each="object: *{dataKPI}">
+                                    <td class="text-center">
+                                        <input type="checkbox" class="select-checkbox" name="checkedKPIsList" th:value="${object.getKpiName()}" th:checked="${object.isSelected()}">
+                                    </td>
+                                    <td class="pl-5" th:text="${object.getKpiName()}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </form>
+                <div th:if="${repoCell.getDataCell() == null}">
+                    <h5>Cells couldn't be found, please, check the site status!</h5>
                 </div>
             </div>
         </fieldset>
@@ -310,33 +444,6 @@
          th:text="${message.getMessage()}" class="alert alert-info" role="alert" id="alert-info">
     </div>
 </div>
-
-<footer>
-    <style>
-        html {
-            height: 100%;
-        }
-
-        body {
-            min-height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        footer {
-            /*background-color: #ea0505;*/
-            position: fixed;
-            right: 75px;
-            bottom: 2px;
-            text-align: right;
-            width: 100%;
-            font-size: 15px;
-            font-weight: bold;
-            color: #da0202;
-        }
-    </style>
-    <div> &copy 2024 Sergey Basov | v0.1.06a</div>
-</footer>
-<!--<div th:replace="fragments/footer :: footer"></div>-->
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

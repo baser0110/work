@@ -1,9 +1,7 @@
 package bsshelper.externalapi.perfmng.mapper;
 
 import bsshelper.externalapi.configurationmng.currentmng.entity.mrnc.GGsmCellMocSimplified;
-import bsshelper.externalapi.configurationmng.currentmng.entity.mrnc.UUtranCellFDDMocSimplified;
 import bsshelper.externalapi.perfmng.entity.InfoCodeGSM;
-import bsshelper.externalapi.perfmng.entity.InfoCodeUMTS;
 
 import java.util.ArrayList;
 import java.util.List;

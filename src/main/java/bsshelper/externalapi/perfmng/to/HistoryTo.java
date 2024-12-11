@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class HistoryRTWPTo {
+public class HistoryTo {
     private int result;
     private List<String> data;
 }

@@ -1,7 +1,6 @@
 package bsshelper.externalapi.openscriptexecengine.mapper;
 
 import bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.ITBBUCUEUtranCellNBIoTMocSimplified;
-import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.EUtranCellNBIoTMocSimplified;
 import bsshelper.externalapi.configurationmng.plannedserv.util.eutrancellnbiotemuns.AdminState;
 import bsshelper.externalapi.configurationmng.plannedserv.util.ulocalcellenums.OperState;
 import bsshelper.externalapi.openscriptexecengine.entity.EUtranCellNBIoTStatus;

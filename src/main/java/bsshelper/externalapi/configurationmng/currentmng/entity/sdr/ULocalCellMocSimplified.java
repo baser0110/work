@@ -12,6 +12,8 @@ public class ULocalCellMocSimplified {
     private final String mocName;
     private final String operState;
     private final String ldn;
+    private final int localCellId;
+    private final String availStatus;
 
     private final double maxDlPwr;
     private final int cellRadius;

@@ -11,6 +11,5 @@ public class GGsmCellMocSimplified {
     private final String ldn;
     private final int bcchFrequency;
     private final int cellIdentity;
-
-
+    private final int moId;
 }

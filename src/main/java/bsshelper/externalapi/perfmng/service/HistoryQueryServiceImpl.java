@@ -1,17 +1,17 @@
-package bsshelper.externalapi.perfmng.perfquery;
+package bsshelper.externalapi.perfmng.service;
 
 import bsshelper.externalapi.auth.entity.Token;
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
 import bsshelper.externalapi.configurationmng.currentmng.entity.mrnc.UUtranCellFDDMocSimplified;
-import bsshelper.externalapi.perfmng.entity.HistoryRTWP;
+import bsshelper.externalapi.perfmng.entity.HistoryForUMTSCell;
 import bsshelper.externalapi.perfmng.entity.HistoryVSWR;
 import bsshelper.externalapi.perfmng.mapper.HistoryITBBUVSWRMapper;
-import bsshelper.externalapi.perfmng.mapper.HistoryRTWPMapper;
 import bsshelper.externalapi.perfmng.mapper.HistorySDRVSWRMapper;
-import bsshelper.externalapi.perfmng.to.HistoryRTWPTo;
-import bsshelper.externalapi.perfmng.to.HistoryVSWRTo;
+import bsshelper.externalapi.perfmng.mapper.HistoryUMTSCellMapper;
+import bsshelper.externalapi.perfmng.to.HistoryTo;
 import bsshelper.externalapi.perfmng.util.HistoryQueryBodySettings;
 import bsshelper.externalapi.perfmng.util.HistoryQueryErrorEntity;
+import bsshelper.externalapi.perfmng.util.KPI;
 import bsshelper.externalapi.perfmng.util.TimeToString;
 import bsshelper.globalutil.GlobalUtil;
 import bsshelper.globalutil.Verb;
@@ -34,35 +34,16 @@ import java.util.List;
 public class HistoryQueryServiceImpl implements HistoryQueryService {
 
     @Override
-    public List<HistoryVSWR> getHistoryVSWR(Token token, ManagedElement managedElement) {
-        HistoryQueryErrorEntity error = null;
+    public List<HistoryVSWR> getHistoryVSWR(Token token, ManagedElement managedElement, int time) {
         String json = null;
-        HistoryVSWRTo historyVSWRTo = null;
         List<HistoryVSWR> result = null;
-        List<String> rawHistoryVSWRList = null;
-        HistoryQueryBodySettings bodySettings = getVSWRBodySettings(managedElement);
+        HistoryQueryBodySettings bodySettings = getVSWRBodySettings(managedElement, time);
         if (bodySettings != null) {
             json = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettings));
         }
-//        System.out.println(json);
-        try {
-            if (json != null) {
-            historyVSWRTo = new Gson().fromJson(json, HistoryVSWRTo.class);
-            }
-        } catch (JsonSyntaxException e1) {
-            log.error(" >> error in historyVSWRTo parsing: {}", e1.toString());
-            try {
-                error = new Gson().fromJson(json, HistoryQueryErrorEntity.class);
-            } catch (JsonSyntaxException e2) {
-                log.error(" >> error in ErrorEntity parsing: {}", e2.toString());
-            }
-            if (error != null) {
-                log.error(" >> error {} code({})", error.getFailReason(), error.getResult());
-            }
-//        System.out.println(historySDRVSWRTo);
-        }
-        if (historyVSWRTo != null) {
-            rawHistoryVSWRList = historyVSWRTo.getData();
+        HistoryTo historyTo = getHistoryTo(json, KPI.VSWR);
+        if (historyTo != null) {
+            List<String> rawHistoryVSWRList = historyTo.getData();
             rawHistoryVSWRList.remove(0);
             switch (managedElement.getManagedElementType()) {
                 case SDR -> result = HistorySDRVSWRMapper.toFinalEntity(rawHistoryVSWRList);
@@ -70,34 +51,43 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
             }
         }
         log.info(" >> historyVSWRList: {}", result == null ? "null" : result.size() + " points");
-//        System.out.println(historySDRVSWRList);
         return result;
     }
 
     @Override
-    public List<HistoryRTWP> getHistoryRTWP(Token token, ManagedElement managedElement, List<UUtranCellFDDMocSimplified> cells) {
+    public List<HistoryForUMTSCell> getUMTSCellHistory(Token token, ManagedElement managedElement, List<UUtranCellFDDMocSimplified> cells, int time, KPI kpi) {
         if (cells == null || cells.isEmpty()) { return null; }
         String me = cells.getFirst().getRncNum() + ", " + cells.getLast().getRncNum();
         List<String> cellsQuery = new ArrayList<>();
         for (UUtranCellFDDMocSimplified c : cells) {
             cellsQuery.add(String.valueOf(c.getMoId()));
         }
-        HistoryQueryErrorEntity error = null;
         String json = null;
-        HistoryRTWPTo historyRTWPTo = null;
-        List<HistoryRTWP> result = null;
-        List<String> rawHistoryRTWPList = null;
-        HistoryQueryBodySettings bodySettings = getRTWPBodySettings(me, cellsQuery);
+        List<HistoryForUMTSCell> result = null;
+        HistoryQueryBodySettings bodySettings = getUMTSCellBodySettings(me, cellsQuery, time, kpi);
         if (bodySettings != null) {
             json = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettings));
         }
 //        System.out.println(json);
+        HistoryTo historyTo = getHistoryTo(json, kpi);
+        if (historyTo != null) {
+            List<String> rawHistoryList = historyTo.getData();
+            rawHistoryList.remove(0);
+            result = HistoryUMTSCellMapper.toFinalEntity(rawHistoryList, kpi);
+        }
+        log.info(" >> {} List: {}", kpi.getInfo(), result == null ? "null" : result.size() + " points");
+        return result;
+    }
+
+    private HistoryTo getHistoryTo(String json, KPI kpi) {
+        HistoryQueryErrorEntity error = null;
+        HistoryTo historyTo = null;
         try {
             if (json != null) {
-                historyRTWPTo = new Gson().fromJson(json, HistoryRTWPTo.class);
+                historyTo = new Gson().fromJson(json, HistoryTo.class);
             }
         } catch (JsonSyntaxException e1) {
-            log.error(" >> error in historyRTWPTo parsing: {}", e1.toString());
+            log.error(" >> error in {} parsing: {}", kpi.getInfo(), e1.toString());
             try {
                 error = new Gson().fromJson(json, HistoryQueryErrorEntity.class);
             } catch (JsonSyntaxException e2) {
@@ -106,18 +96,8 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
             if (error != null) {
                 log.error(" >> error {} code({})", error.getFailReason(), error.getResult());
             }
-//        System.out.println(historyRTWPTo);
         }
-        if (historyRTWPTo != null) {
-            rawHistoryRTWPList = historyRTWPTo.getData();
-            rawHistoryRTWPList.remove(0);
-            result = HistoryRTWPMapper.toFinalEntity(rawHistoryRTWPList);
-
-        }
-
-        log.info(" >> historyRTWPList: {}", result == null ? "null" : result.size() + " points");
-//        System.out.println(result);
-        return result;
+        return historyTo;
     }
 
     private String rawDataQuery(Token token, ManagedElement managedElement, HttpRequest request) {
@@ -126,7 +106,6 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
         ErrorEntity error = null;
         try {
             httpResponse = HttpClient.newBuilder().build().send(request, HttpResponse.BodyHandlers.ofString());
-//            System.out.println(httpResponse.body());
             response = httpResponse.body();
             if (response.contains("\"result\":0") && !response.contains("\"data\":[]")) {
                 log.info(" >> statistic for {} successfully found", managedElement.getUserLabel());
@@ -152,16 +131,16 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
                 .build();
     }
 
-    private HistoryQueryBodySettings getVSWRBodySettings(ManagedElement managedElement) {
+    private HistoryQueryBodySettings getVSWRBodySettings(ManagedElement managedElement, int time) {
         switch (managedElement.getManagedElementType()) {
             case SDR -> {
                 return   HistoryQueryBodySettings.builder()
                         .nfctid("SDR")
                         .gr(15)
                         .me(managedElement.getSubNetworkNum() + "," + managedElement.getManagedElementNum())
-                        .items(List.of("C370150000"))
+                        .items(List.of(KPI.VSWR.getCode()))
                         .showobjectname(true)
-                        .starttime(TimeToString.dayAgoTime())
+                        .starttime(TimeToString.nHoursAgoTime(time))
                         .endtime(TimeToString.nowTime())
                         .build();
             }
@@ -170,9 +149,9 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
                         .nfctid("ITBBU")
                         .gr(15)
                         .me(managedElement.getSubNetworkNum() + "," + managedElement.getManagedElementNum())
-                        .items(List.of("C370150000"))
+                        .items(List.of(KPI.VSWR.getCode()))
                         .showobjectname(true)
-                        .starttime(TimeToString.dayAgoTime())
+                        .starttime(TimeToString.nHoursAgoTime(time))
                         .endtime(TimeToString.nowTime())
                         .build();
             }
@@ -180,15 +159,15 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
         return null;
     }
 
-    private HistoryQueryBodySettings getRTWPBodySettings(String me, List<String> cellsQuery) {
+    private HistoryQueryBodySettings getUMTSCellBodySettings(String me, List<String> cellsQuery, int time, KPI kpi) {
         return   HistoryQueryBodySettings.builder()
                 .nfctid("MRNC")
                 .gr(15)
                 .me(me)
                 .mois(cellsQuery)
-                .items(List.of("300840"))
+                .items(List.of(kpi.getCode()))
                 .showobjectname(true)
-                .starttime(TimeToString.dayAgoTime())
+                .starttime(TimeToString.nHoursAgoTime(time))
                 .endtime(TimeToString.nowTime())
                 .filterlayer("WV4.UtranCell")
                 .build();

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="ISO-8859-1">
+    <title>BSSHelper</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+          crossorigin="anonymous">
+</head>
+
+<style>
+    legend {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .legend-title {
+        flex-grow: 1;
+        margin-left: auto;
+        align-items: start;
+    }
+
+    .legend-button {
+        margin-right: auto;
+        align-items: end;
+    }
+
+    input[type="checkbox"] {
+        transform: scale(1.5);
+        /*margin-right: 10px;*/
+    }
+
+    .radio-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+    }
+</style>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const execute = document.getElementById('execute');
+        const check = document.getElementById('check');
+        execute.addEventListener('click', function (event) {
+            const pass = document.getElementById("pass").value;
+            const area1 = document.getElementById("umts").value.trim();
+            const area2 = document.getElementById("gsm").value.trim();
+            const area3 = document.getElementById("nbiot").value.trim();
+            const opr1 = document.querySelector('input[name="operationUMTS"]:checked');
+            const opr2 = document.querySelector('input[name="operationGSM"]:checked');
+            const opr3 = document.querySelector('input[name="operationNBIoT"]:checked');
+            if (opr1.value === '0' && opr2.value === '0' && opr3.value === '0') {
+                event.preventDefault();
+                alert('No any operation selected!')
+                return;
+            }
+            if (area1 === "" && area2 === "" && area3 === "") {
+                event.preventDefault();
+                alert('No data to execute!')
+                return;
+            }
+            if ((area1 === "" || opr1.value === '0') && (area2 === "" || opr2.value === '0') && (area3 === "" || opr3.value === '0')) {
+                event.preventDefault();
+                alert('No pair data-operation found!')
+                return;
+            }
+            if (pass === "") {
+                event.preventDefault()
+                alert('pass form is empty')
+                return;
+            }
+            const isConfirmed = confirm('It is recommended to check the data before execution. Are you sure to execute batch?')
+            if (!isConfirmed) {
+                event.preventDefault()
+            }
+        });
+        check.addEventListener('click', function (event) {
+            const area1 = document.getElementById("umts").value.trim();
+            const area2 = document.getElementById("gsm").value.trim();
+            const area3 = document.getElementById("nbiot").value.trim();
+            if (area1 === "" && area2 === "" && area3 === "") {
+                event.preventDefault();
+                alert('No data to check!')
+            }
+        });
+    });
+</script>
+
+<body>
+    <header th:replace="~{fragments/header :: header}"></header>
+<div class="container my-2">
+
+    <form id="main" method="post">
+    <div class="row">
+        <div class="col-md-4">
+            <table border="0" class="table-sm">
+                <legend>Separator:</legend>
+                <thead>
+                <tr>
+                    <th class="pl-3"><label><input type="radio" name="separator" value=","> Comma</label></th>
+                    <th class="pl-3"><label><input type="radio" name="separator" value="\r\n" checked> Line Break</label></th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="col-md-8" >
+            <table border="0" class="table-sm float-right">
+                <thead>
+                <tr>
+                    <th>
+                        <div th:text="'Last Cache Update Time: ' + ${updateTime}" class="float-right pr-3"></div>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <button class="btn btn-primary text-center width-250px float-right" type="submit" formaction="/helper/cellStatusBatch/updateCellsCache"> Update Cells Cache </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <table border="1" class="table table-striped table-sm table-bordered">
+                <thead>
+                <tr>
+                    <th class="pl-5">UMTS cells</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <label for="umts"></label><textarea id="umts" name="umts" rows="7" class="col-md-12"></textarea>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-4">
+            <table border="1" class="table table-striped table-sm table-bordered">
+                <thead>
+                <tr>
+                    <th class="pl-5">operation</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="pl-5">
+                        <div class="radio-container">
+                            <label><input type="radio" name="operationUMTS" value="0" checked> No Operation</label>
+                            <label><input type="radio" name="operationUMTS" value="1"> Block</label>
+                            <label><input type="radio" name="operationUMTS" value="2"> Smoothly Block</label>
+                            <label><input type="radio" name="operationUMTS" value="4"> Unblock</label>
+                            <label><input type="radio" name="operationUMTS" value="5"> Smoothly Unblock</label>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <table border="1" class="table table-striped table-sm table-bordered">
+                <thead>
+                <tr>
+                    <th class="pl-5">GSM cells</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <label for="gsm"></label><textarea id="gsm" name="gsm" rows="7" class="col-md-12"></textarea>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-4">
+            <table border="1" class="table table-striped table-sm table-bordered">
+                <thead>
+                <tr>
+                    <th class="pl-5">operation</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="pl-5">
+                        <div class="radio-container">
+                            <label><input type="radio" name="operationGSM" value="0" checked> No Operation</label>
+                            <label><input type="radio" name="operationGSM" value="1"> Block</label>
+                            <label><input type="radio" name="operationGSM" value="4"> Unblock</label>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <table border="1" class="table table-striped table-sm table-bordered">
+                <thead>
+                <tr>
+                    <th class="pl-5">NBIoT cells</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <label for="nbiot"></label><textarea id="nbiot" name="nbiot" rows="7" class="col-md-12"></textarea>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-4">
+            <table border="1" class="table table-striped table-sm table-bordered">
+                <thead>
+                <tr>
+                    <th class="pl-5">operation</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="pl-5">
+                        <div class="radio-container">
+                            <label><input type="radio" name="operationNBIoT" value="0" checked> No Operation</label>
+                            <label><input type="radio" name="operationNBIoT" value="1"> Block</label>
+                            <label><input type="radio" name="operationNBIoT" value="4"> Unblock</label>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <table border="0" class="table-sm">
+                <thead>
+                <tr>
+                    <th>
+                        <button id="check" class="btn btn-success text-center width-250px" type="submit" formtarget="_blank" formaction="/helper/checkBatchData"> Check Data </button>
+                    </th>
+                    <th>
+                        <button id="execute" class="btn btn-danger text-center width-250px" type="submit" formaction="/helper/cellStatusBatch/executeBatch"> Execute Batch </button>
+                    </th>
+                    <th>
+                        <label for="pass" style="font-weight: bold" class="pl-3">Password:</label>
+                        <input style="width: 70px" type="password" id="pass" name="pass" th:value="${pass}">
+                    </th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <br/>
+    <div th:if="${message != null && message.getSeverity().toString.equals('SUCCESS')}"
+         th:text="${message.getMessage()}" class="alert alert-success" role="alert" id="alert-success">
+    </div>
+    <div th:if="${message != null && message.getSeverity().toString.equals('ERROR')}"
+         th:text="${message.getMessage()}" class="alert alert-danger" role="alert" id="alert-danger">
+    </div>
+    <div th:if="${message != null && message.getSeverity().toString.equals('INFO')}"
+         th:text="${message.getMessage()}" class="alert alert-info" role="alert" id="alert-info">
+    </div>
+    </form>
+</div>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

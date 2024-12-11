@@ -43,14 +43,22 @@ public class LocalCacheServiceImpl implements LocalCacheService {
             scheduler.scheduleAtFixedRate(() -> {
                 log.info(" >> mocDataRepositoryMap size " + mocDataRepositoryMap.size());
                 log.info(" >> managedElementMap size " + managedElementMap.size());
+                log.info(" >> historyRTWPMap size " + historyRTWPMap.size());
+                log.info(" >> historyRTWPMap size " + cellStatusDetailsMap.size());
 
                 mocDataRepositoryMap.clear();
                 log.info(" >> mocDataRepositoryMap cache has been cleared");
                 managedElementMap.clear();
                 log.info(" >> managedElementMap cache has been cleared");
+                historyRTWPMap.clear();
+                log.info(" >> historyRTWPMap cache has been cleared");
+                cellStatusDetailsMap.clear();
+                log.info(" >> cellStatusDetailsMap cache has been cleared");
 
                 log.info(" >> mocDataRepositoryMap size " + mocDataRepositoryMap.size());
                 log.info(" >> managedElementMap size " + managedElementMap.size());
+                log.info(" >> historyRTWPMap size " + historyRTWPMap.size());
+                log.info(" >> historyRTWPMap size " + cellStatusDetailsMap.size());
             }, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
         } catch (Exception e) {
             log.error(" >> error in clearCache: {}", e.toString());

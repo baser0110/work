@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -16,6 +17,24 @@ public class HistoryVSWR {
     private final String object;
     private final double value;
     private final LocalDateTime time;
+
+    public static Map<String, List<HistoryVSWR>> getChart(List<HistoryVSWR> data) {
+        if (data == null || data.isEmpty()) { return null; }
+        Map<String, List<HistoryVSWR>> map = new TreeMap<>();
+        List<HistoryVSWR> mapObject = null;
+        for (HistoryVSWR h : data) {
+            String object = h.getObject();
+            if (map.containsKey(object)) {
+                mapObject = map.get(object);
+                mapObject.add(h);
+            } else {
+                map.put(h.getObject(), new ArrayList<>(List.of(h)));
+            }
+        }
+        return map;
+    }
+
+    // FOR TABLE, NOT USE
 
     public static Map<String, Values> getFinal(List<HistoryVSWR> data) {
         if (data == null || data.isEmpty()) { return null; }

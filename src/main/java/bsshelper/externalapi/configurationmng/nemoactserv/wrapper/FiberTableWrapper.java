@@ -16,5 +16,11 @@ public class FiberTableWrapper {
     private List<List<String>> dataOpticDev2;
     private List<List<String>> dataOpticDev3;
     private List<List<String>> dataOpticLink;
+    private List<List<String>> dataOpticDevItbbu1_1;
+    private List<List<String>> dataOpticDevItbbu1_2;
+    private List<List<String>> dataOpticDevItbbu2_1;
+    private List<List<String>> dataOpticDevItbbu2_2;
+    private List<List<String>> dataOpticLinkItbbu;
     private List<Integer> maxSize;
+    private List<Integer> maxSizeItbbu;
 }

@@ -12,7 +12,8 @@ public class ITBBUULocalCellMocSimplified {
     private final String mocName;
     private final String operState;
     private final String ldn;
-    private final int smoothlyBlock;
+    private final String availStatus;
+    private final int localCellId;
 
     private final double maxDlPwr;
     private final int cellRadius;

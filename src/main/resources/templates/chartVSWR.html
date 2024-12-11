@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="ISO-8859-1">
+    <title>BSSHelper</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+          crossorigin="anonymous">
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+</head>
+
+<body>
+<div class="container my-2">
+    <div class="row">
+        <div class="col-md-8">
+            <h4 th:if="${managedElement != null}" th:text="${managedElement.userLabel} + ' (' + ${managedElement.ManagedElementType} + ') ' + ${managedElement.getParsedNe()}"></h4>
+        </div>
+    </div>
+</div>
+
+<!--    <br>-->
+<!--    <div th:if="${repoVSWR.getDataVSWR() != null}">-->
+<!--        <div class="col-md-8">-->
+<!--            <table th:object="${repoVSWR}" border="1"-->
+<!--                   class="table table-striped table-sm table-bordered">-->
+<!--                <thead>-->
+<!--                <tr>-->
+<!--                    <th class="pl-5">object</th>-->
+<!--                    <th class="pl-5">avgVSWR</th>-->
+<!--                    <th class="pl-5">maxVSWR</th>-->
+<!--                    <th class="pl-5">lastVSWR</th>-->
+<!--                </tr>-->
+<!--                </thead>-->
+<!--                <tbody th:if="${!repoVSWR.getDataVSWR().isEmpty()}">-->
+<!--                <tr th:each="object: *{dataVSWR}">-->
+<!--                    <td class="pl-5" th:text="${object.key}"></td>-->
+<!--                    <td class="pl-5" th:text="${object.value.getAvg()}"-->
+<!--                        th:style="${object.value.getAvg() > 1.4 ? 'color: red;' : (object.value.getAvg() > 1.3 ? 'color: blue;' : 'color: black;')}"></td>-->
+<!--                    <td class="pl-5" th:text="${object.value.getMax()}"-->
+<!--                        th:style="${object.value.getMax() > 1.4 ? 'color: red;' : (object.value.getMax() > 1.3 ? 'color: blue;' : 'color: black;')}"></td>-->
+<!--                    <td class="pl-5" th:text="${object.value.getLast()}"-->
+<!--                        th:style="${object.value.getLast() > 1.4 ? 'color: red;' : (object.value.getLast() > 1.3 ? 'color: blue;' : 'color: black;')}"></td>-->
+<!--                </tr>-->
+<!--                </tbody>-->
+<!--            </table>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    <div th:if="${repoVSWR.getDataVSWR() == null}">-->
+<!--        <h5>History VSWR data couldn't be found, please, check the site status!</h5>-->
+<!--    </div>-->
+
+<!--    <br>-->
+
+<div th:if="${managedElement != null}" class="col-md-12">
+    <div id="chartContainer" style="height: 500px; width: 100%;"></div>
+</div>
+
+<script th:inline="javascript">
+    /* Convert the Java map to a JSON object */
+    let chartData = /*[[${chartData}]]*/ {};
+    let dataSeries = [];
+
+    // Process the chartData to create data points for CanvasJS
+    for (let series in chartData) {
+        if (chartData.hasOwnProperty(series)) {
+            let dataPoints = chartData[series].map(point => {
+                return { x: new Date(point.time), y: point.value };
+            });
+            dataSeries.push({
+                type: "line",
+                markerSize: 0,
+                name: series,
+                showInLegend: true,
+                yValueFormatString: "#0.0#",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPoints
+            });
+        }
+    }
+
+    window.onload = function () {
+        const chartContainer = document.getElementById("chartContainer");
+        const containerWidth = chartContainer.offsetWidth;
+        const legendMaxWidth = containerWidth * 0.9;
+        let chart = new CanvasJS.Chart("chartContainer", {
+            theme: "light2",
+            animationEnabled: true,
+            title: {
+                text: "VSWR"
+            },
+            axisX: {
+                // title: "Time",
+                valueFormatString: "DD-MM HH:mm"
+            },
+            axisY: {
+                title: ""
+            },
+            toolTip: {
+                shared: true
+            },
+            legend: {
+                cursor: "pointer",
+                // itemWrap: true,
+                textAlign: "center",
+                maxWidth: legendMaxWidth,
+                verticalAlign: "top",
+                horizontalAlign: "center",
+                // dockInsidePlotArea: true,
+                itemclick: tooggleDataSeries
+            },
+            data: dataSeries
+        });
+        chart.render();
+
+        function tooggleDataSeries(e) {
+            // Toggle data series visibility
+            if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+                e.dataSeries.visible = false;
+            } else {
+                e.dataSeries.visible = true;
+            }
+            chart.render();
+        }
+    };
+</script>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

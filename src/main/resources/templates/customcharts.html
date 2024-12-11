@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="ISO-8859-1">
+    <title>BSSHelper</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+          crossorigin="anonymous">
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+</head>
+
+<body>
+<div class="container my-2">
+    <div class="row">
+        <div class="col-md-8">
+            <h4 th:if="${managedElement != null}" th:text="${managedElement.userLabel} + ' (' + ${managedElement.ManagedElementType} + ') ' + ${managedElement.getParsedNe()}"></h4>
+        </div>
+    </div>
+</div>
+
+<div th:if="${managedElement != null}" class="col-md-12">
+    <div th:if="${chartRTWPData != null && !chartRTWPData.isEmpty()}" id="RTWPChartContainer" style="height: 500px; width: 100%;"></div>
+    <br>
+    <div th:if="${chartRRCData != null && !chartRRCData.isEmpty()}" id="RRCChartContainer" style="height: 500px; width: 100%;"></div>
+    <br>
+    <div th:if="${chartRABData != null && !chartRABData.isEmpty()}" id="RABChartContainer" style="height: 500px; width: 100%;"></div>
+    <br>
+    <div th:if="${chartHSUPAData != null && !chartHSUPAData.isEmpty()}" id="HSUPAChartContainer" style="height: 500px; width: 100%;"></div>
+    <br>
+    <div th:if="${chartHSDPAData != null && !chartHSDPAData.isEmpty()}" id="HSDPAChartContainer" style="height: 500px; width: 100%;"></div>
+    <br>
+    <div th:if="${chartRLCData != null && !chartRLCData.isEmpty()}" id="RLCChartContainer" style="height: 500px; width: 100%;"></div>
+    <br>
+</div>
+
+<script th:inline="javascript">
+    /* Convert the Java map to a JSON object */
+    let chartRTWPData = /*[[${chartRTWPData}]]*/ {};
+    let dataSeriesRTWP = [];
+    let chartRRCData = /*[[${chartRRCData}]]*/ {};
+    let dataSeriesRRC = [];
+    let chartRABData = /*[[${chartRABData}]]*/ {};
+    let dataSeriesRAB = [];
+    let chartHSUPAData = /*[[${chartHSUPAData}]]*/ {};
+    let dataSeriesHSUPA = [];
+    let chartHSDPAData = /*[[${chartHSDPAData}]]*/ {};
+    let dataSeriesHSDPA = [];
+    let chartRLCData = /*[[${chartRLCData}]]*/ {};
+    let dataSeriesRLC = [];
+
+    // Process RTWP data
+    for (let seriesRTWP in chartRTWPData) {
+        if (chartRTWPData.hasOwnProperty(seriesRTWP)) {
+            let dataPointsRTWP = chartRTWPData[seriesRTWP].map(pointRTWP => {
+                return { x: new Date(pointRTWP.time), y: pointRTWP.value };
+            });
+            dataSeriesRTWP.push({
+                type: "line",
+                markerSize: 0,
+                name: seriesRTWP,
+                showInLegend: true,
+                yValueFormatString: "###.#",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPointsRTWP
+            });
+        }
+    }
+
+    // Process RRC data
+    for (let seriesRRC in chartRRCData) {
+        if (chartRRCData.hasOwnProperty(seriesRRC)) {
+            let dataPointsRRC = chartRRCData[seriesRRC].map(pointRRC => {
+                return { x: new Date(pointRRC.time), y: pointRRC.value};
+            });
+            dataSeriesRRC.push({
+                type: "line",
+                markerSize: 0,
+                name: seriesRRC,
+                showInLegend: true,
+                yValueFormatString: "#0.##%",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPointsRRC
+            });
+        }
+    }
+
+    // Process RAB data
+    for (let seriesRAB in chartRABData) {
+        if (chartRABData.hasOwnProperty(seriesRAB)) {
+            let dataPointsRAB = chartRABData[seriesRAB].map(pointRAB => {
+                return { x: new Date(pointRAB.time), y: pointRAB.value};
+            });
+            dataSeriesRAB.push({
+                type: "line",
+                markerSize: 0,
+                name: seriesRAB,
+                showInLegend: true,
+                yValueFormatString: "#0.##%",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPointsRAB
+            });
+        }
+    }
+
+    // Process HSUPA data
+    for (let seriesHSUPA in chartHSUPAData) {
+        if (chartHSUPAData.hasOwnProperty(seriesHSUPA)) {
+            let dataPointsHSUPA = chartHSUPAData[seriesHSUPA].map(pointHSUPA => {
+                return { x: new Date(pointHSUPA.time), y: pointHSUPA.value};
+            });
+            dataSeriesHSUPA.push({
+                type: "line",
+                markerSize: 0,
+                name: seriesHSUPA,
+                showInLegend: true,
+                yValueFormatString: "#,##0.00",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPointsHSUPA
+            });
+        }
+    }
+
+    // Process HSDPA data
+    for (let seriesHSDPA in chartHSDPAData) {
+        if (chartHSDPAData.hasOwnProperty(seriesHSDPA)) {
+            let dataPointsHSDPA = chartHSDPAData[seriesHSDPA].map(pointHSDPA => {
+                return { x: new Date(pointHSDPA.time), y: pointHSDPA.value};
+            });
+            dataSeriesHSDPA.push({
+                type: "line",
+                markerSize: 0,
+                name: seriesHSDPA,
+                showInLegend: true,
+                yValueFormatString: "#,##0.00",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPointsHSDPA
+            });
+        }
+    }
+
+    // Process RLC data
+    for (let seriesRLC in chartRLCData) {
+        if (chartRLCData.hasOwnProperty(seriesRLC)) {
+            let dataPointsRLC = chartRLCData[seriesRLC].map(pointRLC => {
+                return { x: new Date(pointRLC.time), y: pointRLC.value};
+            });
+            dataSeriesRLC.push({
+                type: "line",
+                markerSize: 0,
+                name: seriesRLC,
+                showInLegend: true,
+                yValueFormatString: "#0.##%",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPointsRLC
+            });
+        }
+    }
+
+    window.onload = function () {
+        const RTWPChartContainer = document.getElementById("RTWPChartContainer");
+        if (RTWPChartContainer) {
+            const containerWidthRTWP = RTWPChartContainer.offsetWidth;
+            const legendMaxWidthRTWP = containerWidthRTWP * 0.9;
+            let chartRTWP = new CanvasJS.Chart("RTWPChartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "Average RTWP"
+                },
+                axisX: {
+                    // title: "Time",
+                    valueFormatString: "DD-MM HH:mm"
+                },
+                axisY: {
+                    title: "dBm"
+                },
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    // itemWrap: true,
+                    textAlign: "center",
+                    maxWidth: legendMaxWidthRTWP,
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    // dockInsidePlotArea: true,
+                    itemclick: function (e) {
+                        e.dataSeries.visible = !e.dataSeries.visible;
+                        chartRTWP.render();
+                    }
+                },
+                data: dataSeriesRTWP
+            });
+            chartRTWP.render();
+        }
+
+        const RRCChartContainer = document.getElementById("RRCChartContainer");
+        if (RRCChartContainer) {
+            const containerWidthRRC = RRCChartContainer.offsetWidth;
+            const legendMaxWidthRRC = containerWidthRRC * 0.9;
+            let chartRRC = new CanvasJS.Chart("RRCChartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "Ratio of successful RRC connection establishment"
+                },
+                axisX: {
+                    // title: "Time",
+                    valueFormatString: "DD-MM HH:mm"
+                },
+                axisY: {
+                    title: "%",
+                    valueFormatString: "#0.##%"
+                },
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    // itemWrap: true,
+                    textAlign: "center",
+                    maxWidth: legendMaxWidthRRC,
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    // dockInsidePlotArea: true,
+                    itemclick: function (e) {
+                        e.dataSeries.visible = !e.dataSeries.visible;
+                        chartRRC.render();
+                    }
+                },
+                data: dataSeriesRRC
+            });
+            chartRRC.render();
+        }
+
+        const RABChartContainer = document.getElementById("RABChartContainer");
+        if (RABChartContainer) {
+            const containerWidthRAB = RABChartContainer.offsetWidth;
+            const legendMaxWidthRAB = containerWidthRAB * 0.9;
+            let chartRAB = new CanvasJS.Chart("RABChartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "Ratio of successful RAB establishment"
+                },
+                axisX: {
+                    // title: "Time",
+                    valueFormatString: "DD-MM HH:mm"
+                },
+                axisY: {
+                    title: "%",
+                    valueFormatString: "#0.##%"
+                },
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    // itemWrap: true,
+                    textAlign: "center",
+                    maxWidth: legendMaxWidthRAB,
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    // dockInsidePlotArea: true,
+                    itemclick: function (e) {
+                        e.dataSeries.visible = !e.dataSeries.visible;
+                        chartRRC.render();
+                    }
+                },
+                data: dataSeriesRAB
+            });
+            chartRAB.render();
+        }
+
+        const HSUPAChartContainer = document.getElementById("HSUPAChartContainer");
+        if (HSUPAChartContainer) {
+            const containerWidthHSUPA = HSUPAChartContainer.offsetWidth;
+            const legendMaxWidthHSUPA = containerWidthHSUPA * 0.9;
+            let chartHSUPA = new CanvasJS.Chart("HSUPAChartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "HSUPA Average Throughput Per User"
+                },
+                axisX: {
+                    // title: "Time",
+                    valueFormatString: "DD-MM HH:mm"
+                },
+                axisY: {
+                    title: "kbps"
+                },
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    // itemWrap: true,
+                    textAlign: "center",
+                    maxWidth: legendMaxWidthHSUPA,
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    // dockInsidePlotArea: true,
+                    itemclick: function (e) {
+                        e.dataSeries.visible = !e.dataSeries.visible;
+                        chartRRC.render();
+                    }
+                },
+                data: dataSeriesHSUPA
+            });
+            chartHSUPA.render();
+        }
+
+        const HSDPAChartContainer = document.getElementById("HSDPAChartContainer");
+        if (HSDPAChartContainer) {
+            const containerWidthHSDPA = HSDPAChartContainer.offsetWidth;
+            const legendMaxWidthHSDPA = containerWidthHSDPA * 0.9;
+            let chartHSDPA = new CanvasJS.Chart("HSDPAChartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "HSDPA Average Throughput Per User"
+                },
+                axisX: {
+                    // title: "Time",
+                    valueFormatString: "DD-MM HH:mm"
+                },
+                axisY: {
+                    title: "kbps"
+                },
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    // itemWrap: true,
+                    textAlign: "center",
+                    maxWidth: legendMaxWidthHSDPA,
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    // dockInsidePlotArea: true,
+                    itemclick: function (e) {
+                        e.dataSeries.visible = !e.dataSeries.visible;
+                        chartRRC.render();
+                    }
+                },
+                data: dataSeriesHSDPA
+            });
+            chartHSDPA.render();
+        }
+
+        const RLCChartContainer = document.getElementById("RLCChartContainer");
+        if (RLCChartContainer) {
+            const containerWidthRLC = RLCChartContainer.offsetWidth;
+            const legendMaxWidthRLC = containerWidthRLC * 0.9;
+            let chartRLC = new CanvasJS.Chart("RLCChartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "HSDPA DL Retransmit Rate(RLC)"
+                },
+                axisX: {
+                    // title: "Time",
+                    valueFormatString: "DD-MM HH:mm"
+                },
+                axisY: {
+                    title: "%",
+                    valueFormatString: "#0.##%"
+                },
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    // itemWrap: true,
+                    textAlign: "center",
+                    maxWidth: legendMaxWidthRLC,
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    // dockInsidePlotArea: true,
+                    itemclick: function (e) {
+                        e.dataSeries.visible = !e.dataSeries.visible;
+                        chartRRC.render();
+                    }
+                },
+                data: dataSeriesRLC
+            });
+            chartRLC.render();
+        }
+    };
+</script>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>
+</body>
+</html>

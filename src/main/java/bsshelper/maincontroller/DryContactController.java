@@ -43,11 +43,12 @@ public class DryContactController {
         setMessage(id, model);
         model.addAttribute("managedElement", null);
         model.addAttribute("repo", null);
+        model.addAttribute("title", "External Alarms Manager");
         return "drycontact";
     }
 
     @GetMapping("/dryContact/{userLabel}")
-    public String search(@PathVariable(value = "userLabel") String userLabel, Model model, HttpSession session) {
+    public String search(@PathVariable(value = "userLabel") String userLabel, String clearUserLabel, Model model, HttpSession session) {
         String id = session.getId();
         setMessage(id, model);
         ManagedElement managedElement = currentMgnService.getManagedElementByNeName(tokenService.getToken(), userLabel);
@@ -68,15 +69,29 @@ public class DryContactController {
 
         model.addAttribute("managedElement", managedElement);
         model.addAttribute("repo", mocDataWrapper);
+        model.addAttribute("title", "External Alarms Manager");
         return "drycontact";
     }
 
-    @PostMapping ("/dryContact/add")
-    public String dryContactAdd(Model model, HttpSession session) {
+    @PostMapping ("/dryContact/addRowSDR")
+    public String dryContactAdd(@ModelAttribute("repo") DryContactDeviceMocDataWrapper repo, Model model, HttpSession session) {
         String id = session.getId();
+        localCacheService.mocDataRepositoryMap.put(id, repo);
         localCacheService.mocDataRepositoryMap.get(id).addNew();
         model.addAttribute("managedElement", localCacheService.managedElementMap.get(id));
         model.addAttribute("repo", localCacheService.mocDataRepositoryMap.get(id));
+        model.addAttribute("title", "External Alarms Manager");
+        return "drycontact";
+    }
+
+    @PostMapping ("/dryContact/addRowITBBU")
+    public String dryContactAdd(@ModelAttribute("repo") DryContactCableMocDataWrapper repo, Model model, HttpSession session) {
+        String id = session.getId();
+        localCacheService.mocDataRepositoryMap.put(id, repo);
+        localCacheService.mocDataRepositoryMap.get(id).addNew();
+        model.addAttribute("managedElement", localCacheService.managedElementMap.get(id));
+        model.addAttribute("repo", localCacheService.mocDataRepositoryMap.get(id));
+        model.addAttribute("title", "External Alarms Manager");
         return "drycontact";
     }
 

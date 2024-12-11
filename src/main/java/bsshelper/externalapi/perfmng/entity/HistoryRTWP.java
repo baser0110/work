@@ -3,55 +3,42 @@ package bsshelper.externalapi.perfmng.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
-@Data
-//@RequiredArgsConstructor
-@AllArgsConstructor
-@NoArgsConstructor
-public class HistoryRTWP {
-    private String rnc;
-    private String cellName;
-    private int cellId;
-    private double value;
-    private LocalDateTime time;
+public class HistoryRTWP extends HistoryForUMTSCell {
+    public HistoryRTWP(String rnc, String cellName, int cellId, double value, LocalDateTime time) {
+        super(rnc, cellName, cellId, value, time);
+    }
 
-    public static Map<String, HistoryRTWP.Values> getFinal(List<HistoryRTWP> data) {
+    public static Map<String, HistoryRTWP.Values> getFinal(List<HistoryForUMTSCell> data) {
         if (data == null || data.isEmpty()) { return null; }
         Set<String> uniqValues = new HashSet<>();
         Map<String, HistoryRTWP.Values> map = new TreeMap<>();
         HistoryRTWP.Values mapObject = null;
-        for (HistoryRTWP h : data) {
+        for (HistoryForUMTSCell h : data) {
             String object = h.getCellName();
             uniqValues.add(object);
             double value = h.getValue();
             if (map.containsKey(object)) {
                 mapObject = map.get(object);
                 if (value == -112.0) {
-                    if (h.time.isAfter(mapObject.getTime())) {
+                    if (h.getTime().isAfter(mapObject.getTime())) {
                         mapObject.setLast(value);
-                        mapObject.setTime(h.time);
+                        mapObject.setTime(h.getTime());
                     }
                     continue;}
                 if (mapObject.getMax() < value) { mapObject.setMax(value); }
                 mapObject.setAvg((mapObject.getAvg() + value) / 2);
-                if (h.time.isAfter(mapObject.getTime())) {
+                if (h.getTime().isAfter(mapObject.getTime())) {
                     mapObject.setLast(value);
-                    mapObject.setTime(h.time);
+                    mapObject.setTime(h.getTime());
                 }
             } else {
-                map.put(object, new HistoryRTWP.Values(true, value, value, value, h.time));
+                map.put(object, new HistoryRTWP.Values(true, value, value, value, h.getTime()));
             }
         }
-//        if (uniqValues.size() != map.size()) {
-//            for (String v : uniqValues) {
-//                if (!map.containsKey(v))
-//                    map.put(v, new HistoryRTWP.Values(false,-112.0, -112.0, -112.0, LocalDateTime.now()));
-//            }
-//        }
         for (Map.Entry<String, HistoryRTWP.Values> entry : map.entrySet()) {
             String object = entry.getKey();
             if (entry.getValue().getAvg() == -112.0) {

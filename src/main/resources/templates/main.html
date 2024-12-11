@@ -12,57 +12,58 @@
 
 </head>
 <body>
+<header th:replace="~{fragments/header :: header}"></header>
 <div class="container my-2">
-    <h1>UMEHelper</h1>
-    <br/>
     <h2>Tools:</h2>
     <form>
-        <a class="btn btn-primary text-center width-250px" th:href="@{/helper/dryContact}">External Alarms Manager</a>
+        <a id="alm" class="btn btn-primary text-center width-250px" th:href="@{/helper/dryContact}">External Alarms Manager</a>
     </form>
     <br/>
     <form>
-        <a class="btn btn-primary text-center width-250px" th:href="@{/helper/cellStatus}">Cell Status Manager (Single
-            NE)</a>
+        <a id="csmsn" class="btn btn-primary text-center width-250px" th:href="@{/helper/cellStatus}">Cell Status Manager (Single NE)</a>
     </form>
     <br/>
     <form>
-        <a class="btn btn-primary text-center width-250px" th:href="@{/helper/acceptanceMeasurement}">Acceptance
-            Measurement</a>
+        <a id="csmb" class="btn btn-primary text-center width-250px" th:href="@{/helper/cellStatusBatch}">Cell Status Manager (Batch)</a>
     </form>
+    <br/>
+    <form>
+        <a id="am" class="btn btn-primary text-center width-250px" th:href="@{/helper/acceptanceMeasurement}">Acceptance Measurement</a>
+    </form>
+    <br/>
+    <form>
+        <a id="vvt" class="btn btn-warning text-center width-250px" target="_blank" th:href="@{http://srv-noc-001:8181/}">Vasily Vorohobko Tool</a>
+    </form>
+
 </div>
 
 <style>
-    .btn {
+    #alm {
+        width: 300px;
+        height: 40px;
+        overflow: auto;
+    }
+    #csmsn {
+        width: 300px;
+        height: 40px;
+        overflow: auto;
+    }
+    #csmb {
+        width: 300px;
+        height: 40px;
+        overflow: auto;
+    }
+    #am {
+        width: 300px;
+        height: 40px;
+        overflow: auto;
+    }
+    #vvt {
         width: 300px;
         height: 40px;
         overflow: auto;
     }
 </style>
-<footer>
-    <style>
-        html {
-            height: 100%;
-        }
-
-        body {
-            min-height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        footer {
-            /*background-color: #ea0505;*/
-            position: fixed;
-            right: 75px;
-            bottom: 2px;
-            text-align: right;
-            width: 100%;
-            font-size: 15px;
-            font-weight: bold;
-            color: #da0202;
-        }
-    </style>
-    <div> &copy 2024 Sergey Basov | v0.1.06a</div>
-</footer>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

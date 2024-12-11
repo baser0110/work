@@ -12,6 +12,7 @@ public class UUtranCellFDDMocSimplified {
     private final int moId;
     private final double maximumTransmissionPower;
     private final int primaryScramblingCode;
+    private final int cellRadius;
 
     public String getRncNum() {
         int index1 = ldn.indexOf("=");

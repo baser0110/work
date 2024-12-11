@@ -3,7 +3,6 @@ package bsshelper.externalapi.openscriptexecengine.util;
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
 import bsshelper.externalapi.openscriptexecengine.entity.CellStatus;
 import bsshelper.externalapi.openscriptexecengine.entity.GCellStatus;
-import bsshelper.externalapi.openscriptexecengine.entity.ULocalCellStatus;
 import bsshelper.globalutil.SubnetworkToBSC;
 
 import java.util.List;
@@ -30,7 +29,7 @@ public class BatchFileBuilder {
     private static final String GSM_BUILDER_MIDDLE_2 = ",BTSID=";
     private static final String GSM_UNB_BUILDER_END = ";";
     private static final String GSM_BLK_BUILDER_END = ",BLOCKTYPE=HANDOVE_AND_BLOCK,DURATION=40;";
-    private static final String GSM_BLK_BUILDER_POSTFIX = " --netype MRNC --neid ";
+    private static final String GSM_BUILDER_POSTFIX = " --netype MRNC --neid ";
 
 
     public static StringFileEntity buildAllData(ManagedElement managedElement,
@@ -109,7 +108,7 @@ public class BatchFileBuilder {
                                 .append(GSM_BUILDER_MIDDLE_2)
                                 .append(cell.getLdn().substring(cell.getLdn().length() - 1))
                                 .append(GSM_BLK_BUILDER_END)
-                                .append(GSM_BLK_BUILDER_POSTFIX)
+                                .append(GSM_BUILDER_POSTFIX)
                                 .append(numBSC)
                                 .append(LINE_BREAK);
                     }
@@ -126,7 +125,7 @@ public class BatchFileBuilder {
                                 .append(GSM_BUILDER_MIDDLE_2)
                                 .append(cell.getLdn().substring(cell.getLdn().length() - 1))
                                 .append(GSM_UNB_BUILDER_END)
-                                .append(GSM_BLK_BUILDER_POSTFIX)
+                                .append(GSM_BUILDER_POSTFIX)
                                 .append(numBSC)
                                 .append(LINE_BREAK);
                     }
@@ -136,4 +135,6 @@ public class BatchFileBuilder {
         }
         return result.toString();
     }
+
+
 }
