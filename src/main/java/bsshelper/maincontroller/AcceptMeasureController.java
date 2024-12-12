@@ -233,8 +233,10 @@ public class AcceptMeasureController {
             if (umts == null) {
                 umts = currentMgnService.getUUtranCellFDDMocSimplified(tokenService.getToken(), managedElement);
             }
-            localCacheService.UMTSCellMap.put(id, umts);
-            cellSelectedToWrapper = new CellSelectedToWrapper(CellSelectedTo.getCellSelectedTo(umts));
+            if (umts != null) {
+                localCacheService.UMTSCellMap.put(id, umts);
+                cellSelectedToWrapper = new CellSelectedToWrapper(CellSelectedTo.getCellSelectedTo(umts));
+            }
             kpiSelectedToWrapper = new KPISelectedToWrapper(KPISelectedTo.getDefaultKpiSelectedList());
             isSelected.add(QueryType.CUSTOM_HISTORY.getInfo());
         }

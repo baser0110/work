@@ -277,7 +277,7 @@
                     </div>
                 </div>
                 <div th:if="${repoVSWR.getDataVSWR() == null}">
-                    <h5>History VSWR data couldn't be found, please, check the site status!</h5>
+                    <h5>VSWR data couldn't be found, please, check the site status!</h5>
                 </div>
             </div>
 
@@ -373,10 +373,10 @@
                 <h2>Sync (Coming soon...)</h2>
             </div>
             <div th:if="${isSelected.contains('Custom History')}">
-                <h2>Custom History Query</h2>
+                <h2>History Query</h2>
                 <form id="getCustom" method="post" target="_blank" onsubmit="getCustomChart()">
-                    <div class="row">
-                    <div class="col-md-3" th:if="${repoCell.getDataCell() != null}" >
+                    <div class="row" th:if="${repoCell != null}">
+                    <div class="col-md-3">
                             <table th:object="${repoCell}" id="Cell-table" border="1"
                                    class="table table-striped table-sm table-bordered">
                                 <thead>
@@ -426,7 +426,7 @@
                         </div>
                     </div>
                 </form>
-                <div th:if="${repoCell.getDataCell() == null}">
+                <div th:if="${repoCell == null}">
                     <h5>Cells couldn't be found, please, check the site status!</h5>
                 </div>
             </div>

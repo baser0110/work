@@ -458,6 +458,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
 
     @Override
     public List<GTrxMocSimplified> getGTrxMocSimplified(Token token, ManagedElement managedElement, List<GGsmCellMocSimplified> cells) {
+        if (cells == null) return null;
         String mocName = "GTrx";
         List<GTrxMocSimplified> gTrxMocSimplifiedList = null;
         GTrxMocSimplifiedTo gTrxMocSimplifiedTo = null;
@@ -1106,6 +1107,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
     private String getGTrxFilter(ManagedElement managedElement, List<GGsmCellMocSimplified> cells) {
         String result = "";
         String userLabel = "userLabel='";
+        if (cells == null) return "";
         for (GGsmCellMocSimplified cell : cells) {
                 result += userLabel + cell.getUserLabel() + "' or ";
         }

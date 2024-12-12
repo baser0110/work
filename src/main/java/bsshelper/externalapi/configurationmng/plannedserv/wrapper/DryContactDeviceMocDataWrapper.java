@@ -27,6 +27,7 @@ public class DryContactDeviceMocDataWrapper implements MocDataWrapper {
     }
 
     public void addNew() {
+        if (data == null) data = new ArrayList<>();
         DryContactDeviceMocDataTo newData = new DryContactDeviceMocDataTo(
                 Operation.A.toString(),
                 32,
