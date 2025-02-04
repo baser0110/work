@@ -20,7 +20,7 @@ import java.util.List;
 public class CellStatusDetailsController {
     private final LocalCacheService localCacheService;
 
-    @PostMapping("/cellStatusDetails")
+    @PostMapping("/cellStatus/cellStatusDetails")
     public String cellStatusBatch(Model model, HttpSession session) {
         String id = session.getId();
         ManagedElement managedElement = localCacheService.managedElementMap.get(id);

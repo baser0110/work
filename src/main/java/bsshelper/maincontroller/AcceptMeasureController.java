@@ -63,7 +63,7 @@ public class AcceptMeasureController {
         String id = session.getId();
         setMessage(id, model);
         model.addAttribute("managedElement", null);
-        model.addAttribute("isSelected",new ArrayList<>(List.of(false,false,false,false)));
+        model.addAttribute("isSelected", new ArrayList<>(List.of(false,false,false,false)));
         model.addAttribute("title", "Acceptance Measurement");
         model.addAttribute("repoQueryType", new QueryTypeToWrapper(QueryTypeTo.getDefaultQueryTypeSelectedList()));
         return "measurement";
@@ -97,6 +97,7 @@ public class AcceptMeasureController {
         List<GGsmCellMocSimplified> gsm = null;
         List<GTrxMocSimplified> trxMRNC = null;
 
+        // CELL INFO
         if (measurementQuerySet.contains(QueryType.CELL_INFO.getInfo())) {
             umts = currentMgnService.getUUtranCellFDDMocSimplified(tokenService.getToken(), managedElement);
             gsm = currentMgnService.getGGsmCellMocSimplified(tokenService.getToken(), managedElement);
@@ -127,6 +128,7 @@ public class AcceptMeasureController {
         List<SdrDeviceGroupMoc> sdrDeviceGroupMocList = null;
         VSWRListWrapper vswrListWrapper = null;
 
+        // VSWR
         if (measurementQuerySet.contains(QueryType.VSWR.getInfo())) {
             List<VSWRTestFinal> vswrTestFinalList = null;
             if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
@@ -146,6 +148,7 @@ public class AcceptMeasureController {
                 new FiberTableWrapper(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
                         new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
+        // OPTIC LEVELS
         if (measurementQuerySet.contains(QueryType.OPTIC_LEVELS.getInfo())) {
             if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
                 if (sdrDeviceGroupMocList == null) {
@@ -229,6 +232,7 @@ public class AcceptMeasureController {
         CellSelectedToWrapper cellSelectedToWrapper = null;
         KPISelectedToWrapper kpiSelectedToWrapper = null;
 
+        // CHARTS
         if (measurementQuerySet.contains(QueryType.CUSTOM_HISTORY.getInfo())) {
             if (umts == null) {
                 umts = currentMgnService.getUUtranCellFDDMocSimplified(tokenService.getToken(), managedElement);

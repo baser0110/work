@@ -9,7 +9,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="ISO-8859-1">
-    <title>BSSHelper</title>
+    <title>Custom Charts</title>
     <link rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
           integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
@@ -273,7 +273,7 @@
                     // dockInsidePlotArea: true,
                     itemclick: function (e) {
                         e.dataSeries.visible = !e.dataSeries.visible;
-                        chartRRC.render();
+                        chartRAB.render();
                     }
                 },
                 data: dataSeriesRAB
@@ -311,7 +311,7 @@
                     // dockInsidePlotArea: true,
                     itemclick: function (e) {
                         e.dataSeries.visible = !e.dataSeries.visible;
-                        chartRRC.render();
+                        chartHSUPA.render();
                     }
                 },
                 data: dataSeriesHSUPA
@@ -349,7 +349,7 @@
                     // dockInsidePlotArea: true,
                     itemclick: function (e) {
                         e.dataSeries.visible = !e.dataSeries.visible;
-                        chartRRC.render();
+                        chartHSDPA.render();
                     }
                 },
                 data: dataSeriesHSDPA
@@ -388,7 +388,7 @@
                     // dockInsidePlotArea: true,
                     itemclick: function (e) {
                         e.dataSeries.visible = !e.dataSeries.visible;
-                        chartRRC.render();
+                        chartRLC.render();
                     }
                 },
                 data: dataSeriesRLC

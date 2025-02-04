@@ -6,6 +6,7 @@ import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.UCellMocSimp
 import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.ULocalCellMocSimplified;
 import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnService;
 import bsshelper.externalapi.openscriptexecengine.entity.CellStatus;
+import bsshelper.externalapi.openscriptexecengine.entity.CellStatusDetails;
 import bsshelper.externalapi.openscriptexecengine.entity.GCellStatus;
 import bsshelper.externalapi.openscriptexecengine.mapper.*;
 import bsshelper.externalapi.openscriptexecengine.service.ExecuteUCLIBatchScriptService;
@@ -20,9 +21,12 @@ import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.entity.MessageEntity;
 import bsshelper.service.LocalCacheService;
 import bsshelper.service.TokenService;
+import bsshelper.service.logger.LoggerUtil;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +42,7 @@ public class CellStatusMngController {
     private final TokenService tokenService;
     private final LocalCacheService localCacheService;
     private final ExecuteUCLIBatchScriptService executeUCLIBatchScriptService;
+    private static final Logger operationLog = LoggerUtil.getOperationLogger();
 //    private final ActiveAlarmService activeAlarmService;
 
     @GetMapping("/cellStatus")
@@ -114,7 +119,7 @@ public class CellStatusMngController {
     public String cellChangeStatus(@ModelAttribute("repoUMTS") ULocalCellStatusListWrapper repoUMTS, Integer operationUMTS,
                                    @ModelAttribute("repoNBIoT") EUtranCellNBIoTStatusListWrapper repoNBIoT, Integer operationNBIoT,
                                    @ModelAttribute("repoGSM") GCellStatusListWrapper repoGSM, Integer operationGSM,
-                                   Model model, HttpSession session) {
+                                   Model model, HttpSession session, Authentication authentication) {
         String id = session.getId();
         setMessage(id, model);
         String execResult = null;
@@ -145,7 +150,19 @@ public class CellStatusMngController {
             } else {
                 localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "Script execution result: " + execResult));
             }
+
+            operationLog.warn("User: {} $$ ({}) $$ {} cell operation" +
+                            " UMTS ({}): {}" +
+                            " GSM ({}): {}" +
+                            " NBiOT ({}): {}" +
+                            " result: {}",
+                    authentication.getName(), authentication.getDetails(), localCacheService.managedElementMap.get(id).getUserLabel(),
+                    operationUMTS, repoUMTS.getExtensionData(),
+                    operationGSM, repoGSM.getDataGSM(),
+                    operationNBIoT, repoNBIoT.getExtensionData(),
+                    execResult);
         }
+
         return "redirect:/helper/cellStatus/" + localCacheService.managedElementMap.get(id).getUserLabel();
     }
 

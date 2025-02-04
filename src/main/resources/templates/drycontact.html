@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 
 <head>
     <meta charset="ISO-8859-1">
-    <title>BSSHelper</title>
+    <title>External Alarms Manager</title>
     <link rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
           integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
@@ -48,7 +48,7 @@
                 <button type="submit" class="btn btn-success" >Search</button>
             </form>
         </div>
-        <div class="col-md-8">
+        <div sec:authorize="!hasAuthority('EXT_ALARM_MNG_FULL')" class="col-md-8">
             <form id="clear" th:if="${managedElement != null}" method="get" onsubmit="clearByUserLabel()">
                 <input type="hidden" id="clearUserLabel" name="userLabel" th:value="${managedElement.userLabel}">
                 <button type="submit" class="btn btn-secondary float-right" style="width: 175px"> Clear Changes </button>
@@ -56,7 +56,7 @@
         </div>
     </div>
 
-    <div style="height: 5px;"></div>
+    <div sec:authorize="!hasAuthority('EXT_ALARM_MNG_FULL')" style="height: 5px;"></div>
 
     <style>
         legend {
@@ -78,7 +78,7 @@
     </style>
 
     <div th:if="${managedElement != null}">
-        <form th:if="${managedElement.getManagedElementType().toString.equals('SDR')}" id="repoSDR" action="#"
+        <form sec:authorize="!hasAuthority('EXT_ALARM_MNG_FULL')" th:if="${managedElement.getManagedElementType().toString.equals('SDR')}" id="repoSDR" action="#"
               th:action="@{/helper/dryContact/updateSDR}" method="post" th:object="${repo}">
             <fieldset>
                 <legend>
@@ -144,7 +144,7 @@
             <button class="btn btn-primary text-center" type="submit" method="post" formaction="/helper/dryContact/addRowSDR"> Add DryContact </button>
         </form>
 
-        <form th:if="${managedElement.getManagedElementType().toString.equals('ITBBU')}" id="repoITBBU" action="#"
+        <form sec:authorize="!hasAuthority('EXT_ALARM_MNG_FULL')" th:if="${managedElement.getManagedElementType().toString.equals('ITBBU')}" id="repoITBBU" action="#"
               th:action="@{/helper/dryContact/updateITBBU}" method="post" th:object="${repo}">
             <fieldset>
                 <legend>
@@ -204,6 +204,54 @@
             </fieldset>
             <button class="btn btn-primary text-center" type="submit" method="post" formaction="/helper/dryContact/addRowITBBU"> Add DryContact </button>
         </form>
+
+        <fieldset sec:authorize="!hasAuthority('EXT_ALARM_MNG_VIEW')" th:if="${managedElement.getManagedElementType().toString.equals('SDR')}">
+            <legend>
+            <span class="legend-title" th:text="${managedElement.userLabel} + ' (' + ${managedElement.ManagedElementType} + ') '
+                + ${managedElement.getParsedNe()}"> </span>
+            </legend>
+            <table border="1" class="table table-striped table-responsive-md table-bordered">
+                <thead>
+                <tr>
+                    <th>moId</th>
+                    <th>dryNo</th>
+                    <th>almUserLabel</th>
+                    <th>almStatus</th>
+                </tr>
+                </thead>
+                <tbody th:if="${!repo.getData().isEmpty()}">
+                <tr th:each="dryContact : ${repo.data}">
+                    <td th:text="${dryContact.moId}"></td>
+                    <td th:text="${dryContact.dryNo}"></td>
+                    <td th:text="${dryContact.userLabel}"></td>
+                    <td th:text="${dryContact.almStatus}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </fieldset>
+
+        <fieldset sec:authorize="!hasAuthority('EXT_ALARM_MNG_VIEW')" th:if="${managedElement.getManagedElementType().toString.equals('ITBBU')}">
+            <legend>
+            <span class="legend-title" th:text="${managedElement.userLabel} + ' Additional Table (' + ${managedElement.ManagedElementType} + ') '
+                + ${managedElement.getParsedNe()}"> </span>
+            </legend>
+            <table border="1" class="table table-striped table-responsive-md table-bordered">
+                <thead>
+                <tr>
+                    <th>moId</th>
+                    <th>almUserLabel</th>
+                    <th>almStatus</th>
+                </tr>
+                </thead>
+                <tbody th:if="${!repo.getData().isEmpty()}">
+                <tr th:each="dryContact : ${repo.data}">
+                    <td th:text="${dryContact.moId}"></td>
+                    <td th:text="${dryContact.userLabel}"></td>
+                    <td th:text="${dryContact.almStatus}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </fieldset>
     </div>
 
     <br/>

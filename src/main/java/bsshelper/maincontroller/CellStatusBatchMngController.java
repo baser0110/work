@@ -48,16 +48,16 @@ public class CellStatusBatchMngController {
 
     private String updateTime = "";
 
-    @PostConstruct
-    public void setCellCache() {
-        localCacheService.meByNEMap.putAll(currentMgnService.getCacheManagedElement(tokenService.getToken(), CurrentMgnServiceImpl.Type.BY_NE));
-        localCacheService.umtsSDRMap.putAll(currentMgnService.getCacheSDRCellsUMTS(tokenService.getToken()));
-        localCacheService.umtsITBBUMap.putAll(currentMgnService.getCacheITBBUCellsUMTS(tokenService.getToken()));
-        localCacheService.nbiotSDRMap.putAll(currentMgnService.getCacheSDRCellsNBIOT(tokenService.getToken()));
-        localCacheService.nbiotITBBUMap.putAll(currentMgnService.getCacheITBBUCellsNBIOT(tokenService.getToken()));
-        localCacheService.gsmMRNCMap.putAll(currentMgnService.getCacheMRNCCellsGSM(tokenService.getToken()));
-        updateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-    }
+//    @PostConstruct
+//    public void setCellCache() {
+//        localCacheService.meByNEMap.putAll(currentMgnService.getCacheManagedElement(tokenService.getToken(), CurrentMgnServiceImpl.Type.BY_NE));
+//        localCacheService.umtsSDRMap.putAll(currentMgnService.getCacheSDRCellsUMTS(tokenService.getToken()));
+//        localCacheService.umtsITBBUMap.putAll(currentMgnService.getCacheITBBUCellsUMTS(tokenService.getToken()));
+//        localCacheService.nbiotSDRMap.putAll(currentMgnService.getCacheSDRCellsNBIOT(tokenService.getToken()));
+//        localCacheService.nbiotITBBUMap.putAll(currentMgnService.getCacheITBBUCellsNBIOT(tokenService.getToken()));
+//        localCacheService.gsmMRNCMap.putAll(currentMgnService.getCacheMRNCCellsGSM(tokenService.getToken()));
+//        updateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+//    }
 
     @GetMapping("/cellStatusBatch")
     public String cellStatusBatch(Model model, HttpSession session) {
@@ -75,7 +75,7 @@ public class CellStatusBatchMngController {
         localCacheService.nbiotSDRMap.clear();
         localCacheService.nbiotITBBUMap.clear();
         localCacheService.gsmMRNCMap.clear();
-        setCellCache();
+//        setCellCache();
         model.addAttribute("updateTime", updateTime);
         model.addAttribute("title", "Cell Status Manager (Batch)");
         return "cellstatusbatch";
@@ -97,10 +97,10 @@ public class CellStatusBatchMngController {
 //        System.out.println(operationGSM);
 //        System.out.println(nbiot);
 //        System.out.println(operationNBIoT);
-        if (!pass.equals("room220")) {
-            localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "Wrong pass!!!"));
-            return "redirect:/helper/cellStatusBatch";
-        }
+//        if (!pass.equals("room220")) {
+//            localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "Wrong pass!!!"));
+//            return "redirect:/helper/cellStatusBatch";
+//        }
 
         if ((operationUMTS == null || operationUMTS == 0)
                 && (operationNBIoT == null || operationNBIoT == 0)
@@ -129,7 +129,7 @@ public class CellStatusBatchMngController {
                 umtsCommands.add(localCacheService.umtsITBBUMap.get(umtsCell.trim().toUpperCase()).getCommand());
             }
         }
-        System.out.println(umtsCommands);
+//        System.out.println(umtsCommands);
         for (String gsmCell : gsmCells) {
             if (localCacheService.gsmMRNCMap.containsKey(gsmCell.trim().toUpperCase()))
                 gsmCommands.add(localCacheService.gsmMRNCMap.get(gsmCell.trim().toUpperCase()).getCommand());

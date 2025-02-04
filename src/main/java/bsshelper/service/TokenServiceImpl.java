@@ -30,8 +30,8 @@ public class TokenServiceImpl implements TokenService {
     @PostConstruct
     @Override
     public void setTokenWithHandSake() {
-        updateTokenDaily();
-        handshake();
+//        updateTokenDaily();
+//        handshake();
     }
 
     private void handshake() {

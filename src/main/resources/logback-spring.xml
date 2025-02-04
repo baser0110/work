@@ -1,0 +1,43 @@
+<configuration>
+
+    <property name="LOG_DIR" value="${logging.file.path:-C:/Users/User/Desktop/logs}" />
+
+    <!-- Application Logs (logs/app/) -->
+    <appender name="DEBUG_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+<!--        <file>C:/Users/User/Desktop/logs/debug/debug.log</file>-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/debug/debug-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder>
+<!--            <pattern>%date [%level] %logger{10} - %msg%n</pattern>-->
+            <pattern>%d{MM-dd HH:mm:ss.SSS} [%8.8thread] %-5.5level| %class{60}.%M:%L %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Error Logs (logs/error/) -->
+    <appender name="OPERATION_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+<!--        <file>C:/Users/User/Desktop/logs/operation/operation.log</file>-->
+        <encoder>
+            <pattern>%d{MM-dd HH:mm:ss} ||%msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/operation/operation-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>90</maxHistory>
+        </rollingPolicy>
+<!--        <encoder>-->
+<!--            <pattern>%date [%level] %logger{10} - %msg%n</pattern>-->
+<!--        </encoder>-->
+    </appender>
+
+    <!-- Root Logger -->
+    <root level="INFO" additivity="true">
+        <appender-ref ref="DEBUG_LOG" />
+    </root>
+
+    <!-- Custom Logger for Operations -->
+    <logger name="Operation" level="WARN" additivity="true">
+        <appender-ref ref="OPERATION_LOG" />
+    </logger>
+
+</configuration>

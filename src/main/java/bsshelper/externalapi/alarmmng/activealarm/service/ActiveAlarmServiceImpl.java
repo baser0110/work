@@ -39,7 +39,6 @@ public class ActiveAlarmServiceImpl implements ActiveAlarmService {
                     List.of(managedElement.getSubNetworkNum() + ",1061"))).build().getBodySettings());
             System.out.println();
 //            response = httpResponse.body();
-//            response = httpResponse.body();
             System.out.println(httpResponse.body().collect(Collectors.joining()));
 //            if (response.contains("\"code\":0") && !response.contains("\"result\":[]")) {
 //                log.info(" >> {} for {} successfully found", mocName, managedElement.getUserLabel());

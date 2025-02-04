@@ -32,25 +32,7 @@ public class HistoryChartController {
     private final TokenService tokenService;
     private final HistoryQueryService historyQueryService;
 
-//    @PostMapping("/chartRTWP")
-//    public String cellStatus(String acceptanceMeasurementId,
-//                             @RequestParam(name = "checkedCellsList", required = false) List<String> checkedCellsList,
-//                             Model model, HttpSession session) {
-//        String id = session.getId();
-//        setMessage(id, model);
-//        if (checkedCellsList == null || checkedCellsList.isEmpty()) {return "chartRTWP";}
-//        Map<String, List<HistoryForUMTSCell>> allDataMap = localCacheService.historyRTWPMap.get(acceptanceMeasurementId).getDataRTWPChart();
-//        Map<String, List<HistoryForUMTSCell>> checkedDataMap = new TreeMap<>();
-//        for (String cell : checkedCellsList) {
-//            checkedDataMap.put(cell, allDataMap.get(cell));
-//        }
-//
-//        model.addAttribute("chartData", checkedDataMap);
-//        model.addAttribute("managedElement", localCacheService.managedElementMap.get(acceptanceMeasurementId));
-//        return "chartRTWP";
-//    }
-
-    @PostMapping("/chartVSWR")
+    @PostMapping("/acceptanceMeasurement/chartVSWR")
     public String cellStatus(String acceptanceMeasurementId, Integer timeVSWR, Model model, HttpSession session) {
         String id = session.getId();
         setMessage(id, model);
@@ -65,7 +47,7 @@ public class HistoryChartController {
         return "chartVSWR";
     }
 
-    @PostMapping("/customCharts")
+    @PostMapping("/acceptanceMeasurement/customCharts")
     public String cellStatus(String acceptanceMeasurementId, Integer time,
                              @RequestParam(name = "checkedCustomCellsList", required = false) List<String> checkedCustomCellsList,
                              @RequestParam(name = "checkedKPIsList", required = false) Set<String> checkedKPIsList,

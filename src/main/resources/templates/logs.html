@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logs</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <script>
+        // JavaScript function to filter the logs based on search term
+        function filterLogs() {
+            const searchTerm = document.getElementById("search").value.toLowerCase();
+            const logs = document.querySelectorAll(".log-entry");
+
+            logs.forEach(log => {
+                const message = log.querySelector(".log-message").textContent.toLowerCase();
+                if (message.includes(searchTerm)) {
+                    log.style.display = "";
+                } else {
+                    log.style.display = "none";
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="container my-5">
+    <h2>Log Viewer</h2>
+
+    <!-- Date Selection (using Calendar) -->
+    <form action="/helper/appAccessMng/logs" method="get">
+        <div class="form-group">
+            <label for="date">Select Date:</label>
+            <input type="date" id="date" name="date" class="form-control" value="${selectedDate}">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Load Logs</button>
+    </form>
+
+    <!-- Search Bar -->
+    <div class="mt-4">
+        <input type="text" id="search" class="form-control" placeholder="Search logs..." oninput="filterLogs()">
+    </div>
+
+    <!-- Message Display -->
+    <div th:if="${message}" class="alert alert-info mt-4" role="alert">
+        <span th:text="${message}"></span>
+    </div>
+
+    <!-- Logs Table (only two columns: Time and Message) -->
+    <table class="table table-striped mt-4">
+        <thead>
+        <tr>
+            <th>Timestamp</th>
+            <th>Message</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="log : ${logs}" class="log-entry">
+            <!-- Display timestamp and message from LogEntry object -->
+            <td th:text="${log.timestamp}"></td>  <!-- Timestamp part -->
+            <td class="log-message" th:text="${log.message}"></td>  <!-- Message part -->
+        </tr>
+        </tbody>
+    </table>
+</div>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

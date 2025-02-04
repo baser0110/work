@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="ISO-8859-1">
+    <title>Login</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+          crossorigin="anonymous">
+</head>
+
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <form id="loginForm" th:action="@{/helper/login}" method="post">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+                        </div>
+                        <div class="form-group form-check">
+                            <input type="checkbox" id="rememberMe" name="rememberMe" class="form-check-input">
+                            <label for="rememberMe" class="form-check-label">Remember Me</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Login</button>
+                    </form>
+                </div>
+            </div>
+            <br>
+            <div th:if="${param.error}" class="alert alert-danger">Invalid username or password!</div>
+            <div th:if="${param.logout}" class="alert alert-success">You have been logged out successfully!</div>
+            <div th:if="${param.expired}" class="alert alert-warning">You have been logged out due to another session is started!</div>
+            <div th:if="${param.timeout}" class="alert alert-warning">You have been logged out by timeout!</div>
+            <div th:if="${param.success}" class="alert alert-success">Password changed successfully! Please log in again.</div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+
+</html>

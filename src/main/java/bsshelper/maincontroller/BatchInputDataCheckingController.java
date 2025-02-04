@@ -21,7 +21,7 @@ import java.util.*;
 public class BatchInputDataCheckingController {
     private final LocalCacheService localCacheService;
 
-    @PostMapping("/checkBatchData")
+    @PostMapping("/cellStatusBatch/checkBatchData")
     public String cellStatusBatch(String separator, String umts, String gsm, String nbiot, Model model, HttpSession session) {
         List<String> umtsCells = Arrays.asList(umts.trim().split(separator));
         List<String> gsmCells = Arrays.asList(gsm.trim().split(separator));
@@ -33,7 +33,6 @@ public class BatchInputDataCheckingController {
         int gsmOkCount = 0;
         int nbiotOkCount = 0;
         Set<String> nes = new TreeSet<>();
-
         for (String umtsCell : umtsCells) {
             if (localCacheService.umtsSDRMap.containsKey(umtsCell.trim().toUpperCase())) {
                 umtsOkCount++;

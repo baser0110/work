@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="ISO-8859-1">
-    <title>BSSHelper</title>
+    <title>Acceptance Measurement</title>
     <link rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
           integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
@@ -269,7 +269,7 @@
                     </div>
                     <div class="col-md-7">
                         <form class="inline-container" method="post" target="_blank">
-                            <button type="submit" class="btn btn-primary legend-button" formaction="/helper/chartVSWR">Get Chart</button>
+                            <button type="submit" class="btn btn-primary legend-button" formaction="/helper/acceptanceMeasurement/chartVSWR">Get Chart</button>
                             <input type="hidden" name="acceptanceMeasurementId" th:value="${acceptanceMeasurementId}">
                             <label for="timeVSWR" style="font-weight: bold" class="pl-3">Query time (h):</label>
                             <input style="width: 70px" type="number" id="timeVSWR" name="timeVSWR" th:value="${timeVSWR}" placeholder="1..168" min="1" max="168">
@@ -399,7 +399,7 @@
                         <div class="col-md-6">
                             <div>
 <!--                            <button type="submit" class="btn btn-primary legend-button">Get Chart</button>-->
-                            <button type="submit" class="btn btn-primary legend-button" formaction="/helper/customCharts">Get Chart</button>
+                            <button type="submit" class="btn btn-primary legend-button" formaction="/helper/acceptanceMeasurement/customCharts">Get Chart</button>
                             <label for="time" style="font-weight: bold" class="pl-3">Query time (h):</label>
                             <input style="width: 70px" type="number" id="time" name="time" th:value="${time}" placeholder="1..168" min="1" max="168">
                             <input type="hidden" name="acceptanceMeasurementId" th:value="${acceptanceMeasurementId}">
