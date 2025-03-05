@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="ISO-8859-1">
+  <title>Access Denied</title>
+  <link rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        crossorigin="anonymous">
+</head>
+
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+<main>
+  <div class="container my-5">
+        <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+          <h1>Access Denied!</h1>
+<!--          <br>-->
+<!--          <p th:text="${error}"></p>-->
+        </div>
+  </div>
+</main>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+
+</html>

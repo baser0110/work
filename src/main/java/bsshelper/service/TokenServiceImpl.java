@@ -2,6 +2,7 @@ package bsshelper.service;
 
 import bsshelper.externalapi.auth.entity.Token;
 import bsshelper.externalapi.auth.service.AuthService;
+import bsshelper.globalutil.entity.UserEntity;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +31,8 @@ public class TokenServiceImpl implements TokenService {
     @PostConstruct
     @Override
     public void setTokenWithHandSake() {
-//        updateTokenDaily();
-//        handshake();
+        updateTokenDaily();
+        handshake();
     }
 
     private void handshake() {
@@ -41,6 +42,7 @@ public class TokenServiceImpl implements TokenService {
             timer.scheduleWithFixedDelay(() -> {
                 authService.updateToken(token.get());
                 log.info(" >> token is updated");
+//                System.out.println(">> token is updated");
             }, 29, 29, TimeUnit.MINUTES);
         } catch (Exception e) {
             log.error(" >> error in token update: {}", e.toString());

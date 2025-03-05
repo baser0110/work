@@ -5,6 +5,7 @@ import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Getter
@@ -20,7 +21,12 @@ public class AppUserDetails implements UserDetails {
         this.password = user.getPassword();
         this.active = !user.getIsDeleted();
         this.firstLogin = user.getIsFirstLogin();
-        this.authorities = user.getProfile().getAuthorities();
+        if (firstLogin) {
+            this.authorities = null;
+        }
+        else {
+            this.authorities = user.getProfile().getAuthorities();
+        }
     }
 
     @Override

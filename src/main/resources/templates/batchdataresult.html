@@ -10,14 +10,16 @@
           crossorigin="anonymous">
 </head>
 <body>
+<header th:replace="~{fragments/header-simple :: header}"></header>
+<main>
 <div class="container my-2">
 
-    <div class="row">
-        <div class="col-md-8">
-            <h4>Checked Result:</h4>
-        </div>
-    </div>
-
+<!--    <div class="row">-->
+<!--        <div class="col-md-8">-->
+<!--            <h4>Checked Result:</h4>-->
+<!--        </div>-->
+<!--    </div>-->
+    <br>
     <div>
     <table border="0" class="table-sm">
         <thead>
@@ -50,6 +52,7 @@
     <div th:text="'Sites: ' + ${nes}" style="font-weight: bold;"></div>
 
 </div>
+</main>
     <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

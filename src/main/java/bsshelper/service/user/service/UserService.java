@@ -2,6 +2,7 @@ package bsshelper.service.user.service;
 
 import bsshelper.service.user.entity.User;
 import bsshelper.service.user.repository.UserRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,19 +26,24 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+//    private final ProfileService profileService;
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-
-//    public Page<User> findUsers(String username, int page, int size) {
-//        Pageable pageable = PageRequest.of(page, size);
-//        if (username == null || username.isEmpty()) {
-//            return userRepository.findAll(pageable);
-//        } else {
-//            return userRepository.findByUsernameContainingIgnoreCase(username, pageable);
+//    @Transactional
+//    @PostConstruct
+//    public void initFistUser() {
+//        Optional<User> userOptional = userRepository.findByUsername("fist_admin");
+//        if (userOptional.isPresent()) {
+//            User user = userOptional.get();
+//            user.setIsFirstLogin(false);
+//            user.setPassword(passwordEncoder.encode("1st_ADMIN"));
+//            userRepository.save(user);
 //        }
 //    }
+
+    public List<User> getAllUsers() {
+//        System.out.println(userRepository.findAll());
+        return userRepository.findAll();
+    }
 
     public Optional<User> findByUsernameAndIsDeletedFalse(String username){
         return userRepository.findByUsernameAndIsDeletedFalse(username);
@@ -60,6 +66,7 @@ public class UserService {
     public void deleteUser(String id) {
         userRepository.deleteById(id);
     }
+
     @Transactional
     public User updateUser(User user) {
         User existingUser = userRepository.findById(user.getId())

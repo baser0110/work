@@ -3,10 +3,7 @@ package bsshelper.externalapi.configurationmng.nemoactserv.mapper;
 import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.FiberCableMoc;
 import bsshelper.externalapi.configurationmng.nemoactserv.entity.OpticInfoFinal;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class FiberTableMapper {
 
@@ -19,7 +16,8 @@ public class FiberTableMapper {
             String name = opt.getValue().getPortName();
             if (name.contains("FS")) {
                 String fsName = name;
-                fiberTableMap.put(fsName, new ArrayList<>(List.of(name, "Tx: " + opt.getValue().getTxPwr() + " / Rx: " + opt.getValue().getRxPwr())));
+                name = name.substring(2);
+                fiberTableMap.put(fsName, new ArrayList<>(List.of(fsName, "Tx: " + opt.getValue().getTxPwr() + " / Rx: " + opt.getValue().getRxPwr())));
                 while (name != null) {
                     if (connectinMap.containsKey(name)) {
                         String nextName = connectinMap.get(name);
@@ -28,6 +26,24 @@ public class FiberTableMapper {
                         nextName = nextName.replace(":1", ":2");
                         nextValue = opticMap.get(nextName);
                         fiberTableMap.get(fsName).addAll(new ArrayList<>(List.of(nextName, "Tx: " + nextValue.getTxPwr() + " / Rx: " + nextValue.getRxPwr())));
+                        if (connectinMap.containsKey(nextName)) {
+                            name = nextName;
+                        } else name = null;
+                    } else name = null;
+                }
+            }
+            else if (name.contains("BP")) {
+                String bpName = name;
+                name = name.substring(4);
+                fiberTableMap.put(bpName, new ArrayList<>(List.of(bpName, "Tx: " + opt.getValue().getTxPwr() + " / Rx: " + opt.getValue().getRxPwr())));
+                while (name != null) {
+                    if (connectinMap.containsKey(name)) {
+                        String nextName = connectinMap.get(name);
+                        OpticInfoFinal nextValue = opticMap.get(nextName);
+                        fiberTableMap.get(bpName).addAll(new ArrayList<>(List.of(":", " Rx: " + nextValue.getRxPwr() + " / Tx: " + nextValue.getTxPwr(), nextName)));
+                        nextName = nextName.replace(":1", ":2");
+                        nextValue = opticMap.get(nextName);
+                        fiberTableMap.get(bpName).addAll(new ArrayList<>(List.of(nextName, "Tx: " + nextValue.getTxPwr() + " / Rx: " + nextValue.getRxPwr())));
                         if (connectinMap.containsKey(nextName)) {
                             name = nextName;
                         } else name = null;
@@ -59,7 +75,7 @@ public class FiberTableMapper {
                 int index1 = f.getRef1FiberDevice().indexOf("Slot=");
                 int index2 = index1 + 6;
                 int index3 = f.getRef1FiberDevice().lastIndexOf("=");
-                ref1 = "FS(" + f.getRef1FiberDevice().substring(index1, index2) + "):OF"
+                ref1 = "(" + f.getRef1FiberDevice().substring(index1, index2) + "):OF"
                         + (Integer.parseInt(f.getRef1FiberDevice().substring(index3 + 1)) - 1) ;
                 ref1 = ref1.replace("=","");
             }

@@ -15,6 +15,7 @@
 
 <body>
     <header th:replace="~{fragments/header :: header}"></header>
+    <main>
 <div class="container my-2">
 
     <script>
@@ -53,16 +54,30 @@
             const isAnyCheckedCells = Array.from(checkboxesCells).some(checkbox => checkbox.checked)
             const checkboxesKPI = document.querySelectorAll('#KPI-table input[type="checkbox"]')
             const isAnyCheckedKPIs = Array.from(checkboxesKPI).some(checkbox => checkbox.checked)
-            if (!isAnyCheckedCells) {
+            const checkboxesKPINoCell = document.querySelectorAll('#KPINoCell-table input[type="checkbox"]')
+            const isAnyCheckedKPIsNoCell = Array.from(checkboxesKPINoCell).some(checkbox => checkbox.checked)
+            if (!isAnyCheckedCells && !checkboxesKPINoCell && !isAnyCheckedKPIsNoCell) {
                 event.preventDefault();
-                alert("No cells selected!")
-            } else {
-                if (!isAnyCheckedKPIs) {
+                alert("No KPIs selected!")
+            }
+            if (!isAnyCheckedKPIsNoCell) {
+                if (!isAnyCheckedCells) {
                     event.preventDefault();
-                    alert("No KPIs selected!")
-                // } else {
-                //     let form = document.getElementById("getCustomChart");
-                //     form.action = "/helper/customCharts";
+                    alert("No cells selected!")
+                } else {
+                    if (!isAnyCheckedKPIs) {
+                        event.preventDefault();
+                        alert("No KPIs selected!")
+                        // } else {
+                        //     let form = document.getElementById("getCustomChart");
+                        //     form.action = "/helper/customCharts";
+                    }
+                }
+            }
+            if (isAnyCheckedKPIsNoCell && isAnyCheckedKPIs) {
+                if (!isAnyCheckedCells) {
+                    event.preventDefault();
+                    alert("No cells selected!")
                 }
             }
         }
@@ -85,6 +100,7 @@
             const rtwpCheckboxes = document.querySelectorAll('#RTWP-table .select-checkbox');
             const cellCheckboxes = document.querySelectorAll('#Cell-table .select-checkbox');
             const kpiCheckboxes = document.querySelectorAll('#KPI-table .select-checkbox');
+            const kpiNoCellCheckboxes = document.querySelectorAll('#KPINoCell-table .select-checkbox');
             rtwpCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', () => updateCheckAll('RTWP-table'));
             });
@@ -93,6 +109,9 @@
             });
             kpiCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', () => updateCheckAll('KPI-table'));
+            });
+            kpiNoCellCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', () => updateCheckAll('KPINoCell-table'));
             });
         }
     </script>
@@ -285,7 +304,7 @@
                 <h2>Optic levels</h2>
                 <div th:if="${repoOptic != null}" class="row">
                     <div class="col-md-12">
-                        <table th:if="${!repoOptic.getDataOpticDev1().isEmpty()}" th:object="${repoOptic}" id="DEV1-table" border="1"
+                        <table th:if="${!repoOptic.getDataOpticDev1().isEmpty() && repoOptic.getMaxSize().get(0) > 2}" th:object="${repoOptic}" id="DEV1-table" border="1"
                                class="table table-striped table-sm table-bordered">
                             <tbody>
                             <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSize().get(0) - 1)}"
@@ -294,7 +313,7 @@
                             </tr>
                             </tbody>
                         </table>
-                        <table th:if="${!repoOptic.getDataOpticDev2().isEmpty()}" th:object="${repoOptic}" id="DEV2-table" border="1"
+                        <table th:if="${!repoOptic.getDataOpticDev2().isEmpty() && repoOptic.getMaxSize().get(1) > 2}" th:object="${repoOptic}" id="DEV2-table" border="1"
                                class="table table-striped table-sm table-bordered">
                             <tbody>
                             <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSize().get(1) - 1)}"
@@ -303,7 +322,7 @@
                             </tr>
                             </tbody>
                         </table>
-                        <table th:if="${!repoOptic.getDataOpticDev3().isEmpty()}" th:object="${repoOptic}" id="DEV3-table" border="1"
+                        <table th:if="${!repoOptic.getDataOpticDev3().isEmpty() && repoOptic.getMaxSize().get(2) > 2}" th:object="${repoOptic}" id="DEV3-table" border="1"
                                class="table table-striped table-sm table-bordered">
                             <tbody>
                             <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSize().get(2) - 1)}"
@@ -312,10 +331,37 @@
                             </tr>
                             </tbody>
                         </table>
+                        <table th:if="${!repoOptic.getDataOpticDev4().isEmpty() && repoOptic.getMaxSize().get(3) > 2}" th:object="${repoOptic}" id="DEV4-table" border="1"
+                               class="table table-striped table-sm table-bordered">
+                            <tbody>
+                            <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSize().get(3) - 1)}"
+                                th:style="${rowIndex == 0 || rowIndex == 4 || rowIndex == 5 || rowIndex == 9 || rowIndex == 10 || rowIndex == 14 || rowIndex == 15 ? 'font-weight: bold' : ''}">
+                                <td class="col-md-2" align="center" th:each="col : ${repoOptic.getDataOpticDev4()}" th:text="${rowIndex < col.size() ? col[rowIndex] : ''}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <table th:if="${!repoOptic.getDataOpticDev5().isEmpty() && repoOptic.getMaxSize().get(4) > 2}" th:object="${repoOptic}" id="DEV5-table" border="1"
+                               class="table table-striped table-sm table-bordered">
+                            <tbody>
+                            <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSize().get(4) - 1)}"
+                                th:style="${rowIndex == 0 || rowIndex == 4 || rowIndex == 5 || rowIndex == 9 || rowIndex == 10 || rowIndex == 14 || rowIndex == 15 ? 'font-weight: bold' : ''}">
+                                <td class="col-md-2" align="center" th:each="col : ${repoOptic.getDataOpticDev5()}" th:text="${rowIndex < col.size() ? col[rowIndex] : ''}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <table th:if="${!repoOptic.getDataOpticDev6().isEmpty() && repoOptic.getMaxSize().get(5) > 2}" th:object="${repoOptic}" id="DEV6-table" border="1"
+                               class="table table-striped table-sm table-bordered">
+                            <tbody>
+                            <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSize().get(5) - 1)}"
+                                th:style="${rowIndex == 0 || rowIndex == 4 || rowIndex == 5 || rowIndex == 9 || rowIndex == 10 || rowIndex == 14 || rowIndex == 15 ? 'font-weight: bold' : ''}">
+                                <td class="col-md-2" align="center" th:each="col : ${repoOptic.getDataOpticDev6()}" th:text="${rowIndex < col.size() ? col[rowIndex] : ''}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
                         <table th:if="${!repoOptic.getDataOpticLink().isEmpty()}" th:object="${repoOptic}" id="LINK-table" border="1"
                                th:class="${repoOptic.getDataOpticLink().size() == 1 ? 'table table-striped table-sm table-bordered col-md-3' : 'table table-striped table-sm table-bordered col-md-9'}">
                             <tbody>
-                            <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSize().get(3) - 1)}"
+                            <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSize().get(6) - 1)}"
                                 th:style="${rowIndex == 0 ? 'font-weight: bold' : ''}">
                                 <td class="col-md-3" align="center" th:each="col : ${repoOptic.getDataOpticLink()}" th:text="${rowIndex < col.size() ? col[rowIndex] : ''}"></td>
                             </tr>
@@ -366,6 +412,63 @@
                             </tr>
                             </tbody>
                         </table>
+                        <details>
+                            <summary>Boards without configured connections:</summary>
+                            <table th:if="${!repoOptic.getDataOpticDev1().isEmpty() && repoOptic.getMaxSize().get(0) <= 2}" th:object="${repoOptic}" id="DEV1-table" border="1"
+                                   class="table table-striped table-sm table-bordered">
+                                <tbody>
+                                <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSize().get(0) - 1)}"
+                                    th:style="${rowIndex == 0 || rowIndex == 4 || rowIndex == 5 || rowIndex == 9 || rowIndex == 10 || rowIndex == 14 || rowIndex == 15 ? 'font-weight: bold' : ''}">
+                                    <td class="col-md-2" align="center" th:each="col : ${repoOptic.getDataOpticDev1()}" th:text="${rowIndex < col.size() ? col[rowIndex] : ''}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table th:if="${!repoOptic.getDataOpticDev2().isEmpty() && repoOptic.getMaxSize().get(1) <= 2}" th:object="${repoOptic}" id="DEV2-table" border="1"
+                                   class="table table-striped table-sm table-bordered">
+                                <tbody>
+                                <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSize().get(1) - 1)}"
+                                    th:style="${rowIndex == 0 || rowIndex == 4 || rowIndex == 5 || rowIndex == 9 || rowIndex == 10 || rowIndex == 14 || rowIndex == 15 ? 'font-weight: bold' : ''}">
+                                    <td class="col-md-2" align="center" th:each="col : ${repoOptic.getDataOpticDev2()}" th:text="${rowIndex < col.size() ? col[rowIndex] : ''}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table th:if="${!repoOptic.getDataOpticDev3().isEmpty() && repoOptic.getMaxSize().get(2) <= 2}" th:object="${repoOptic}" id="DEV3-table" border="1"
+                                   class="table table-striped table-sm table-bordered">
+                                <tbody>
+                                <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSize().get(2) - 1)}"
+                                    th:style="${rowIndex == 0 || rowIndex == 4 || rowIndex == 5 || rowIndex == 9 || rowIndex == 10 || rowIndex == 14 || rowIndex == 15 ? 'font-weight: bold' : ''}">
+                                    <td class="col-md-2" align="center" th:each="col : ${repoOptic.getDataOpticDev3()}" th:text="${rowIndex < col.size() ? col[rowIndex] : ''}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table th:if="${!repoOptic.getDataOpticDev4().isEmpty() && repoOptic.getMaxSize().get(3) <= 2}" th:object="${repoOptic}" id="DEV4-table" border="1"
+                                   class="table table-striped table-sm table-bordered">
+                                <tbody>
+                                <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSize().get(3) - 1)}"
+                                    th:style="${rowIndex == 0 || rowIndex == 4 || rowIndex == 5 || rowIndex == 9 || rowIndex == 10 || rowIndex == 14 || rowIndex == 15 ? 'font-weight: bold' : ''}">
+                                    <td class="col-md-2" align="center" th:each="col : ${repoOptic.getDataOpticDev4()}" th:text="${rowIndex < col.size() ? col[rowIndex] : ''}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table th:if="${!repoOptic.getDataOpticDev5().isEmpty() && repoOptic.getMaxSize().get(4) <= 2}" th:object="${repoOptic}" id="DEV5-table" border="1"
+                                   class="table table-striped table-sm table-bordered">
+                                <tbody>
+                                <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSize().get(4) - 1)}"
+                                    th:style="${rowIndex == 0 || rowIndex == 4 || rowIndex == 5 || rowIndex == 9 || rowIndex == 10 || rowIndex == 14 || rowIndex == 15 ? 'font-weight: bold' : ''}">
+                                    <td class="col-md-2" align="center" th:each="col : ${repoOptic.getDataOpticDev5()}" th:text="${rowIndex < col.size() ? col[rowIndex] : ''}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table th:if="${!repoOptic.getDataOpticDev6().isEmpty() && repoOptic.getMaxSize().get(5) <= 2}" th:object="${repoOptic}" id="DEV6-table" border="1"
+                                   class="table table-striped table-sm table-bordered">
+                                <tbody>
+                                <tr th:each="rowIndex : ${#numbers.sequence(0, repoOptic.getMaxSize().get(5) - 1)}"
+                                    th:style="${rowIndex == 0 || rowIndex == 4 || rowIndex == 5 || rowIndex == 9 || rowIndex == 10 || rowIndex == 14 || rowIndex == 15 ? 'font-weight: bold' : ''}">
+                                    <td class="col-md-2" align="center" th:each="col : ${repoOptic.getDataOpticDev6()}" th:text="${rowIndex < col.size() ? col[rowIndex] : ''}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </details>
                     </div>
                 </div>
             </div>
@@ -423,6 +526,25 @@
                                 </tr>
                                 </tbody>
                             </table>
+                            <br>
+                            <table th:object="${repoKPI}" id="KPINoCell-table" border="1"
+                                   class="table table-striped table-sm table-bordered">
+                                <thead>
+                                <tr>
+                                    <th class="text-center" width="40px">
+                                        <input type="checkbox" class="checkAllBox" onclick="checkAll(this, 'KPINoCell-table')">
+                                    <th class="pl-5">KPI (no cell associated)</th>
+                                </tr>
+                                </thead>
+                                <tbody th:if="${!repoKPI.getDataKPINoCell().isEmpty()}">
+                                <tr th:each="object: *{dataKPINoCell}">
+                                    <td class="text-center">
+                                        <input type="checkbox" class="select-checkbox" name="checkedKPIsNoCellList" th:value="${object.getKpiName()}" th:checked="${object.isSelected()}">
+                                    </td>
+                                    <td class="pl-5" th:text="${object.getKpiName()}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </form>
@@ -444,6 +566,7 @@
          th:text="${message.getMessage()}" class="alert alert-info" role="alert" id="alert-info">
     </div>
 </div>
+    </main>
     <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

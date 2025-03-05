@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.*;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
@@ -44,15 +46,22 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
+        http.requiresChannel(channel ->
+                        channel.anyRequest().requiresSecure()
+                )
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/helper/login").permitAll()
+                        .requestMatchers("/helper/login","/helper/access-denied").permitAll()
                         .requestMatchers("/helper", "/helper/change-password").authenticated()
-                        .requestMatchers("/helper/dryContact/**").hasAnyAuthority("EXT_ALARM_MNG_VIEW", "EXT_ALARM_MNG_FULL")
-                        .requestMatchers("/helper/cellStatus/**").hasAnyAuthority("CELL_STAT_MNG_SINGLE_VIEW", "CELL_STAT_MNG_SINGLE_FULL")
+                        .requestMatchers(HttpMethod.GET,"/helper/dryContact/**").hasAnyAuthority("EXT_ALARM_MNG_VIEW", "EXT_ALARM_MNG_FULL")
+                        .requestMatchers("/helper/dryContact/**").hasAnyAuthority("EXT_ALARM_MNG_FULL")
+                        .requestMatchers(HttpMethod.GET,"/helper/cellStatus/**").hasAnyAuthority("CELL_STAT_MNG_SINGLE_VIEW", "CELL_STAT_MNG_SINGLE_FULL")
+                        .requestMatchers("/helper/cellStatus/cellStatusDetails").hasAnyAuthority("CELL_STAT_MNG_SINGLE_VIEW", "CELL_STAT_MNG_SINGLE_FULL")
+                        .requestMatchers("/helper/cellStatus/**").hasAnyAuthority("CELL_STAT_MNG_SINGLE_FULL")
                         .requestMatchers("/helper/cellStatusBatch/**").hasAnyAuthority("CELL_STAT_MNG_BATCH_VIEW", "CELL_STAT_MNG_BATCH_FULL")
                         .requestMatchers("/helper/acceptanceMeasurement/**").hasAnyAuthority("ACCEPT_MEASUREMENT_VIEW", "ACCEPT_MEASUREMENT_FULL")
-                        .requestMatchers("/helper/appAccessMng/**").hasAnyAuthority("USER_MNG_VIEW", "USER_MNG_FULL")
+                        .requestMatchers("/helper/appAccessMng", "/helper/appAccessMng/logs").hasAnyAuthority("USER_MNG_VIEW", "USER_MNG_FULL")
+                        .requestMatchers("/helper/appAccessMng/**").hasAnyAuthority("USER_MNG_FULL")
                         .requestMatchers("/helper/vasily-tools").hasAnyAuthority("VASILY_TOOLS_VIEW", "VASILY_TOOLS_FULL")
                 )
                 .formLogin(form -> form
@@ -67,6 +76,10 @@ public class SecurityConfig {
                         .clearAuthentication(true) // Clear authentication
                         .permitAll()
                 )
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(accessDeniedHandler())
+                )
+
 //                .sessionManagement(session -> session
 //                        .invalidSessionUrl("/session-expired")
 //                        .sessionConcurrency(concurrency -> concurrency
@@ -77,12 +90,22 @@ public class SecurityConfig {
                     session
                             .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                             .sessionFixation(SessionManagementConfigurer.SessionFixationConfigurer::newSession)
-                            .maximumSessions(1) // Allow only one session per user
-                            .expiredUrl("/helper/login?expired") // Redirect to login on session expiry
-                            .maxSessionsPreventsLogin(true)// If false, terminate the previous session
-                            .sessionRegistry(sessionRegistry())
+                            .sessionConcurrency(concurrency -> concurrency
+                                .maximumSessions(10) // Allow only one session per user
+                                .expiredUrl("/helper/login?expired") // Redirect to login on session expiry
+                                .maxSessionsPreventsLogin(true)// If false, terminate the previous session
+                                .sessionRegistry(sessionRegistry())
+                            )
+
                 );
         return http.build();
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return (request, response, accessDeniedException) -> {
+            response.sendRedirect("/helper/access-denied");
+        };
     }
 
     @Bean

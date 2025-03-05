@@ -34,7 +34,7 @@ public class ExecuteUCLIBatchScriptServiceImpl implements ExecuteUCLIBatchScript
 //            System.out.println(httpRequest);
             httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
             response = httpResponse.body();
-            System.out.println(response);
+//            System.out.println(response);
             executeSuccessResponse = new Gson().fromJson(response, ExecuteSuccessResponse.class);
         } catch (JsonSyntaxException e1) {
 //            e1.printStackTrace();
@@ -96,7 +96,7 @@ public class ExecuteUCLIBatchScriptServiceImpl implements ExecuteUCLIBatchScript
 //            System.out.println(httpRequest);
             httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
             response = httpResponse.body();
-            System.out.println(response);
+//            System.out.println(response);
             querySuccessResponse = new Gson().fromJson(response, QuerySuccessResponse.class);
         } catch (JsonSyntaxException e1) {
 //            e1.printStackTrace();

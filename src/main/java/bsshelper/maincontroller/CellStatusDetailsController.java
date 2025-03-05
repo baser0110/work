@@ -27,6 +27,7 @@ public class CellStatusDetailsController {
         List<CellStatusDetails> details = localCacheService.cellStatusDetailsMap.get(id);
         model.addAttribute("managedElement", managedElement);
         model.addAttribute("details", details);
+        model.addAttribute("title", null);
         return "cellstatusdetails";
     }
 }

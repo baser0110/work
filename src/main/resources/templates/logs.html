@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logs</title>
+    <title>Log Viewer</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
     <script>
         // JavaScript function to filter the logs based on search term
@@ -24,17 +24,17 @@
 </head>
 <body>
 <header th:replace="~{fragments/header :: header}"></header>
+<main>
 <div class="container my-5">
-    <h2>Log Viewer</h2>
-
     <!-- Date Selection (using Calendar) -->
     <form action="/helper/appAccessMng/logs" method="get">
         <div class="form-group">
             <label for="date">Select Date:</label>
-            <input type="date" id="date" name="date" class="form-control" value="${selectedDate}">
+            <div style="display: flex; gap: 5px;">
+            <input type="date" id="date" name="date" class="form-control" value="${selectedDate}" style="width: 20%">
+            <button type="submit" class="btn btn-primary">Load Logs</button>
+            </div>
         </div>
-
-        <button type="submit" class="btn btn-primary">Load Logs</button>
     </form>
 
     <!-- Search Bar -->
@@ -64,6 +64,7 @@
         </tbody>
     </table>
 </div>
+</main>
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

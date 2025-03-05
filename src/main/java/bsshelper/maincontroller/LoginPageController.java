@@ -53,4 +53,10 @@ public class LoginPageController {
         }
         return "redirect:/helper/change-password?invalid-pass";
     }
+
+    @GetMapping("/access-denied")
+    public String accessDenied(Model model) {
+//        model.addAttribute("error","You do not have permission to access this page.");
+        return "access-denied";
+    }
 }

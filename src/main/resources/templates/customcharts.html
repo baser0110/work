@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -18,33 +12,87 @@
 </head>
 
 <body>
-<div class="container my-2">
-    <div class="row">
-        <div class="col-md-8">
-            <h4 th:if="${managedElement != null}" th:text="${managedElement.userLabel} + ' (' + ${managedElement.ManagedElementType} + ') ' + ${managedElement.getParsedNe()}"></h4>
-        </div>
-    </div>
-</div>
+<header th:replace="~{fragments/header-simple :: header}"></header>
+<main>
 
 <div th:if="${managedElement != null}" class="col-md-12">
-    <div th:if="${chartRTWPData != null && !chartRTWPData.isEmpty()}" id="RTWPChartContainer" style="height: 500px; width: 100%;"></div>
-    <br>
-    <div th:if="${chartRRCData != null && !chartRRCData.isEmpty()}" id="RRCChartContainer" style="height: 500px; width: 100%;"></div>
-    <br>
-    <div th:if="${chartRABData != null && !chartRABData.isEmpty()}" id="RABChartContainer" style="height: 500px; width: 100%;"></div>
-    <br>
-    <div th:if="${chartHSUPAData != null && !chartHSUPAData.isEmpty()}" id="HSUPAChartContainer" style="height: 500px; width: 100%;"></div>
-    <br>
-    <div th:if="${chartHSDPAData != null && !chartHSDPAData.isEmpty()}" id="HSDPAChartContainer" style="height: 500px; width: 100%;"></div>
-    <br>
-    <div th:if="${chartRLCData != null && !chartRLCData.isEmpty()}" id="RLCChartContainer" style="height: 500px; width: 100%;"></div>
-    <br>
+    <div th:if="${chartRTWPData != null && !chartRTWPData.isEmpty()}" style="height: 5px;"></div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div th:if="${chartRTWPData != null && !chartRTWPData.isEmpty()}" id="RTWPChartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
+
+    <div th:if="${chartRRCAttemptData != null && !chartRRCAttemptData.isEmpty()}" style="height: 5px;"></div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div th:if="${chartRRCAttemptData != null && !chartRRCAttemptData.isEmpty()}" id="RRCAttemptChartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
+
+    <div th:if="${chartRRCData != null && !chartRRCData.isEmpty()}" style="height: 5px;"></div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div th:if="${chartRRCData != null && !chartRRCData.isEmpty()}" id="RRCChartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
+
+    <div th:if="${chartRABData != null && !chartRABData.isEmpty()}" style="height: 5px;"></div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div th:if="${chartRABData != null && !chartRABData.isEmpty()}" id="RABChartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
+
+    <div th:if="${chartHSUPAData != null && !chartHSUPAData.isEmpty()}" style="height: 5px;"></div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div th:if="${chartHSUPAData != null && !chartHSUPAData.isEmpty()}" id="HSUPAChartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
+
+    <div th:if="${chartHSDPAData != null && !chartHSDPAData.isEmpty()}" style="height: 5px;"></div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div th:if="${chartHSDPAData != null && !chartHSDPAData.isEmpty()}" id="HSDPAChartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
+
+    <div th:if="${chartRLCData != null && !chartRLCData.isEmpty()}" style="height: 5px;"></div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div th:if="${chartRLCData != null && !chartRLCData.isEmpty()}" id="RLCChartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
+
+    <div th:if="${chartANT_RSSI_1Data != null && !chartANT_RSSI_1Data.isEmpty()}" style="height: 5px;"></div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div th:if="${chartANT_RSSI_1Data != null && !chartANT_RSSI_1Data.isEmpty()}" id="ANT_RSSI_1ChartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
+
+    <div th:if="${chartANT_RSSI_2Data != null && !chartANT_RSSI_2Data.isEmpty()}" style="height: 5px;"></div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div th:if="${chartANT_RSSI_2Data != null && !chartANT_RSSI_2Data.isEmpty()}" id="ANT_RSSI_2ChartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
+
+    <div th:if="${chartANT_RSSI_1AND2Data != null && !chartANT_RSSI_1AND2Data.isEmpty()}" style="height: 5px;"></div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div th:if="${chartANT_RSSI_1AND2Data != null && !chartANT_RSSI_1AND2Data.isEmpty()}" id="ANT_RSSI_1AND2ChartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
+
+    <div th:if="${chartCELL_DIVERSITYData != null && !chartCELL_DIVERSITYData.isEmpty()}" style="height: 5px;"></div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div th:if="${chartCELL_DIVERSITYData != null && !chartCELL_DIVERSITYData.isEmpty()}" id="CELL_DIVERSITYChartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
+
+    <div th:if="${chartNUMBER_USER_IN_CELLData != null && !chartNUMBER_USER_IN_CELLData.isEmpty()}" style="height: 5px;"></div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div th:if="${chartNUMBER_USER_IN_CELLData != null && !chartNUMBER_USER_IN_CELLData.isEmpty()}" id="NUMBER_USER_IN_CELLChartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
+
+    <div th:if="${chartVSWRData != null && !chartVSWRData.isEmpty()}" style="height: 5px;"></div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div th:if="${chartVSWRData != null && !chartVSWRData.isEmpty()}" id="VSWRChartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
+
+    <div th:if="${chartMAX_OPTIC_ERRORData != null && !chartMAX_OPTIC_ERRORData.isEmpty()}" style="height: 5px;"></div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div th:if="${chartMAX_OPTIC_ERRORData != null && !chartMAX_OPTIC_ERRORData.isEmpty()}" id="MAX_OPTIC_ERRORChartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
 </div>
 
 <script th:inline="javascript">
     /* Convert the Java map to a JSON object */
     let chartRTWPData = /*[[${chartRTWPData}]]*/ {};
     let dataSeriesRTWP = [];
+    let chartRRCAttemptData = /*[[${chartRRCAttemptData}]]*/ {};
+    let dataSeriesRRCAttempt = [];
     let chartRRCData = /*[[${chartRRCData}]]*/ {};
     let dataSeriesRRC = [];
     let chartRABData = /*[[${chartRABData}]]*/ {};
@@ -55,6 +103,20 @@
     let dataSeriesHSDPA = [];
     let chartRLCData = /*[[${chartRLCData}]]*/ {};
     let dataSeriesRLC = [];
+    let chartANT_RSSI_1Data = /*[[${chartANT_RSSI_1Data}]]*/ {};
+    let dataSeriesANT_RSSI_1 = [];
+    let chartANT_RSSI_2Data = /*[[${chartANT_RSSI_2Data}]]*/ {};
+    let dataSeriesANT_RSSI_2 = [];
+    let chartANT_RSSI_1AND2Data = /*[[${chartANT_RSSI_1AND2Data}]]*/ {};
+    let dataSeriesANT_RSSI_1AND2 = [];
+    let chartCELL_DIVERSITYData = /*[[${chartCELL_DIVERSITYData}]]*/ {};
+    let dataSeriesCELL_DIVERSITY = [];
+    let chartNUMBER_USER_IN_CELLData = /*[[${chartNUMBER_USER_IN_CELLData}]]*/ {};
+    let dataSeriesNUMBER_USER_IN_CELL = [];
+    let chartVSWRData = /*[[${chartVSWRData}]]*/ {};
+    let dataSeriesVSWR = [];
+    let chartMAX_OPTIC_ERRORData = /*[[${chartMAX_OPTIC_ERRORData}]]*/ {};
+    let dataSeriesMAX_OPTIC_ERROR = [];
 
     // Process RTWP data
     for (let seriesRTWP in chartRTWPData) {
@@ -70,6 +132,24 @@
                 yValueFormatString: "###.#",
                 xValueFormatString: "DD-MM HH:mm",
                 dataPoints: dataPointsRTWP
+            });
+        }
+    }
+
+    // Process RRCAttempt data
+    for (let seriesRRCAttempt in chartRRCAttemptData) {
+        if (chartRRCAttemptData.hasOwnProperty(seriesRRCAttempt)) {
+            let dataPointsRRCAttempt = chartRRCAttemptData[seriesRRCAttempt].map(pointRRCAttempt => {
+                return { x: new Date(pointRRCAttempt.time), y: pointRRCAttempt.value};
+            });
+            dataSeriesRRCAttempt.push({
+                type: "line",
+                markerSize: 0,
+                name: seriesRRCAttempt,
+                showInLegend: true,
+                yValueFormatString: "###.#",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPointsRRCAttempt
             });
         }
     }
@@ -164,6 +244,132 @@
         }
     }
 
+    // Process ANT_RSSI_1 data
+    for (let seriesANT_RSSI_1 in chartANT_RSSI_1Data) {
+        if (chartANT_RSSI_1Data.hasOwnProperty(seriesANT_RSSI_1)) {
+            let dataPointsANT_RSSI_1 = chartANT_RSSI_1Data[seriesANT_RSSI_1].map(pointANT_RSSI_1 => {
+                return { x: new Date(pointANT_RSSI_1.time), y: pointANT_RSSI_1.value};
+            });
+            dataSeriesANT_RSSI_1.push({
+                type: "line",
+                markerSize: 0,
+                name: seriesANT_RSSI_1,
+                showInLegend: true,
+                yValueFormatString: "###.#",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPointsANT_RSSI_1
+            });
+        }
+    }
+
+    // Process ANT_RSSI_2 data
+    for (let seriesANT_RSSI_2 in chartANT_RSSI_2Data) {
+        if (chartANT_RSSI_2Data.hasOwnProperty(seriesANT_RSSI_2)) {
+            let dataPointsANT_RSSI_2 = chartANT_RSSI_2Data[seriesANT_RSSI_2].map(pointANT_RSSI_2 => {
+                return { x: new Date(pointANT_RSSI_2.time), y: pointANT_RSSI_2.value};
+            });
+            dataSeriesANT_RSSI_2.push({
+                type: "line",
+                markerSize: 0,
+                name: seriesANT_RSSI_2,
+                showInLegend: true,
+                yValueFormatString: "###.#",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPointsANT_RSSI_2
+            });
+        }
+    }
+
+    // Process ANT_RSSI_1AND2 data
+    for (let seriesANT_RSSI_1AND2 in chartANT_RSSI_1AND2Data) {
+        if (chartANT_RSSI_1AND2Data.hasOwnProperty(seriesANT_RSSI_1AND2)) {
+            let dataPointsANT_RSSI_1AND2 = chartANT_RSSI_1AND2Data[seriesANT_RSSI_1AND2].map(pointANT_RSSI_1AND2 => {
+                return { x: new Date(pointANT_RSSI_1AND2.time), y: pointANT_RSSI_1AND2.value};
+            });
+            dataSeriesANT_RSSI_1AND2.push({
+                type: "line",
+                markerSize: 0,
+                name: seriesANT_RSSI_1AND2,
+                showInLegend: true,
+                yValueFormatString: "###.#",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPointsANT_RSSI_1AND2
+            });
+        }
+    }
+
+    // Process CELL_DIVERSITY data
+    for (let seriesCELL_DIVERSITY in chartCELL_DIVERSITYData) {
+        if (chartCELL_DIVERSITYData.hasOwnProperty(seriesCELL_DIVERSITY)) {
+            let dataPointsCELL_DIVERSITY = chartCELL_DIVERSITYData[seriesCELL_DIVERSITY].map(pointCELL_DIVERSITY => {
+                return { x: new Date(pointCELL_DIVERSITY.time), y: pointCELL_DIVERSITY.value};
+            });
+            dataSeriesCELL_DIVERSITY.push({
+                type: "line",
+                markerSize: 0,
+                name: seriesCELL_DIVERSITY,
+                showInLegend: true,
+                yValueFormatString: "##0.0",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPointsCELL_DIVERSITY
+            });
+        }
+    }
+
+    // Process NUMBER_USER_IN_CELL data
+    for (let seriesNUMBER_USER_IN_CELL in chartNUMBER_USER_IN_CELLData) {
+        if (chartNUMBER_USER_IN_CELLData.hasOwnProperty(seriesNUMBER_USER_IN_CELL)) {
+            let dataPointsNUMBER_USER_IN_CELL = chartNUMBER_USER_IN_CELLData[seriesNUMBER_USER_IN_CELL].map(pointNUMBER_USER_IN_CELL => {
+                return { x: new Date(pointNUMBER_USER_IN_CELL.time), y: pointNUMBER_USER_IN_CELL.value};
+            });
+            dataSeriesNUMBER_USER_IN_CELL.push({
+                type: "line",
+                markerSize: 0,
+                name: seriesNUMBER_USER_IN_CELL,
+                showInLegend: true,
+                yValueFormatString: "##0.0",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPointsNUMBER_USER_IN_CELL
+            });
+        }
+    }
+
+    // Process VSWR data
+    for (let seriesVSWR in chartVSWRData) {
+        if (chartVSWRData.hasOwnProperty(seriesVSWR)) {
+            let dataPointsVSWR = chartVSWRData[seriesVSWR].map(pointVSWR => {
+                return { x: new Date(pointVSWR.time), y: pointVSWR.value};
+            });
+            dataSeriesVSWR.push({
+                type: "line",
+                markerSize: 0,
+                name: seriesVSWR,
+                showInLegend: true,
+                yValueFormatString: "##0.00",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPointsVSWR
+            });
+        }
+    }
+
+    // Process MAX_OPTIC_ERROR data
+    for (let seriesMAX_OPTIC_ERROR in chartMAX_OPTIC_ERRORData) {
+        if (chartMAX_OPTIC_ERRORData.hasOwnProperty(seriesMAX_OPTIC_ERROR)) {
+            let dataPointsMAX_OPTIC_ERROR = chartMAX_OPTIC_ERRORData[seriesMAX_OPTIC_ERROR].map(pointMAX_OPTIC_ERROR => {
+                return { x: new Date(pointMAX_OPTIC_ERROR.time), y: pointMAX_OPTIC_ERROR.value};
+            });
+            dataSeriesMAX_OPTIC_ERROR.push({
+                type: "line",
+                markerSize: 0,
+                name: seriesMAX_OPTIC_ERROR,
+                showInLegend: true,
+                yValueFormatString: "##0",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPointsMAX_OPTIC_ERROR
+            });
+        }
+    }
+
     window.onload = function () {
         const RTWPChartContainer = document.getElementById("RTWPChartContainer");
         if (RTWPChartContainer) {
@@ -201,6 +407,45 @@
                 data: dataSeriesRTWP
             });
             chartRTWP.render();
+        }
+
+        const RRCAttemptChartContainer = document.getElementById("RRCAttemptChartContainer");
+        if (RRCAttemptChartContainer) {
+            const containerWidthRRCAttempt = RRCAttemptChartContainer.offsetWidth;
+            const legendMaxWidthRRCAttempt = containerWidthRRCAttempt * 0.9;
+            let chartRRCAttempt = new CanvasJS.Chart("RRCAttemptChartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "Number of RRC connection establishment Attempt"
+                },
+                axisX: {
+                    // title: "Time",
+                    valueFormatString: "DD-MM HH:mm"
+                },
+                axisY: {
+                    title: "number of ...",
+                    // valueFormatString: "#0.##%"
+                },
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    // itemWrap: true,
+                    textAlign: "center",
+                    maxWidth: legendMaxWidthRRCAttempt,
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    // dockInsidePlotArea: true,
+                    itemclick: function (e) {
+                        e.dataSeries.visible = !e.dataSeries.visible;
+                        chartRRCAttempt.render();
+                    }
+                },
+                data: dataSeriesRRCAttempt
+            });
+            chartRRCAttempt.render();
         }
 
         const RRCChartContainer = document.getElementById("RRCChartContainer");
@@ -395,11 +640,276 @@
             });
             chartRLC.render();
         }
+
+        const ANT_RSSI_1ChartContainer = document.getElementById("ANT_RSSI_1ChartContainer");
+        if (ANT_RSSI_1ChartContainer) {
+            const containerWidthANT_RSSI_1 = ANT_RSSI_1ChartContainer.offsetWidth;
+            const legendMaxWidthANT_RSSI_1 = containerWidthANT_RSSI_1 * 0.9;
+            let chartANT_RSSI_1 = new CanvasJS.Chart("ANT_RSSI_1ChartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "Average RSSI of antenna 1"
+                },
+                axisX: {
+                    // title: "Time",
+                    valueFormatString: "DD-MM HH:mm"
+                },
+                axisY: {
+                    title: "dBm",
+                },
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    // itemWrap: true,
+                    textAlign: "center",
+                    maxWidth: legendMaxWidthANT_RSSI_1,
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    // dockInsidePlotArea: true,
+                    itemclick: function (e) {
+                        e.dataSeries.visible = !e.dataSeries.visible;
+                        chartANT_RSSI_1.render();
+                    }
+                },
+                data: dataSeriesANT_RSSI_1
+            });
+            chartANT_RSSI_1.render();
+        }
+
+        const ANT_RSSI_2ChartContainer = document.getElementById("ANT_RSSI_2ChartContainer");
+        if (ANT_RSSI_2ChartContainer) {
+            const containerWidthANT_RSSI_2 = ANT_RSSI_2ChartContainer.offsetWidth;
+            const legendMaxWidthANT_RSSI_2 = containerWidthANT_RSSI_2 * 0.9;
+            let chartANT_RSSI_2 = new CanvasJS.Chart("ANT_RSSI_2ChartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "Average RSSI of antenna 2"
+                },
+                axisX: {
+                    // title: "Time",
+                    valueFormatString: "DD-MM HH:mm"
+                },
+                axisY: {
+                    title: "dBm",
+                },
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    // itemWrap: true,
+                    textAlign: "center",
+                    maxWidth: legendMaxWidthANT_RSSI_2,
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    // dockInsidePlotArea: true,
+                    itemclick: function (e) {
+                        e.dataSeries.visible = !e.dataSeries.visible;
+                        chartANT_RSSI_2.render();
+                    }
+                },
+                data: dataSeriesANT_RSSI_2
+            });
+            chartANT_RSSI_2.render();
+        }
+
+        const CELL_DIVERSITYChartContainer = document.getElementById("CELL_DIVERSITYChartContainer");
+        if (CELL_DIVERSITYChartContainer) {
+            const containerWidthCELL_DIVERSITY = CELL_DIVERSITYChartContainer.offsetWidth;
+            const legendMaxWidthCELL_DIVERSITY = containerWidthCELL_DIVERSITY * 0.9;
+            let chartCELL_DIVERSITY = new CanvasJS.Chart("CELL_DIVERSITYChartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "Cell Diversity Reception"
+                },
+                axisX: {
+                    // title: "Time",
+                    valueFormatString: "DD-MM HH:mm"
+                },
+                axisY: {
+                    title: "dB",
+                },
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    // itemWrap: true,
+                    textAlign: "center",
+                    maxWidth: legendMaxWidthCELL_DIVERSITY,
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    // dockInsidePlotArea: true,
+                    itemclick: function (e) {
+                        e.dataSeries.visible = !e.dataSeries.visible;
+                        chartCELL_DIVERSITY.render();
+                    }
+                },
+                data: dataSeriesCELL_DIVERSITY
+            });
+            chartCELL_DIVERSITY.render();
+        }
+
+        const NUMBER_USER_IN_CELLChartContainer = document.getElementById("NUMBER_USER_IN_CELLChartContainer");
+        if (NUMBER_USER_IN_CELLChartContainer) {
+            const containerWidthNUMBER_USER_IN_CELL = NUMBER_USER_IN_CELLChartContainer.offsetWidth;
+            const legendMaxWidthNUMBER_USER_IN_CELL = containerWidthNUMBER_USER_IN_CELL * 0.9;
+            let chartNUMBER_USER_IN_CELL = new CanvasJS.Chart("NUMBER_USER_IN_CELLChartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "Total number of users in a cell"
+                },
+                axisX: {
+                    // title: "Time",
+                    valueFormatString: "DD-MM HH:mm"
+                },
+                axisY: {
+                    title: "number of ...",
+
+                },
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    // itemWrap: true,
+                    textAlign: "center",
+                    maxWidth: legendMaxWidthNUMBER_USER_IN_CELL,
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    // dockInsidePlotArea: true,
+                    itemclick: function (e) {
+                        e.dataSeries.visible = !e.dataSeries.visible;
+                        chartNUMBER_USER_IN_CELL.render();
+                    }
+                },
+                data: dataSeriesNUMBER_USER_IN_CELL
+            });
+            chartNUMBER_USER_IN_CELL.render();
+        }
+
+        const ANT_RSSI_1AND2ChartContainer = document.getElementById("ANT_RSSI_1AND2ChartContainer");
+        if (ANT_RSSI_1AND2ChartContainer) {
+            const containerWidthANT_RSSI_1AND2 = ANT_RSSI_1AND2ChartContainer.offsetWidth;
+            const legendMaxWidthANT_RSSI_1AND2 = containerWidthANT_RSSI_1AND2 * 0.9;
+            let chartANT_RSSI_1AND2 = new CanvasJS.Chart("ANT_RSSI_1AND2ChartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "Average RSSI of antenna 1&2"
+                },
+                axisX: {
+                    // title: "Time",
+                    valueFormatString: "DD-MM HH:mm"
+                },
+                axisY: {
+                    title: "dBm",
+                },
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    // itemWrap: true,
+                    textAlign: "center",
+                    maxWidth: legendMaxWidthANT_RSSI_1AND2,
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    // dockInsidePlotArea: true,
+                    itemclick: function (e) {
+                        e.dataSeries.visible = !e.dataSeries.visible;
+                        chartANT_RSSI_1AND2.render();
+                    }
+                },
+                data: dataSeriesANT_RSSI_1AND2
+            });
+            chartANT_RSSI_1AND2.render();
+        }
+
+        const VSWRChartContainer = document.getElementById("VSWRChartContainer");
+        if (VSWRChartContainer) {
+            const containerWidthVSWR = VSWRChartContainer.offsetWidth;
+            const legendMaxWidthVSWR = containerWidthVSWR * 0.9;
+            let chartVSWR = new CanvasJS.Chart("VSWRChartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "VSWR"
+                },
+                axisX: {
+                    // title: "Time",
+                    valueFormatString: "DD-MM HH:mm"
+                },
+                axisY: {
+                    title: "",
+                },
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    // itemWrap: true,
+                    textAlign: "center",
+                    maxWidth: legendMaxWidthVSWR,
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    // dockInsidePlotArea: true,
+                    itemclick: function (e) {
+                        e.dataSeries.visible = !e.dataSeries.visible;
+                        chartVSWR.render();
+                    }
+                },
+                data: dataSeriesVSWR
+            });
+            chartVSWR.render();
+        }
+
+        const MAX_OPTIC_ERRORChartContainer = document.getElementById("MAX_OPTIC_ERRORChartContainer");
+        if (MAX_OPTIC_ERRORChartContainer) {
+            const containerWidthMAX_OPTIC_ERROR = MAX_OPTIC_ERRORChartContainer.offsetWidth;
+            const legendMaxWidthMAX_OPTIC_ERROR = containerWidthMAX_OPTIC_ERROR * 0.9;
+            let chartMAX_OPTIC_ERROR = new CanvasJS.Chart("MAX_OPTIC_ERRORChartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "Maximum Ratio of Optical Interface Error"
+                },
+                axisX: {
+                    // title: "Time",
+                    valueFormatString: "DD-MM HH:mm"
+                },
+                axisY: {
+                    title: "number of ...",
+                },
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    // itemWrap: true,
+                    textAlign: "center",
+                    maxWidth: legendMaxWidthMAX_OPTIC_ERROR,
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    // dockInsidePlotArea: true,
+                    itemclick: function (e) {
+                        e.dataSeries.visible = !e.dataSeries.visible;
+                        chartMAX_OPTIC_ERROR.render();
+                    }
+                },
+                data: dataSeriesMAX_OPTIC_ERROR
+            });
+            chartMAX_OPTIC_ERROR.render();
+        }
     };
 </script>
-
+</main>
 <footer th:replace="~{fragments/footer :: footer}"></footer>
-</body>
-</html>
 </body>
 </html>

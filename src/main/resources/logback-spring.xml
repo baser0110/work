@@ -1,6 +1,7 @@
 <configuration>
 
-    <property name="LOG_DIR" value="${logging.file.path:-C:/Users/User/Desktop/logs}" />
+    <property name="LOG_DIR" value="${logging.file.path:-C:/Users/sergey_b/Desktop/logs}" />
+<!--    <property name="LOG_DIR" value="${logging.file.path:-C:/Users/svc_ran/Desktop/logs}" />-->
 
     <!-- Application Logs (logs/app/) -->
     <appender name="DEBUG_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">

@@ -11,13 +11,8 @@
 </head>
 
 <body>
-<div class="container my-2">
-    <div class="row">
-        <div class="col-md-8">
-            <h4 th:if="${managedElement != null}" th:text="${managedElement.userLabel} + ' (' + ${managedElement.ManagedElementType} + ') ' + ${managedElement.getParsedNe()}"></h4>
-        </div>
-    </div>
-</div>
+<header th:replace="~{fragments/header-simple :: header}"></header>
+<main>
 
 <!--    <br>-->
 <!--    <div th:if="${repoVSWR.getDataVSWR() != null}">-->
@@ -52,9 +47,11 @@
 
 <!--    <br>-->
 
-<div th:if="${managedElement != null}" class="col-md-12">
-    <div id="chartContainer" style="height: 500px; width: 100%;"></div>
-</div>
+    <div th:if="${managedElement != null}" style="height: 5px;"></div>
+    <div th:if="${managedElement != null}" class="col-md-12"
+                style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div id="chartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
 
 <script th:inline="javascript">
     /* Convert the Java map to a JSON object */
@@ -124,7 +121,7 @@
         }
     };
 </script>
-
+</main>
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

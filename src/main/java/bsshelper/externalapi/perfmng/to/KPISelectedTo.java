@@ -19,11 +19,24 @@ public class KPISelectedTo {
     public static List<KPISelectedTo> getDefaultKpiSelectedList() {
         List<KPISelectedTo> result = new ArrayList<>();
         result.add(new KPISelectedTo(true, KPI.RTWP.getInfo()));
+        result.add(new KPISelectedTo(false, KPI.RRC_ATTEMPT.getInfo()));
         result.add(new KPISelectedTo(false, KPI.RRC.getInfo()));
         result.add(new KPISelectedTo(false, KPI.RAB.getInfo()));
         result.add(new KPISelectedTo(false, KPI.HSUPA.getInfo()));
         result.add(new KPISelectedTo(false, KPI.HSDPA.getInfo()));
         result.add(new KPISelectedTo(false, KPI.RLC.getInfo()));
+        result.add(new KPISelectedTo(false, KPI.ANT_RSSI_1.getInfo()));
+        result.add(new KPISelectedTo(false, KPI.ANT_RSSI_2.getInfo()));
+        result.add(new KPISelectedTo(false, KPI.ANT_RSSI_1AND2.getInfo()));
+        result.add(new KPISelectedTo(false, KPI.CELL_DIVERSITY.getInfo()));
+        result.add(new KPISelectedTo(false, KPI.NUMBER_USER_IN_CELL.getInfo()));
+        return result;
+    }
+
+    public static List<KPISelectedTo> getDefaultNoCellKpiSelectedList() {
+        List<KPISelectedTo> result = new ArrayList<>();
+        result.add(new KPISelectedTo(false, KPI.VSWR.getInfo()));
+        result.add(new KPISelectedTo(false, KPI.MAX_OPTIC_ERROR.getInfo()));
         return result;
     }
 }

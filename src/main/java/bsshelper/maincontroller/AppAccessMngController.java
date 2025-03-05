@@ -24,7 +24,7 @@ import java.util.Optional;
 public class AppAccessMngController {
     private final UserService userService;
     private final ProfileService profileService;
-    private static final Logger operationLog = LoggerUtil.getOperationLogger();
+//    private static final Logger operationLog = LoggerUtil.getOperationLogger();
 
     @GetMapping("/appAccessMng")
     public String getAccessMngMain(Model model) {
@@ -72,8 +72,8 @@ public class AppAccessMngController {
             return "redirect:/helper/appAccessMng/users/management/new?invalid-pass";
         }
         userService.createUser(user);
-        operationLog.warn("User: {} \n({}) \ncreated a new user: {}",
-                authentication.getName(), authentication.getDetails(), user.getUsername());
+//        operationLog.warn("User: {} \n({}) \ncreated a new user: {}",
+//                authentication.getName(), authentication.getDetails(), user.getUsername());
         return "redirect:/helper/appAccessMng/users";
     }
 
@@ -87,16 +87,16 @@ public class AppAccessMngController {
                 return "redirect:/helper/appAccessMng/users/management/" + user.getId() + "?invalid-pass";
             }
         } else userService.updateUser(user);
-        operationLog.warn("User: {} ({}) edited user: {}",
-                authentication.getName(), authentication.getDetails(), user.getUsername());
+//        operationLog.warn("User: {} ({}) edited user: {}",
+//                authentication.getName(), authentication.getDetails(), user.getUsername());
         return "redirect:/helper/appAccessMng/users";
     }
 
     @PostMapping("/appAccessMng/users/management/delete/{id}")
     public String deleteUser(@PathVariable String id, Authentication authentication) {
         userService.deleteUser(id);
-        operationLog.warn("User: {} $$ ({}) $$ deleted user: {}",
-                authentication.getName(), authentication.getDetails(), id);
+//        operationLog.warn("User: {} $$ ({}) $$ deleted user: {}",
+//                authentication.getName(), authentication.getDetails(), id);
         return "redirect:/helper/appAccessMng/users";
     }
 
@@ -122,8 +122,8 @@ public class AppAccessMngController {
             return "redirect:/helper/appAccessMng/profiles/management/new?name-existed";
         }
         profileService.createProfile(profile);
-        operationLog.warn("User: {} ({}) created a new profile: {}",
-                authentication.getName(), authentication.getDetails(), profile.getName());
+//        operationLog.warn("User: {} ({}) created a new profile: {}",
+//                authentication.getName(), authentication.getDetails(), profile.getName());
         return "redirect:/helper/appAccessMng/profiles";
     }
 
@@ -140,16 +140,16 @@ public class AppAccessMngController {
     @PostMapping("/appAccessMng/profiles/management/edit")
     public String updateProfile(@ModelAttribute Profile profile, Authentication authentication) {
         profileService.updateProfile(profile);
-        operationLog.warn("User: {} ({}) edited profile: {}",
-                authentication.getName(), authentication.getDetails(), profile.getName());
+//        operationLog.warn("User: {} ({}) edited profile: {}",
+//                authentication.getName(), authentication.getDetails(), profile.getName());
         return "redirect:/helper/appAccessMng/profiles";
     }
 
     @PostMapping("/appAccessMng/profiles/management/delete/{id}")
     public String deleteProfile(@PathVariable String id, Authentication authentication) {
         profileService.deleteProfile(id);
-        operationLog.warn("User: {} ({}) delete profile: {}",
-                authentication.getName(), authentication.getDetails(), id);
+//        operationLog.warn("User: {} ({}) delete profile: {}",
+//                authentication.getName(), authentication.getDetails(), id);
         return "redirect:/helper/appAccessMng/profiles";
     }
 }

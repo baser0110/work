@@ -8,6 +8,7 @@ import java.util.List;
 @Builder
 public class HistoryQueryBodySettings {
     private final String nfctid;
+    private final String motid;
     private final int gr;
     private final String me;
     private final List<String> mois;

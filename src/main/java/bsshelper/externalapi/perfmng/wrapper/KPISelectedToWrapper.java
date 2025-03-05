@@ -12,4 +12,5 @@ import java.util.List;
 @AllArgsConstructor
 public class KPISelectedToWrapper {
     private List<KPISelectedTo> dataKPI;
+    private List<KPISelectedTo> dataKPINoCell;
 }

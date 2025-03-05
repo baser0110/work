@@ -61,6 +61,7 @@ public class ExecNeActServiceImpl implements ExecNeActService {
                         case "FS" -> result.addAll(OpticInfoFinal.toOpticInfoFinalForFS(diagnosisRowList));
                         case "CCC" -> result.addAll(OpticInfoFinal.toOpticInfoFinalForCCC(diagnosisRowList));
                         case "UES" -> result.addAll(OpticInfoFinal.toOpticInfoFinalForUES(diagnosisRowList));
+                        case "BP" -> result.addAll(OpticInfoFinal.toOpticInfoFinalForBP(diagnosisRowList));
                     }
                 }
             }
@@ -299,6 +300,10 @@ public class ExecNeActServiceImpl implements ExecNeActService {
             if (dev.getProductData_productName().contains("UES")) {
                 if (map.containsKey("UES")) map.get("UES").add(dev.getLdn());
                 else map.put("UES", new ArrayList<>(List.of(dev.getLdn())));
+            }
+            if (dev.getProductData_productName().contains("BPN") || dev.getProductData_productName().contains("BPQ")) {
+                if (map.containsKey("BP")) map.get("BP").add(dev.getLdn());
+                else map.put("BP", new ArrayList<>(List.of(dev.getLdn())));
             }
         }
         return map;

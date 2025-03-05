@@ -110,6 +110,24 @@ public class OpticInfoFinal {
         return result;
     }
 
+    public static List<OpticInfoFinal> toOpticInfoFinalForBP(List<DiagnosisRow> infoList) {
+        List<OpticInfoFinal> result = new ArrayList<>();
+        DiagnosisRow first = infoList.get(0);
+        String pos = first.getPosition();
+        String name = pos.replace("1.1.", "Slot");
+        if (first.getResult().equals("Board communication link is interrupted.")) {
+            result.add(new OpticInfoFinal(name + ":OF0", "n/a", "n/a"));
+            result.add(new OpticInfoFinal(name + ":OF1", "n/a", "n/a"));
+            result.add(new OpticInfoFinal(name + ":OF2", "n/a", "n/a"));
+            result.add(new OpticInfoFinal(name + ":OF3", "n/a", "n/a"));
+            result.add(new OpticInfoFinal(name + ":OF4", "n/a", "n/a"));
+            result.add(new OpticInfoFinal(name + ":OF5", "n/a", "n/a"));
+            return result;
+        }
+        result.addAll(getFinal(name, infoList));
+        return result;
+    }
+
     private static List<OpticInfoFinal> getFinal(String name, List<DiagnosisRow> infoList) {
         List<OpticInfoFinal> result = new ArrayList<>();
 

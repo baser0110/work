@@ -67,8 +67,10 @@
 </head>
 <body>
 <header th:replace="~{fragments/header :: header}"></header>
+<main>
 <div class="container">
-    <h1 th:text="${user.id == null ? 'Create New User' : 'Edit User'}"></h1>
+    <br>
+    <h2 th:text="${user.id == null ? 'Create New User' : 'Edit User'}"></h2>
     <form th:action="@{${user.id == null ? '/helper/appAccessMng/users/management/create' : '/helper/appAccessMng/users/management/edit'}}" th:object="${user}" method="post">
         <input type="hidden" th:field="*{id}" />
 
@@ -142,6 +144,7 @@
     <div th:if="${param['name-existed']}" class="alert alert-danger">User is already existed!</div>
     <div th:if="${param['name-short']}" class="alert alert-danger">Name is too short, name length should be between 4 and 20!</div>
 </div>
+</main>
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

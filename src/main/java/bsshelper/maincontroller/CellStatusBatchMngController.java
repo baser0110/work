@@ -17,10 +17,13 @@ import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.entity.MessageEntity;
 import bsshelper.service.LocalCacheService;
 import bsshelper.service.TokenService;
+import bsshelper.service.logger.LoggerUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,19 +48,20 @@ public class CellStatusBatchMngController {
     private final TokenService tokenService;
     private final LocalCacheService localCacheService;
     private final ExecuteUCLIBatchScriptService executeUCLIBatchScriptService;
+    private static final Logger operationLog = LoggerUtil.getOperationLogger();
 
     private String updateTime = "";
 
-//    @PostConstruct
-//    public void setCellCache() {
-//        localCacheService.meByNEMap.putAll(currentMgnService.getCacheManagedElement(tokenService.getToken(), CurrentMgnServiceImpl.Type.BY_NE));
-//        localCacheService.umtsSDRMap.putAll(currentMgnService.getCacheSDRCellsUMTS(tokenService.getToken()));
-//        localCacheService.umtsITBBUMap.putAll(currentMgnService.getCacheITBBUCellsUMTS(tokenService.getToken()));
-//        localCacheService.nbiotSDRMap.putAll(currentMgnService.getCacheSDRCellsNBIOT(tokenService.getToken()));
-//        localCacheService.nbiotITBBUMap.putAll(currentMgnService.getCacheITBBUCellsNBIOT(tokenService.getToken()));
-//        localCacheService.gsmMRNCMap.putAll(currentMgnService.getCacheMRNCCellsGSM(tokenService.getToken()));
-//        updateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-//    }
+    @PostConstruct
+    public void setCellCache() {
+        localCacheService.meByNEMap.putAll(currentMgnService.getCacheManagedElement(tokenService.getToken(), CurrentMgnServiceImpl.Type.BY_NE));
+        localCacheService.umtsSDRMap.putAll(currentMgnService.getCacheSDRCellsUMTS(tokenService.getToken()));
+        localCacheService.umtsITBBUMap.putAll(currentMgnService.getCacheITBBUCellsUMTS(tokenService.getToken()));
+        localCacheService.nbiotSDRMap.putAll(currentMgnService.getCacheSDRCellsNBIOT(tokenService.getToken()));
+        localCacheService.nbiotITBBUMap.putAll(currentMgnService.getCacheITBBUCellsNBIOT(tokenService.getToken()));
+        localCacheService.gsmMRNCMap.putAll(currentMgnService.getCacheMRNCCellsGSM(tokenService.getToken()));
+        updateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+    }
 
     @GetMapping("/cellStatusBatch")
     public String cellStatusBatch(Model model, HttpSession session) {
@@ -75,7 +79,7 @@ public class CellStatusBatchMngController {
         localCacheService.nbiotSDRMap.clear();
         localCacheService.nbiotITBBUMap.clear();
         localCacheService.gsmMRNCMap.clear();
-//        setCellCache();
+        setCellCache();
         model.addAttribute("updateTime", updateTime);
         model.addAttribute("title", "Cell Status Manager (Batch)");
         return "cellstatusbatch";
@@ -86,7 +90,7 @@ public class CellStatusBatchMngController {
                                String umts, Integer operationUMTS,
                                String gsm, Integer operationGSM,
                                String nbiot, Integer operationNBIoT,
-                               Model model, HttpSession session, String pass) {
+                               Model model, HttpSession session, Authentication authentication) {
         String id = session.getId();
         setMessage(id, model);
         String execResult = null;
@@ -149,6 +153,12 @@ public class CellStatusBatchMngController {
         } else {
             localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "Script execution result: " + execResult));
         }
+
+        getLog(umtsCells, operationUMTS,
+                nbiotCells, operationNBIoT,
+                gsmCells, operationGSM,
+                execResult, authentication);
+
         model.addAttribute("updateTime", updateTime);
         return "redirect:/helper/cellStatusBatch";
     }
@@ -183,12 +193,63 @@ public class CellStatusBatchMngController {
         return ExecuteStatus.getStatusByCode(response);
     }
 
-
     private void setMessage(String sessionId, Model model) {
         MessageEntity message = localCacheService.messageMap.get(sessionId);
         if (message != null) {
             model.addAttribute("message", localCacheService.messageMap.get(sessionId));
             localCacheService.messageMap.remove(sessionId);
         } else model.addAttribute("message", null);
+    }
+
+    private void getLog(List<String> umtsCells, Integer UMTSCellOperation,
+                        List<String> nbiotCells, Integer NBIoTCellOperation,
+                        List<String> gsmCells, Integer GSMCellOperation,
+                        String result, Authentication authentication) {
+        StringBuilder umts = new StringBuilder();
+        StringBuilder nBIoT = new StringBuilder();
+        StringBuilder gsm = new StringBuilder();
+        for (String cell : umtsCells) {
+            umts.append(cell).append(",");
+        }
+        if (umts.toString().endsWith(",")) {
+            umts = new StringBuilder(umts.substring(0, umts.length() - 1));
+        }
+        for (String cell : gsmCells) {
+            gsm.append(cell).append(",");
+                    }
+        if (gsm.toString().endsWith(",")) {
+            gsm = new StringBuilder(gsm.substring(0, gsm.length() - 1));
+        }
+        for (String cell : nbiotCells) {
+            nBIoT.append(cell).append(",");
+        }
+        if (nBIoT.toString().endsWith(",")) {
+            nBIoT = new StringBuilder(nBIoT.substring(0, nBIoT.length() - 1));
+        }
+        StringBuilder log = new StringBuilder();
+        log.append("User: ")
+                .append(authentication.getName())
+                .append(" (")
+                .append(authentication.getDetails().toString())
+                .append(") change cell status in BATCH: ");
+        String l = String.format("UMTS: [%s] %s, GSM: [%s] %s, NBIoT: [%s] %s; result: %s",
+                umts, getOperation(UMTSCellOperation),
+                gsm, getOperation(GSMCellOperation),
+                nBIoT, getOperation(NBIoTCellOperation),
+                result);
+        log.append(l);
+
+        operationLog.warn(log.toString());
+    }
+
+    private String getOperation(Integer operation) {
+        switch (operation) {
+            case 0: return "No Operation";
+            case 1: return "Block";
+            case 2: return "Smoothly Block";
+            case 4: return "Unblock";
+            case 5: return "Smoothly Unblock";
+            default: return "Unknown";
+        }
     }
 }

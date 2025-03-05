@@ -2,8 +2,9 @@ package bsshelper.maincontroller;
 
 import bsshelper.service.logger.LogEntry;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,12 +20,15 @@ import java.util.List;
 @Controller
 @RequestMapping(value = "/helper")
 @RequiredArgsConstructor
+@PropertySource("classpath:custom.properties")
 public class LogController {
 
-    private final String LOG_DIR = "C:/Users/User/Desktop/logs/operation/"; // Adjust as needed
+    @Value("${custom.operation.log.path}")
+    private String LOG_DIR; // Adjust as needed
 
     @GetMapping("/appAccessMng/logs")
     public String getLogs(String date, Model model) {
+        model.addAttribute("title", "Log Viewer");
         if (date == null || date.isEmpty()) {
             // Provide a default log file or show a message
             model.addAttribute("message", "Please select a log file date.");

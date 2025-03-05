@@ -3,11 +3,11 @@ package bsshelper.externalapi.perfmng.service;
 import bsshelper.externalapi.auth.entity.Token;
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
 import bsshelper.externalapi.configurationmng.currentmng.entity.mrnc.UUtranCellFDDMocSimplified;
+import bsshelper.externalapi.perfmng.entity.HistoryForULocalCell;
 import bsshelper.externalapi.perfmng.entity.HistoryForUMTSCell;
+import bsshelper.externalapi.perfmng.entity.HistoryMaxOpticError;
 import bsshelper.externalapi.perfmng.entity.HistoryVSWR;
-import bsshelper.externalapi.perfmng.mapper.HistoryITBBUVSWRMapper;
-import bsshelper.externalapi.perfmng.mapper.HistorySDRVSWRMapper;
-import bsshelper.externalapi.perfmng.mapper.HistoryUMTSCellMapper;
+import bsshelper.externalapi.perfmng.mapper.*;
 import bsshelper.externalapi.perfmng.to.HistoryTo;
 import bsshelper.externalapi.perfmng.util.HistoryQueryBodySettings;
 import bsshelper.externalapi.perfmng.util.HistoryQueryErrorEntity;
@@ -34,27 +34,6 @@ import java.util.List;
 public class HistoryQueryServiceImpl implements HistoryQueryService {
 
     @Override
-    public List<HistoryVSWR> getHistoryVSWR(Token token, ManagedElement managedElement, int time) {
-        String json = null;
-        List<HistoryVSWR> result = null;
-        HistoryQueryBodySettings bodySettings = getVSWRBodySettings(managedElement, time);
-        if (bodySettings != null) {
-            json = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettings));
-        }
-        HistoryTo historyTo = getHistoryTo(json, KPI.VSWR);
-        if (historyTo != null) {
-            List<String> rawHistoryVSWRList = historyTo.getData();
-            rawHistoryVSWRList.remove(0);
-            switch (managedElement.getManagedElementType()) {
-                case SDR -> result = HistorySDRVSWRMapper.toFinalEntity(rawHistoryVSWRList);
-                case ITBBU -> result = HistoryITBBUVSWRMapper.toFinalEntity(rawHistoryVSWRList);
-            }
-        }
-        log.info(" >> historyVSWRList: {}", result == null ? "null" : result.size() + " points");
-        return result;
-    }
-
-    @Override
     public List<HistoryForUMTSCell> getUMTSCellHistory(Token token, ManagedElement managedElement, List<UUtranCellFDDMocSimplified> cells, int time, KPI kpi) {
         if (cells == null || cells.isEmpty()) { return null; }
         String me = cells.getFirst().getRncNum() + ", " + cells.getLast().getRncNum();
@@ -63,12 +42,19 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
             cellsQuery.add(String.valueOf(c.getMoId()));
         }
         String json = null;
+        String json1 = null;
         List<HistoryForUMTSCell> result = null;
         HistoryQueryBodySettings bodySettings = getUMTSCellBodySettings(me, cellsQuery, time, kpi);
+//        System.out.println(bodySettings.getBodySettings());
+//        HistoryQueryBodySettings bodySettings1 = getPacketCellBodySettings(me, time);
+//        System.out.println(bodySettings1.getBodySettings());
+//        if (bodySettings1 != null) {
+//            json1 = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettings1));
+//        }
         if (bodySettings != null) {
             json = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettings));
         }
-//        System.out.println(json);
+//        System.out.println(json1);
         HistoryTo historyTo = getHistoryTo(json, kpi);
         if (historyTo != null) {
             List<String> rawHistoryList = historyTo.getData();
@@ -131,14 +117,42 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
                 .build();
     }
 
-    private HistoryQueryBodySettings getVSWRBodySettings(ManagedElement managedElement, int time) {
+//    private HistoryQueryBodySettings getVSWRBodySettings(ManagedElement managedElement, int time) {
+//        switch (managedElement.getManagedElementType()) {
+//            case SDR -> {
+//                return   HistoryQueryBodySettings.builder()
+//                        .nfctid("SDR")
+//                        .gr(15)
+//                        .me(managedElement.getSubNetworkNum() + "," + managedElement.getManagedElementNum())
+//                        .items(List.of(KPI.VSWR.getCode()))
+//                        .showobjectname(true)
+//                        .starttime(TimeToString.nHoursAgoTime(time))
+//                        .endtime(TimeToString.nowTime())
+//                        .build();
+//            }
+//            case ITBBU -> {
+//                return   HistoryQueryBodySettings.builder()
+//                        .nfctid("ITBBU")
+//                        .gr(15)
+//                        .me(managedElement.getSubNetworkNum() + "," + managedElement.getManagedElementNum())
+//                        .items(List.of(KPI.VSWR.getCode()))
+//                        .showobjectname(true)
+//                        .starttime(TimeToString.nHoursAgoTime(time))
+//                        .endtime(TimeToString.nowTime())
+//                        .build();
+//            }
+//        }
+//        return null;
+//    }
+
+    private HistoryQueryBodySettings getSDROrITBBUBodySettings(ManagedElement managedElement, int time, KPI kpi) {
         switch (managedElement.getManagedElementType()) {
             case SDR -> {
                 return   HistoryQueryBodySettings.builder()
                         .nfctid("SDR")
                         .gr(15)
                         .me(managedElement.getSubNetworkNum() + "," + managedElement.getManagedElementNum())
-                        .items(List.of(KPI.VSWR.getCode()))
+                        .items(List.of(kpi.getCode()))
                         .showobjectname(true)
                         .starttime(TimeToString.nHoursAgoTime(time))
                         .endtime(TimeToString.nowTime())
@@ -149,7 +163,7 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
                         .nfctid("ITBBU")
                         .gr(15)
                         .me(managedElement.getSubNetworkNum() + "," + managedElement.getManagedElementNum())
-                        .items(List.of(KPI.VSWR.getCode()))
+                        .items(List.of(kpi.getCode()))
                         .showobjectname(true)
                         .starttime(TimeToString.nHoursAgoTime(time))
                         .endtime(TimeToString.nowTime())
@@ -171,5 +185,93 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
                 .endtime(TimeToString.nowTime())
                 .filterlayer("WV4.UtranCell")
                 .build();
+    }
+
+//    private HistoryQueryBodySettings getPacketCellBodySettings(String me, int time) {
+//        return   HistoryQueryBodySettings.builder()
+//                .nfctid("MRNC")
+//                .motid("pm.IPPD")
+//                .gr(15)
+//                .me("13, 13")
+//                .mois(List.of("4"))
+//                .items(List.of("900156"))
+//                .showobjectname(true)
+//                .starttime(TimeToString.nHoursAgoTime(time))
+//                .endtime(TimeToString.nowTime())
+//                .grouplayer("me,WV4.IubLink")
+//                .filterlayer("WV4.IubLink")
+//                .build();
+//    }
+
+    @Override
+    public List<HistoryVSWR> getHistoryVSWR(Token token, ManagedElement managedElement, int time) {
+        String json = null;
+        List<HistoryVSWR> result = null;
+        HistoryQueryBodySettings bodySettings = getSDROrITBBUBodySettings(managedElement, time, KPI.VSWR);
+        if (bodySettings != null) {
+            json = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettings));
+        }
+//        System.out.println(json);
+        HistoryTo historyTo = getHistoryTo(json, KPI.VSWR);
+        if (historyTo != null) {
+            List<String> rawHistoryVSWRList = historyTo.getData();
+            rawHistoryVSWRList.remove(0);
+            switch (managedElement.getManagedElementType()) {
+                case SDR -> result = HistorySDRVSWRMapper.toFinalEntity(rawHistoryVSWRList);
+                case ITBBU -> result = HistoryITBBUVSWRMapper.toFinalEntity(rawHistoryVSWRList);
+            }
+        }
+        log.info(" >> historyVSWRList: {}", result == null ? "null" : result.size() + " points");
+        return result;
+    }
+
+    @Override
+    public List<HistoryForULocalCell> getHistoryCell(Token token, ManagedElement managedElement, int time, KPI kpi) {
+        String json = null;
+        List<HistoryForULocalCell> result = null;
+        HistoryQueryBodySettings bodySettings = getSDROrITBBUBodySettings(managedElement, time, kpi);
+        if (bodySettings != null) {
+            json = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettings));
+        }
+//        System.out.println(json);
+        HistoryTo historyTo = getHistoryTo(json, kpi);
+        if (historyTo != null) {
+            List<String> rawHistoryForULocalCellList = historyTo.getData();
+            rawHistoryForULocalCellList.remove(0);
+            switch (managedElement.getManagedElementType()) {
+                case SDR -> result = HistorySDRForULocalCellMapper.toFinalEntity(rawHistoryForULocalCellList);
+                case ITBBU -> result = HistoryITBBUForULocalCellMapper.toFinalEntity(rawHistoryForULocalCellList);
+            }
+        }
+        log.info(" >> HistoryForULocalCell: {}", result == null ? "null" : result.size() + " points");
+        return result;
+    }
+
+    @Override
+    public List<HistoryMaxOpticError> getHistoryOptic(Token token, ManagedElement managedElement, int time) {
+        KPI kpi = null;
+        switch (managedElement.getManagedElementType()) {
+            case SDR -> kpi = KPI.MAX_OPTIC_ERROR_SDR;
+            case ITBBU -> kpi = KPI.MAX_OPTIC_ERROR_ITBBU;
+        }
+
+        String json = null;
+        List<HistoryMaxOpticError> result = null;
+        HistoryQueryBodySettings bodySettings = getSDROrITBBUBodySettings(managedElement, time, kpi);
+        if (bodySettings != null) {
+            json = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettings));
+        }
+//        System.out.println(json);
+        HistoryTo historyTo = getHistoryTo(json, kpi);
+        if (historyTo != null) {
+            List<String> rawHistoryMaxOpticErrorList = historyTo.getData();
+            rawHistoryMaxOpticErrorList.remove(0);
+            switch (managedElement.getManagedElementType()) {
+                case SDR -> result = HistorySDRMaxOpticErrorMapper.toFinalEntity(rawHistoryMaxOpticErrorList);
+                case ITBBU -> result = HistoryITBBUMaxOpticErrorMapper.toFinalEntity(rawHistoryMaxOpticErrorList);
+            }
+        }
+        log.info(" >> HistoryMaxOpticError: {}", result == null ? "null" : result.size() + " points");
+        return result;
     }
 }

@@ -10,8 +10,10 @@
 </head>
 <body>
 <header th:replace="~{fragments/header :: header}"></header>
+<main>
 <div class="container">
-    <h1 th:text="${profile.id == null ? 'Create New Profile' : 'Edit Profile'}"></h1>
+    <br>
+    <h2 th:text="${profile.id == null ? 'Create New Profile' : 'Edit Profile'}"></h2>
     <form th:action="@{${profile.id == null ? '/helper/appAccessMng/profiles/management/create' : '/helper/appAccessMng/profiles/management/edit'}}" th:object="${profile}" method="post">
         <input type="hidden" th:field="*{id}" />
 
@@ -24,7 +26,7 @@
 
         <!-- Permissions -->
         <div class="form-group col-md-4">
-            <label for="extAlarmMng">External Alarm Management</label>
+            <label for="extAlarmMng">External Alarms Manager</label>
             <select id="extAlarmMng" name="extAlarmMng" class="form-control" th:field="*{extAlarmMng}">
                 <option value="NO" th:selected="*{extAlarmMng == 'NO'}">No Access</option>
                 <option value="VIEW" th:selected="*{extAlarmMng == 'VIEW'}">View Only</option>
@@ -33,7 +35,7 @@
         </div>
 
         <div class="form-group col-md-4">
-            <label for="cellStatMngSingle">Cell Stat Management (Single)</label>
+            <label for="cellStatMngSingle">Cell Status Manager (Single NE)</label>
             <select id="cellStatMngSingle" name="cellStatMngSingle" class="form-control" th:field="*{cellStatMngSingle}">
                 <option value="NO" th:selected="*{cellStatMngSingle == 'NO'}">No Access</option>
                 <option value="VIEW" th:selected="*{cellStatMngSingle == 'VIEW'}">View Only</option>
@@ -42,7 +44,7 @@
         </div>
 
         <div class="form-group col-md-4">
-            <label for="cellStatMngBatch">Cell Stat Management (Batch)</label>
+            <label for="cellStatMngBatch">Cell Status Manager (Batch)</label>
             <select id="cellStatMngBatch" name="cellStatMngBatch" class="form-control" th:field="*{cellStatMngBatch}">
                 <option value="NO" th:selected="*{cellStatMngBatch == 'NO'}">No Access</option>
                 <option value="VIEW" th:selected="*{cellStatMngBatch == 'VIEW'}">View Only</option>
@@ -51,7 +53,7 @@
         </div>
 
         <div class="form-group col-md-4">
-            <label for="acceptMeasurement">Accept Measurement</label>
+            <label for="acceptMeasurement">Acceptance Measurement</label>
             <select id="acceptMeasurement" name="acceptMeasurement" class="form-control" th:field="*{acceptMeasurement}">
                 <option value="NO" th:selected="*{acceptMeasurement == 'NO'}">No Access</option>
                 <option value="VIEW" th:selected="*{acceptMeasurement == 'VIEW'}">View Only</option>
@@ -60,7 +62,7 @@
         </div>
 
         <div class="form-group col-md-4">
-            <label for="userMng">User Management</label>
+            <label for="userMng">Application Access Manager</label>
             <select id="userMng" name="userMng" class="form-control" th:field="*{userMng}">
                 <option value="NO" th:selected="*{userMng == 'NO'}">No Access</option>
                 <option value="VIEW" th:selected="*{userMng == 'VIEW'}">View Only</option>
@@ -69,7 +71,7 @@
         </div>
 
         <div class="form-group col-md-4">
-            <label for="vasilyTools">Vasily Tools</label>
+            <label for="vasilyTools">Vasily Vorohobko Tool</label>
             <select id="vasilyTools" name="vasilyTools" class="form-control" th:field="*{vasilyTools}">
                 <option value="NO" th:selected="*{vasilyTools == 'NO'}">No Access</option>
                 <option value="VIEW" th:selected="*{vasilyTools == 'VIEW'}">View Only</option>
@@ -87,6 +89,7 @@
     <br>
     <div th:if="${param['name-existed']}" class="alert alert-danger">Profile is already existed!</div>
 </div>
+</main>
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

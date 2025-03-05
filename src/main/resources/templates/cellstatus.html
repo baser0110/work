@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 
 <head>
     <meta charset="ISO-8859-1">
@@ -12,6 +12,7 @@
 
 <body>
     <header th:replace="~{fragments/header :: header}"></header>
+<main>
 <div class="container my-2">
     <script>
         function searchByUserLabel() {
@@ -25,14 +26,17 @@
             }
         }
     </script>
-
+<!--    "${managedElement != null} ? ${managedElement.getUserLabel()} : ${sitename}"-->
+    <div style="display: flex; gap: 5px;">
     <form id="search" method="get" onsubmit="searchByUserLabel()">
         <input type="text" id="userlabel" name="userlabel" th:value="${sitename}" placeholder="Enter sitename">
         <button type="submit" class="btn btn-success">Search</button>
     </form>
-<!--    <form id="refresh" method="get" onsubmit="searchByUserLabel()">-->
-<!--        <button type="submit" class="btn btn-secondary">Refresh</button>-->
-<!--    </form>-->
+    <form th:if="${managedElement != null}" id="refresh" method="get"
+          th:action="@{'/helper/cellStatus/' + ${managedElement.userLabel}}">
+        <button type="submit" class="btn btn-secondary">Refresh</button>
+    </form>
+    </div>
 
     <style>
         legend {
@@ -100,7 +104,7 @@
 
     </script>
     <div th:if="${managedElement != null}">
-        <form action="#" th:action="@{/helper/cellStatus/changeStatus}" method="post">
+        <form sec:authorize="hasAuthority('CELL_STAT_MNG_SINGLE_FULL')" action="#" th:action="@{/helper/cellStatus/changeStatus}" method="post">
             <fieldset>
                 <legend>
                     <span class="legend-title" th:text="${managedElement.userLabel} + ' (' + ${managedElement.ManagedElementType} + ') '
@@ -290,6 +294,95 @@
 
             </fieldset>
         </form>
+
+        <div sec:authorize="hasAuthority('CELL_STAT_MNG_SINGLE_VIEW')">
+            <legend>
+                    <span class="legend-title" th:text="${managedElement.userLabel} + ' (' + ${managedElement.ManagedElementType} + ') '
+                        + ${managedElement.getParsedNe()}"> </span>
+            </legend>
+            <div th:if="${repoUMTS.getDataUMTS() != null}" class="row">
+                <div style="position: relative;" class="col-md-8">
+                    <table th:object="${repoUMTS}" id="UMTS-table-view" border="1"
+                           class="table table-striped table-sm table-bordered">
+                        <thead>
+                        <tr>
+                            <th class="pl-5">userLabel</th>
+                            <th th:if="${managedElement.getManagedElementType().toString.equals('SDR')}"
+                                class="pl-5">adminState
+                            </th>
+                            <th th:if="${managedElement.getManagedElementType().toString.equals('ITBBU')}"
+                                class="pl-5">adminState
+                            </th>
+                            <th class="pl-5">operState</th>
+                        </tr>
+                        </thead>
+                        <tbody th:if="${!repoUMTS.getDataUMTS().isEmpty()}">
+                        <tr th:each="cell, cellStat : *{dataUMTS}">
+                            <td class="pl-5" th:text="${cell.userLabel}"></td>
+                            <td class="pl-5" th:text="${cell.adminState}"></td>
+                            <td class="pl-5" th:text="${cell.operState}" th:style="${cell.existed} ? 'color: black;' : 'color: red;'"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-4">
+                    <table border="0" class="table-sm">
+                        <thead>
+                        <tr>
+                            <th>
+                                <form th:action="@{/helper/cellStatus/cellStatusDetails}" method="post">
+                                <button id="details-view" class="btn btn-primary text-center width-250px" type="submit" formtarget="_blank"> Cell Status Details </button>
+                                </form>
+                            </th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+
+            <div th:if="${repoGSM.getDataGSM() != null}" class="row">
+                <div class="col-md-8">
+                    <table th:object="${repoGSM}" id="GSM-table-view" border="1"
+                           class="table table-striped table-sm table-bordered">
+                        <thead>
+                        <tr>
+                            <th class="pl-5">userLabel</th>
+                            <th class="pl-5">hasAlarm</th>
+                        </tr>
+                        </thead>
+                        <tbody th:if="${!repoGSM.getDataGSM().isEmpty()}">
+                        <tr th:each="cell, cellStat : *{dataGSM}">
+                            <td class="pl-5" th:text="${cell.userLabel}"></td>
+                            <td class="pl-5" th:text="${cell.hasAlarm}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div th:if="${repoNBIoT.getDataNBIOT() != null}" class="row">
+                <div class="col-md-8">
+                    <table th:object="${repoNBIoT}" id="NBIOT-table-view" border="1"
+                           class="table table-striped table-sm table-bordered">
+                        <thead>
+                        <tr>
+                            <th class="pl-5">userLabel</th>
+                            <th class="pl-5">adminState</th>
+                            <th class="pl-5">operState</th>
+                        </tr>
+                        </thead>
+                        <tbody th:if="${!repoNBIoT.getDataNBIOT().isEmpty()}">
+                        <tr th:each="cell, cellStat : *{dataNBIOT}">
+                            <td class="pl-5" th:text="${cell.userLabel}"></td>
+                            <td class="pl-5" th:text="${cell.adminState}"></td>
+                            <td class="pl-5" th:text="${cell.operState}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
     <!--    <br />-->
     <!--        <h2>Batch Management</h2>-->
@@ -304,7 +397,7 @@
          th:text="${message.getMessage()}" class="alert alert-info" role="alert" id="alert-info">
     </div>
 </div>
-
+</main>
     <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

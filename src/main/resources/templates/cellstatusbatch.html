@@ -90,9 +90,9 @@
         });
     });
 </script>
-
 <body>
-    <header th:replace="~{fragments/header :: header}"></header>
+<header th:replace="~{fragments/header :: header}"></header>
+<main>
 <div class="container my-2">
 
     <form id="main" method="post">
@@ -258,10 +258,10 @@
                     <th>
                         <button id="execute" class="btn btn-danger text-center width-250px" type="submit" formaction="/helper/cellStatusBatch/executeBatch"> Execute Batch </button>
                     </th>
-                    <th>
-                        <label for="pass" style="font-weight: bold" class="pl-3">Password:</label>
-                        <input style="width: 70px" type="password" id="pass" name="pass" th:value="${pass}">
-                    </th>
+<!--                    <th>-->
+<!--                        <label for="pass" style="font-weight: bold" class="pl-3">Password:</label>-->
+<!--                        <input style="width: 70px" type="password" id="pass" name="pass" th:value="${pass}">-->
+<!--                    </th>-->
                 </tr>
                 </thead>
             </table>
@@ -280,6 +280,7 @@
     </div>
     </form>
 </div>
-    <footer th:replace="~{fragments/footer :: footer}"></footer>
+</main>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

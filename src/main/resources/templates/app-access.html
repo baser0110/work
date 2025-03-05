@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 
 <head>
     <meta charset="ISO-8859-1">
@@ -11,16 +11,17 @@
 </head>
 <body>
 <header th:replace="~{fragments/header :: header}"></header>
-<div class="container my-2">
-    <form>
+<main>
+<div class="container my-2 content">
+    <form sec:authorize="hasAuthority('USER_MNG_FULL')">
         <br/>
         <a id="users" class="btn btn-success text-center width-250px" th:href="@{/helper/appAccessMng/users}">Users</a>
     </form>
-    <form>
+    <form sec:authorize="hasAuthority('USER_MNG_FULL')">
         <br/>
         <a id="profiles" class="btn btn-success text-center width-250px" th:href="@{/helper/appAccessMng/profiles}">Profiles</a>
     </form>
-    <form>
+    <form sec:authorize="hasAuthority('USER_MNG_VIEW') || hasAuthority('USER_MNG_FULL')">
         <br/>
         <a id="logs" class="btn btn-success text-center width-250px" th:href="@{/helper/appAccessMng/logs}">Logs</a>
     </form>
@@ -43,6 +44,7 @@
         overflow: auto;
     }
 </style>
+</main>
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

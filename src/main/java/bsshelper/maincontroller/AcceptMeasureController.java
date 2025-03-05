@@ -145,7 +145,7 @@ public class AcceptMeasureController {
         }
 
         FiberTableWrapper fiberTableWrapper =
-                new FiberTableWrapper(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                new FiberTableWrapper(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
                         new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
         // OPTIC LEVELS
@@ -171,7 +171,22 @@ public class AcceptMeasureController {
                                 count++;
                                 continue;
                             }
-                            fiberTableWrapper.getDataOpticDev3().add(entry.getValue());
+                            if (count < 18) {
+                                fiberTableWrapper.getDataOpticDev3().add(entry.getValue());
+                                count++;
+                                continue;
+                            }
+                            if (count < 24) {
+                                fiberTableWrapper.getDataOpticDev4().add(entry.getValue());
+                                count++;
+                                continue;
+                            }
+                            if (count < 30) {
+                                fiberTableWrapper.getDataOpticDev5().add(entry.getValue());
+                                count++;
+                                continue;
+                            }
+                            fiberTableWrapper.getDataOpticDev6().add(entry.getValue());
                             count++;
                         }
                     }
@@ -183,6 +198,9 @@ public class AcceptMeasureController {
                 fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticDev1().stream().mapToInt(List::size).max().orElse(0));
                 fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticDev2().stream().mapToInt(List::size).max().orElse(0));
                 fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticDev3().stream().mapToInt(List::size).max().orElse(0));
+                fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticDev4().stream().mapToInt(List::size).max().orElse(0));
+                fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticDev5().stream().mapToInt(List::size).max().orElse(0));
+                fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticDev6().stream().mapToInt(List::size).max().orElse(0));
                 fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticLink().stream().mapToInt(List::size).max().orElse(0));
             } else {
                 if (replaceableUnitMocList == null) {
@@ -241,7 +259,8 @@ public class AcceptMeasureController {
                 localCacheService.UMTSCellMap.put(id, umts);
                 cellSelectedToWrapper = new CellSelectedToWrapper(CellSelectedTo.getCellSelectedTo(umts));
             }
-            kpiSelectedToWrapper = new KPISelectedToWrapper(KPISelectedTo.getDefaultKpiSelectedList());
+            kpiSelectedToWrapper = new KPISelectedToWrapper(KPISelectedTo.getDefaultKpiSelectedList(),
+                    KPISelectedTo.getDefaultNoCellKpiSelectedList());
             isSelected.add(QueryType.CUSTOM_HISTORY.getInfo());
         }
 

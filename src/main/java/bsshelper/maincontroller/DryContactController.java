@@ -3,6 +3,8 @@ package bsshelper.maincontroller;
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
 import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnService;
 import bsshelper.externalapi.configurationmng.plannedmng.service.PlanMgnService;
+import bsshelper.externalapi.configurationmng.plannedserv.entity.DryContactCableMocData;
+import bsshelper.externalapi.configurationmng.plannedserv.entity.DryContactDeviceMocData;
 import bsshelper.externalapi.configurationmng.plannedserv.entity.MocData;
 import bsshelper.externalapi.configurationmng.plannedserv.util.PlannedServBodySettings;
 import bsshelper.externalapi.configurationmng.plannedserv.mapper.DryContactCableMocDataMapper;
@@ -16,9 +18,12 @@ import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.entity.MessageEntity;
 import bsshelper.service.LocalCacheService;
 import bsshelper.service.TokenService;
+import bsshelper.service.logger.LoggerUtil;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +40,7 @@ public class DryContactController {
     private final PlanMgnService planMgnService;
     private final TokenService tokenService;
     private final LocalCacheService localCacheService;
+    private static final Logger operationLog = LoggerUtil.getOperationLogger();
 
 
     @GetMapping("/dryContact")
@@ -96,7 +102,8 @@ public class DryContactController {
     }
 
     @PostMapping ("/dryContact/updateSDR")
-    public String dryContactUpdateSDR(@ModelAttribute("repo") DryContactDeviceMocDataWrapper repo, Model model, HttpSession session) {
+    public String dryContactUpdateSDR(@ModelAttribute("repo") DryContactDeviceMocDataWrapper repo,
+                                      Model model, HttpSession session, Authentication authentication) {
         String id = session.getId();
         MessageEntity resultD = null;
         MessageEntity resultAM = null;
@@ -111,6 +118,8 @@ public class DryContactController {
         if (!modifyAndAddDataToSend.isEmpty()) {
             resultAM = areaActivating(id, modifyAndAddDataToSend);
         }
+
+        getLog(id, authentication, deleteDataToSend, modifyAndAddDataToSend, resultD, resultAM);
 
         localCacheService.messageMap.put(id, computeResultMessage(resultD, resultAM));
 
@@ -118,7 +127,8 @@ public class DryContactController {
     }
 
     @PostMapping ("/dryContact/updateITBBU")
-    public String dryContactUpdateITBBU(@ModelAttribute("repo") DryContactCableMocDataWrapper repo, Model model, HttpSession session) {
+    public String dryContactUpdateITBBU(@ModelAttribute("repo") DryContactCableMocDataWrapper repo,
+                                        Model model, HttpSession session, Authentication authentication) {
         String id = session.getId();
         MessageEntity resultD = null;
         MessageEntity resultAM = null;
@@ -133,6 +143,8 @@ public class DryContactController {
         if (!modifyAndAddDataToSend.isEmpty()) {
             resultAM = areaActivating(id, modifyAndAddDataToSend);
         }
+
+        getLog(id, authentication, deleteDataToSend, modifyAndAddDataToSend, resultD, resultAM);
 
         localCacheService.messageMap.put(id, computeResultMessage(resultD, resultAM));
 
@@ -194,5 +206,66 @@ public class DryContactController {
                     "Modify & Adding data: " + resultAM.getMessage());
         }
         return null;
+    }
+
+    private void getLog(String id, Authentication authentication,
+                       List<MocData> del, List<MocData> mod_add,
+                       MessageEntity delRes, MessageEntity  mod_addRes) {
+
+        ManagedElement managedElement = localCacheService.managedElementMap.get(id);
+
+        StringBuilder log = new StringBuilder();
+        log.append("User: ")
+                .append(authentication.getName())
+                .append(" (")
+                .append(authentication.getDetails().toString())
+                .append(") changed external alarms config ")
+                .append(managedElement.getUserLabel())
+                .append(": ");
+
+        if (managedElement.getManagedElementType().toString().equals("SDR")) {
+            if (!del.isEmpty()) {
+                for (MocData mocData : del) {
+                    DryContactDeviceMocData data = (DryContactDeviceMocData) mocData;
+                    String l = String.format("[operation: %s, moId/dryNo: %s/%s, name: %s, status: %s], ",
+                            data.getMoOp(), data.getMoId(), data.getDryNo(), data.getUserLabel(), data.getAlmStatus());
+                    log.append(l);
+                }
+                log.append(" ").append(delRes.getMessage()).append(" ");
+            }
+            if (!mod_add.isEmpty()) {
+                for (MocData mocData : mod_add) {
+                    DryContactDeviceMocData data = (DryContactDeviceMocData) mocData;
+                    String l = String.format("[operation: %s, moId/dryNo: %s/%s, name: %s, status: %s], ",
+                            data.getMoOp(), data.getMoId(), data.getDryNo(), data.getUserLabel(), data.getAlmStatus());
+                    log.append(l);
+                }
+                log.append(" ").append(mod_addRes.getMessage()).append(" ");
+            }
+        }
+
+        if (managedElement.getManagedElementType().toString().equals("ITBBU")) {
+            if (!del.isEmpty()) {
+                for (MocData mocData : del) {
+                    DryContactCableMocData data = (DryContactCableMocData) mocData;
+                    String l = String.format("[operation: %s, dryNo: %s, name: %s, status: %s], ",
+                            data.getMoOp(), data.getMoId(), data.getUserLabel(), data.getAlarmStatus());
+                    log.append(l);
+                }
+                log.append(" ").append(delRes.getMessage()).append(" ");
+            }
+            if (!mod_add.isEmpty()) {
+                for (MocData mocData : mod_add) {
+                    DryContactCableMocData data = (DryContactCableMocData) mocData;
+                    String l = String.format("[operation: %s, dryNo: %s, name: %s, status: %s], ",
+                            data.getMoOp(), data.getMoId(), data.getUserLabel(), data.getAlarmStatus());
+                    log.append(l);
+                }
+                log.append(" ").append(mod_addRes.getMessage()).append(" ");
+            }
+        }
+
+        operationLog.warn(log.toString());
+
     }
 }

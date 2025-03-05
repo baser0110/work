@@ -96,6 +96,7 @@ public class CellStatusMngController {
         GCellStatusListWrapper gCellStatusListWrapper = new GCellStatusListWrapper(
                 GCellStatusMapper.toGCellStatusEntity(currentMgnService.getGGsmCellMocSimplified(tokenService.getToken(), managedElement)));
 
+
 //        System.out.println(uLocalCellMocListWrapper);
 //        System.out.println(gCellStatusListWrapper);
         if (uLocalCellList != null) {
@@ -123,12 +124,6 @@ public class CellStatusMngController {
         String id = session.getId();
         setMessage(id, model);
         String execResult = null;
-//        System.out.println(operationUMTS);
-//        System.out.println(repoUMTS.getDataUMTS());
-//        System.out.println(operationNBIoT);
-//        System.out.println(repoNBIoT.getDataNBIOT());
-//        System.out.println(operationGSM);
-//        System.out.println(repoGSM.getDataGSM());
         if ((operationUMTS == null || operationUMTS == 0)
                 && (operationNBIoT == null || operationNBIoT == 0)
                 && (operationGSM == null || operationGSM == 0)) {
@@ -144,23 +139,20 @@ public class CellStatusMngController {
 //        if (operationUMTS == 3 || operationUMTS == 6) {}
         else {
             execResult = oneOperationWithResponse(localCacheService.managedElementMap.get(id),
-                    repoUMTS.getExtensionData(), operationUMTS, repoNBIoT.getExtensionData(), operationNBIoT, repoGSM.getDataGSM(), operationGSM);
+                    repoUMTS.getExtensionData(), operationUMTS,
+                    repoNBIoT.getExtensionData(), operationNBIoT,
+                    repoGSM.getDataGSM(), operationGSM);
             if (execResult.equals("SUCCEEDED")) {
                 localCacheService.messageMap.put(id, new MessageEntity(Severity.SUCCESS, "Script execution result: " + execResult));
             } else {
                 localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "Script execution result: " + execResult));
             }
 
-            operationLog.warn("User: {} $$ ({}) $$ {} cell operation" +
-                            " UMTS ({}): {}" +
-                            " GSM ({}): {}" +
-                            " NBiOT ({}): {}" +
-                            " result: {}",
-                    authentication.getName(), authentication.getDetails(), localCacheService.managedElementMap.get(id).getUserLabel(),
-                    operationUMTS, repoUMTS.getExtensionData(),
-                    operationGSM, repoGSM.getDataGSM(),
-                    operationNBIoT, repoNBIoT.getExtensionData(),
-                    execResult);
+            getLog(localCacheService.managedElementMap.get(id),
+                    repoUMTS.getExtensionData(), operationUMTS,
+                    repoNBIoT.getExtensionData(), operationNBIoT,
+                    repoGSM.getDataGSM(), operationGSM,
+                    execResult, authentication);
         }
 
         return "redirect:/helper/cellStatus/" + localCacheService.managedElementMap.get(id).getUserLabel();
@@ -174,7 +166,9 @@ public class CellStatusMngController {
                 UMTSData, UMTSCellOperation,
                 NBIoTData, NBIoTCellOperation,
                 GSMData, GSMCellOperation);
-        System.out.println(file.getFile());
+
+//        System.out.println(file.getFile());
+
         String path = executeUCLIBatchScriptService.uploadParamFile(file, tokenService.getToken());
 //        System.out.println(path);
         return executeUCLIBatchScriptService.executeBatch(path,tokenService.getToken());
@@ -206,5 +200,73 @@ public class CellStatusMngController {
             model.addAttribute("message", localCacheService.messageMap.get(sessionId));
             localCacheService.messageMap.remove(sessionId);
         } else model.addAttribute("message", null);
+    }
+
+    private void getLog(ManagedElement managedElement,
+                          List<CellStatus> UMTSData, Integer UMTSCellOperation,
+                          List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
+                          List<GCellStatus> GSMData, Integer GSMCellOperation,
+                          String result, Authentication authentication) {
+        StringBuilder umts = new StringBuilder();
+        StringBuilder nBIoT = new StringBuilder();
+        StringBuilder gsm = new StringBuilder();
+        if (UMTSData != null && !UMTSData.isEmpty()) {
+            for (CellStatus cellStatus : UMTSData) {
+                if (cellStatus.isSelected()) {
+                    umts.append(cellStatus.getUserLabel()).append(",");
+                }
+            }
+            if (umts.toString().endsWith(",")) {
+                umts = new StringBuilder(umts.substring(0, umts.length() - 1));
+            }
+        }
+        if (GSMData != null && !GSMData.isEmpty()) {
+            for (GCellStatus gCellStatus : GSMData) {
+                if (gCellStatus.isSelected()) {
+                    gsm.append(gCellStatus.getUserLabel()).append(",");
+                }
+            }
+            if (gsm.toString().endsWith(",")) {
+                gsm = new StringBuilder(gsm.substring(0, gsm.length() - 1));
+            }
+        }
+        if (NBIoTData != null && !NBIoTData.isEmpty()) {
+            for (CellStatus cellStatus : NBIoTData) {
+                if (cellStatus.isSelected()) {
+                    nBIoT.append(cellStatus.getUserLabel()).append(",");
+                }
+            }
+            if (nBIoT.toString().endsWith(",")) {
+                nBIoT = new StringBuilder(nBIoT.substring(0, nBIoT.length() - 1));
+            }
+        }
+        StringBuilder log = new StringBuilder();
+        log.append("User: ")
+                .append(authentication.getName())
+                .append(" (")
+                .append(authentication.getDetails().toString())
+                .append(") change cell status of ")
+                .append(managedElement.getUserLabel())
+                .append(": ");
+        String l = String.format("UMTS: [%s] %s, GSM: [%s] %s, NBIoT: [%s] %s; result: %s",
+                umts, getOperation(UMTSCellOperation),
+                gsm, getOperation(GSMCellOperation),
+                nBIoT, getOperation(NBIoTCellOperation),
+                result);
+        log.append(l);
+
+        operationLog.warn(log.toString());
+    }
+
+    private String getOperation(Integer operation) {
+        if (operation == null) {return "Technology Not Supported";}
+        return switch (operation) {
+            case 0 -> "No Operation";
+            case 1 -> "Block";
+            case 2 -> "Smoothly Block";
+            case 4 -> "Unblock";
+            case 5 -> "Smoothly Unblock";
+            default -> "Unknown";
+        };
     }
 }
