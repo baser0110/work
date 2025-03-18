@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class TokenMapper {
 
     static public Token toEntity(TokenTo tokenTo) {
+        if (tokenTo == null) return null;
         return new Token(tokenTo.getAccessToken(), tokenTo.getExpires(), LocalDateTime.now());
     }
 }

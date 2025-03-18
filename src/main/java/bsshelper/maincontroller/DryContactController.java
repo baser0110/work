@@ -144,7 +144,9 @@ public class DryContactController {
             resultAM = areaActivating(id, modifyAndAddDataToSend);
         }
 
-        getLog(id, authentication, deleteDataToSend, modifyAndAddDataToSend, resultD, resultAM);
+        if (!modifyAndAddDataToSend.isEmpty() || !deleteDataToSend.isEmpty()) {
+            getLog(id, authentication, deleteDataToSend, modifyAndAddDataToSend, resultD, resultAM);
+        }
 
         localCacheService.messageMap.put(id, computeResultMessage(resultD, resultAM));
 
@@ -210,7 +212,7 @@ public class DryContactController {
 
     private void getLog(String id, Authentication authentication,
                        List<MocData> del, List<MocData> mod_add,
-                       MessageEntity delRes, MessageEntity  mod_addRes) {
+                       MessageEntity delRes, MessageEntity mod_addRes) {
 
         ManagedElement managedElement = localCacheService.managedElementMap.get(id);
 

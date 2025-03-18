@@ -119,8 +119,7 @@ public class AcceptMeasureController {
 
             isSelected.add(QueryType.CELL_INFO.getInfo());
 
-            trxMRNC = currentMgnService.getGTrxMocSimplified(tokenService.getToken(), managedElement, gsm);
-
+//            trxMRNC = currentMgnService.getGTrxMocSimplified(tokenService.getToken(), managedElement, gsm);
 
         }
 

@@ -14,11 +14,9 @@
 <header th:replace="~{fragments/header :: header}"></header>
 <main>
   <div class="container my-5">
-        <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
-          <h1>Access Denied!</h1>
-<!--          <br>-->
-<!--          <p th:text="${error}"></p>-->
-        </div>
+      <div th:if="${error != null}" style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+          <h1 th:text="${error}"></h1>
+      </div>
   </div>
 </main>
 <footer th:replace="~{fragments/footer :: footer}"></footer>

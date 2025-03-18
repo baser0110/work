@@ -29,7 +29,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void updateToken(Token token) {
+    public boolean updateToken(Token token) {
         HttpRequest httpRequest = null;
         HttpResponse<String> httpResponse = null;
 
@@ -43,14 +43,16 @@ public class AuthServiceImpl implements AuthService {
         } catch (IOException | InterruptedException e) {
             log.error(" >> error in sending http request: {}", e.toString());
         }
-
-        String response = httpResponse.body();
-
-        if (response.equals("{}")) {
-            log.info(" >> token update success response: {}", response );
-        } else {
-            log.info(" >> token update fail response: {}", response );
-        }
+        if (httpResponse != null) {
+            String response = httpResponse.body();
+            if (response.equals("{}")) {
+                log.info(" >> token update success response: {}", response);
+                return true;
+            } else {
+                log.info(" >> token update fail response: {}", response);
+                return false;
+            }
+        } else return false;
 //        System.out.println(httpResponse.body());
     }
 
@@ -77,19 +79,21 @@ public class AuthServiceImpl implements AuthService {
         }
 
 //        System.out.println(httpResponse.body());
-        String json = httpResponse.body();
+        if (httpResponse != null) {
+            String json = httpResponse.body();
 
-        try {
-            tokenTo = new Gson().fromJson(json, TokenTo.class);
-        } catch (JsonSyntaxException e1) {
-            log.error(" >> error in TokenTo parsing >> {}", e1.toString());
             try {
-                error = new Gson().fromJson(json, ErrorEntity.class);
-            } catch (JsonSyntaxException e2) {
-                log.error(" >> error in ErrorEntity parsing >> {}", e2.toString());
-            }
-            if (error != null) {
-                log.error(" >> error {} code({})", error.getMessage(), error.getCode());
+                tokenTo = new Gson().fromJson(json, TokenTo.class);
+            } catch (JsonSyntaxException e1) {
+                log.error(" >> error in TokenTo parsing >> {}", e1.toString());
+                try {
+                    error = new Gson().fromJson(json, ErrorEntity.class);
+                } catch (JsonSyntaxException e2) {
+                    log.error(" >> error in ErrorEntity parsing >> {}", e2.toString());
+                }
+                if (error != null) {
+                    log.error(" >> error {} code({})", error.getMessage(), error.getCode());
+                }
             }
         }
 //        System.out.println(tokenTo);

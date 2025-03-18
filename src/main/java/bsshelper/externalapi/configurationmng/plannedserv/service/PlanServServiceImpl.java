@@ -6,11 +6,13 @@ import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.Verb;
 import bsshelper.externalapi.configurationmng.plannedserv.util.PlannedServBodySettings;
 import bsshelper.globalutil.entity.MessageEntity;
+import bsshelper.globalutil.exception.CustomNetworkConnectionException;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -37,7 +39,8 @@ public class PlanServServiceImpl implements PlanServService {
             }
         } catch (IOException | InterruptedException e) {
             log.error(" >> error in sending http request: {}", e.toString());
-            result = new MessageEntity(Severity.ERROR, "Network connection error!");
+            if (e instanceof ConnectException) throw new CustomNetworkConnectionException((e.toString()));
+//            result = new MessageEntity(Severity.ERROR, "Network connection error!");
         }
         return result;
     }
@@ -58,7 +61,8 @@ public class PlanServServiceImpl implements PlanServService {
             }
         } catch (IOException | InterruptedException e) {
             log.error(" >> error in sending http request: {}", e.toString());
-            result = new MessageEntity(Severity.ERROR, "Network connection error!");
+            if (e instanceof ConnectException) throw new CustomNetworkConnectionException((e.toString()));
+//            result = new MessageEntity(Severity.ERROR, "Network connection error!");
         }
         return result;
     }

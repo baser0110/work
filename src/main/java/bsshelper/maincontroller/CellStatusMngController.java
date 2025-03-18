@@ -1,5 +1,7 @@
 package bsshelper.maincontroller;
 
+import bsshelper.externalapi.alarmmng.activealarm.entity.AlarmEntity;
+import bsshelper.externalapi.alarmmng.activealarm.service.ActiveAlarmService;
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
 import bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.ITBBUULocalCellMocSimplified;
 import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.UCellMocSimplified;
@@ -31,6 +33,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.http.HttpRequest;
 import java.util.*;
 
 @Slf4j
@@ -43,7 +46,7 @@ public class CellStatusMngController {
     private final LocalCacheService localCacheService;
     private final ExecuteUCLIBatchScriptService executeUCLIBatchScriptService;
     private static final Logger operationLog = LoggerUtil.getOperationLogger();
-//    private final ActiveAlarmService activeAlarmService;
+    private final ActiveAlarmService activeAlarmService;
 
     @GetMapping("/cellStatus")
     public String cellStatus(Model model, HttpSession session) {
@@ -94,7 +97,10 @@ public class CellStatusMngController {
                     toEUtranCellNBIoTStatusEntity(currentMgnService.getITBBUCUEUtranCellNBIoTMocSimplified(tokenService.getToken(), managedElement)));
         }
         GCellStatusListWrapper gCellStatusListWrapper = new GCellStatusListWrapper(
-                GCellStatusMapper.toGCellStatusEntity(currentMgnService.getGGsmCellMocSimplified(tokenService.getToken(), managedElement)));
+                GCellStatusMapper.toGCellStatusEntity(
+                        currentMgnService.getGGsmCellMocSimplified(
+                                tokenService.getToken(), managedElement), activeAlarmService.getHasAlarmSetByMEonBSC(
+                                        tokenService.getToken(), managedElement)));
 
 
 //        System.out.println(uLocalCellMocListWrapper);
@@ -107,6 +113,8 @@ public class CellStatusMngController {
             }
         }
         localCacheService.managedElementMap.put(id, managedElement);
+
+//        activeAlarmService.alarmDataExport(tokenService.getToken(), managedElement);
 
         model.addAttribute("managedElement", managedElement);
         model.addAttribute("repoUMTS", uLocalCellMocListWrapper);
@@ -213,31 +221,31 @@ public class CellStatusMngController {
         if (UMTSData != null && !UMTSData.isEmpty()) {
             for (CellStatus cellStatus : UMTSData) {
                 if (cellStatus.isSelected()) {
-                    umts.append(cellStatus.getUserLabel()).append(",");
+                    umts.append(cellStatus.getUserLabel()).append(", ");
                 }
             }
-            if (umts.toString().endsWith(",")) {
-                umts = new StringBuilder(umts.substring(0, umts.length() - 1));
+            if (umts.toString().endsWith(", ")) {
+                umts = new StringBuilder(umts.substring(0, umts.length() - 2));
             }
         }
         if (GSMData != null && !GSMData.isEmpty()) {
             for (GCellStatus gCellStatus : GSMData) {
                 if (gCellStatus.isSelected()) {
-                    gsm.append(gCellStatus.getUserLabel()).append(",");
+                    gsm.append(gCellStatus.getUserLabel()).append(", ");
                 }
             }
-            if (gsm.toString().endsWith(",")) {
-                gsm = new StringBuilder(gsm.substring(0, gsm.length() - 1));
+            if (gsm.toString().endsWith(", ")) {
+                gsm = new StringBuilder(gsm.substring(0, gsm.length() - 2));
             }
         }
         if (NBIoTData != null && !NBIoTData.isEmpty()) {
             for (CellStatus cellStatus : NBIoTData) {
                 if (cellStatus.isSelected()) {
-                    nBIoT.append(cellStatus.getUserLabel()).append(",");
+                    nBIoT.append(cellStatus.getUserLabel()).append(", ");
                 }
             }
-            if (nBIoT.toString().endsWith(",")) {
-                nBIoT = new StringBuilder(nBIoT.substring(0, nBIoT.length() - 1));
+            if (nBIoT.toString().endsWith(", ")) {
+                nBIoT = new StringBuilder(nBIoT.substring(0, nBIoT.length() - 2));
             }
         }
         StringBuilder log = new StringBuilder();

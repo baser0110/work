@@ -209,22 +209,22 @@ public class CellStatusBatchMngController {
         StringBuilder nBIoT = new StringBuilder();
         StringBuilder gsm = new StringBuilder();
         for (String cell : umtsCells) {
-            umts.append(cell).append(",");
+            umts.append(cell).append(", ");
         }
-        if (umts.toString().endsWith(",")) {
-            umts = new StringBuilder(umts.substring(0, umts.length() - 1));
+        if (umts.toString().endsWith(", ")) {
+            umts = new StringBuilder(umts.substring(0, umts.length() - 2));
         }
         for (String cell : gsmCells) {
-            gsm.append(cell).append(",");
+            gsm.append(cell).append(", ");
                     }
-        if (gsm.toString().endsWith(",")) {
-            gsm = new StringBuilder(gsm.substring(0, gsm.length() - 1));
+        if (gsm.toString().endsWith(", ")) {
+            gsm = new StringBuilder(gsm.substring(0, gsm.length() - 2));
         }
         for (String cell : nbiotCells) {
-            nBIoT.append(cell).append(",");
+            nBIoT.append(cell).append(", ");
         }
-        if (nBIoT.toString().endsWith(",")) {
-            nBIoT = new StringBuilder(nBIoT.substring(0, nBIoT.length() - 1));
+        if (nBIoT.toString().endsWith(", ")) {
+            nBIoT = new StringBuilder(nBIoT.substring(0, nBIoT.length() - 2));
         }
         StringBuilder log = new StringBuilder();
         log.append("User: ")

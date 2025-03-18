@@ -5,6 +5,7 @@ import bsshelper.externalapi.openscriptexecengine.util.StringFileEntity;
 import bsshelper.globalutil.GlobalUtil;
 import bsshelper.globalutil.Verb;
 import bsshelper.globalutil.entity.ErrorEntity;
+import bsshelper.globalutil.exception.CustomNetworkConnectionException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -50,6 +52,7 @@ public class ExecuteUCLIBatchScriptServiceImpl implements ExecuteUCLIBatchScript
 //            System.out.println(uLocalCellMocTo);
         } catch (IOException | InterruptedException e) {
             log.error(" >> error in sending http request: {}", e.toString());
+            if (e instanceof ConnectException) throw new CustomNetworkConnectionException((e.toString()));
         }
         return executeSuccessResponse.getExecutionId();
     }
@@ -81,6 +84,7 @@ public class ExecuteUCLIBatchScriptServiceImpl implements ExecuteUCLIBatchScript
 //            System.out.println(uLocalCellMocTo);
         } catch (IOException | InterruptedException e) {
             log.error(" >> error in sending http request: {}", e.toString());
+            if (e instanceof ConnectException) throw new CustomNetworkConnectionException((e.toString()));
         }
         return resultPath.getPath();
     }
@@ -112,6 +116,7 @@ public class ExecuteUCLIBatchScriptServiceImpl implements ExecuteUCLIBatchScript
 //            System.out.println(uLocalCellMocTo);
         } catch (IOException | InterruptedException e) {
             log.error(" >> error in sending http request: {}", e.toString());
+            if (e instanceof ConnectException) throw new CustomNetworkConnectionException((e.toString()));
         }
         return querySuccessResponse.getStatus();
     }

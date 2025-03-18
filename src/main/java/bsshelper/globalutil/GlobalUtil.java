@@ -33,7 +33,8 @@ public class GlobalUtil {
     public static final String EXEC_NE_SERV_QUERY_OPT_ITBBU = "/moaction/queryOptAndElecInfo";
     public static final String EXEC_NE_SERV_QUERY_VSWR_ITBBU ="/moaction/queryFddRruVswr";
 
-    public static final String API_ACTIVE_ALARM = "/api/fm-active/v2/activealarms/openapi/export";
+    public static final String API_EXPRT_ACTIVE_ALARM = "/api/fm-active/v2/activealarms/openapi/export";
+    public static final String API_QUER_ACTIVE_ALARM = "/api/fm-active/v1/north/openapi/v1/activealarms";
 
     public static final String DRY_CONTACT_LDN_SDR_SLOT13 = "Equipment=1,Rack=1,SubRack=1,Slot=13,PlugInUnit=1,SdrDeviceGroup=1,DryContactDeviceSet=1,DryContactDevice=";
 }

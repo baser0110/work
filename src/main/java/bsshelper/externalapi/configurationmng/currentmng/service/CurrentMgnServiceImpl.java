@@ -22,6 +22,7 @@ import bsshelper.globalutil.ManagedElementType;
 import bsshelper.globalutil.SubnetworkToBSC;
 import bsshelper.globalutil.Verb;
 import bsshelper.globalutil.entity.ErrorEntity;
+import bsshelper.globalutil.exception.CustomNetworkConnectionException;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import lombok.Data;
@@ -30,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -68,6 +70,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
             }
         } catch (IOException | InterruptedException e) {
             log.error(" >> error in sending http request: {}", e.toString());
+            if (e instanceof ConnectException) throw new CustomNetworkConnectionException((e.toString()));
         }
         return response;
     }
@@ -110,6 +113,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
 
         } catch (IOException | InterruptedException e) {
             log.error(" >> error in sending http request: {}", e.toString());
+            if (e instanceof ConnectException) throw new CustomNetworkConnectionException((e.toString()));
         }
         return response;
     }
@@ -120,6 +124,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         ErrorEntity error = null;
         HttpRequest httpRequest = null;
         HttpResponse<String> httpResponse = null;
+        ManagedElement managedElement = null;
         try {
             httpRequest = getManagedElementByNeNameRequest(token, userLabel, ManagedElementType.SDR);
             httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
@@ -136,6 +141,10 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
                     log.info(" >> managedElement with userLabel {} successfully found", userLabel);
                 }
             }
+            if (response.equals("{\"code\":0,\"message\":\"Success\",\"result\":[],\"failList\":[]}")) {
+                log.info(" >> managedElement with userLabel {} couldn't be found", userLabel);
+                return null;
+            }
             try {
                 managedElementMocTo = new Gson().fromJson(response, ManagedElementMocTo.class);
             } catch (JsonSyntaxException e1) {
@@ -149,16 +158,16 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
                     log.error(" >> error {} code({})", error.getMessage(), error.getCode());
                 }
             }
+            if (managedElementMocTo != null) {
+                managedElement = ManagedElementMapper.toManagedElement(managedElementMocTo);
+                log.info(" >> managedElement: {}", managedElement);
+            }
         } catch (IOException | InterruptedException e) {
             log.error(" >> error in sending http request: {}", e.toString());
+            if (e instanceof ConnectException) throw new CustomNetworkConnectionException((e.toString()));
         }
-//        System.out.println(managedElementMocTo);
-        ManagedElement managedElement = ManagedElementMapper.toManagedElement(managedElementMocTo);
-//        System.out.println(managedElement);
-        log.info(" >> managedElement: {}", managedElement);
         return managedElement;
     }
-
 
     @Override
     public List<DryContactDeviceMoc> getDryContactDeviceMoc(Token token, ManagedElement managedElement) {
@@ -451,8 +460,13 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (gGsmCellMocSimplifiedTo != null) {
             gGsmCellMocSimplifiedList = gGsmCellMocSimplifiedTo.getResult().get(0).getMoData();
             gGsmCellMocSimplifiedList.sort(Comparator.comparing(GGsmCellMocSimplified::getUserLabel));
+//            // temporarily
+//            if (!gGsmCellMocSimplifiedList.getFirst().getUserLabel().substring(0,gGsmCellMocSimplifiedList.getFirst().getUserLabel().length() - 1).equals(managedElement.getUserLabel())) {
+//                gGsmCellMocSimplifiedList = null;
+//            }
         }
         log.info(" >> gGsmCellMocSimplifiedList: {}", gGsmCellMocSimplifiedList);
+
         return gGsmCellMocSimplifiedList;
     }
 

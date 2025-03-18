@@ -42,14 +42,15 @@ public class InfoCellUMTSMapper {
         if (rnc == null || rnc.isEmpty()) { return null; }
         List<InfoCellUMTS> list = new ArrayList<>();
         for (Map.Entry<String, UUtranCellFDDMocSimplified> cell: rnc.entrySet()) {
+            boolean sdrExist = !(sdr == null || sdr.isEmpty());
             list.add(new InfoCellUMTS(
                     cell.getKey(),
                     cell.getValue().getMoId(),
-                    sdr.containsKey(cell.getKey()) ? sdr.get(cell.getKey()).getLocalCellId() : null,
+                    (sdrExist && sdr.containsKey(cell.getKey())) ? sdr.get(cell.getKey()).getLocalCellId() : null,
                     BigDecimal.valueOf(Math.pow(10.0, (cell.getValue().getMaximumTransmissionPower() / 10.0)) / 1000).setScale(1, RoundingMode.HALF_UP).doubleValue(),
-                    sdr.containsKey(cell.getKey()) ? sdr.get(cell.getKey()).getMaxDlPwr() : null,
+                    (sdrExist && sdr.containsKey(cell.getKey())) ? sdr.get(cell.getKey()).getMaxDlPwr() : null,
                     cell.getValue().getCellRadius(),
-                    sdr.containsKey(cell.getKey()) ? sdr.get(cell.getKey()).getCellRadius() : null));
+                    (sdrExist && sdr.containsKey(cell.getKey())) ? sdr.get(cell.getKey()).getCellRadius() : null));
         }
         return list;
     }
@@ -58,14 +59,15 @@ public class InfoCellUMTSMapper {
         if (rnc == null || rnc.isEmpty()) { return null; }
         List<InfoCellUMTS> list = new ArrayList<>();
         for (Map.Entry<String, UUtranCellFDDMocSimplified> cell: rnc.entrySet()) {
+            boolean sdrExist = !(sdr == null || sdr.isEmpty());
             list.add(new InfoCellUMTS(
                     cell.getKey(),
                     cell.getValue().getMoId(),
-                    sdr.containsKey(cell.getKey()) ? sdr.get(cell.getKey()).getLocalCellId() : null,
+                    (sdrExist && sdr.containsKey(cell.getKey())) ? sdr.get(cell.getKey()).getLocalCellId() : null,
                     BigDecimal.valueOf(Math.pow(10.0, (cell.getValue().getMaximumTransmissionPower() / 10.0)) / 1000).setScale(1, RoundingMode.HALF_UP).doubleValue(),
-                    sdr.containsKey(cell.getKey()) ? sdr.get(cell.getKey()).getMaxDlPwr() : null,
+                    (sdrExist && sdr.containsKey(cell.getKey())) ? sdr.get(cell.getKey()).getMaxDlPwr() : null,
                     cell.getValue().getCellRadius(),
-                    sdr.containsKey(cell.getKey()) ? sdr.get(cell.getKey()).getCellRadius() : null));
+                    (sdrExist && sdr.containsKey(cell.getKey())) ? sdr.get(cell.getKey()).getCellRadius() : null));
         }
         return list;
     }

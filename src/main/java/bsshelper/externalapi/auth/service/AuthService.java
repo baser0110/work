@@ -4,6 +4,6 @@ import bsshelper.externalapi.auth.entity.Token;
 
 public interface AuthService {
     Token getToken();
-    void updateToken(Token token);
+    boolean updateToken(Token token);
     void deleteToken(Token token);
 }

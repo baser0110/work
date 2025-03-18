@@ -244,11 +244,11 @@
                             <tr>
                                 <th class="pl-5">cellName</th>
                                 <th class="pl-5">CI(RNC)</th>
-                                <th class="pl-5">CI(SDR)</th>
+                                <th class="pl-5" th:text="${managedElement.getManagedElementType().toString.equals('SDR')} ? 'CI(SDR)' : 'CI(ITBBU)'"></th>
                                 <th class="pl-5">PWR(RNC)</th>
-                                <th class="pl-5">PWR(SDR)</th>
+                                <th class="pl-5" th:text="${managedElement.getManagedElementType().toString.equals('SDR')} ? 'PWR(SDR)' : 'PWR(ITBBU)'"></th>
                                 <th class="pl-5">RAD(RNC)</th>
-                                <th class="pl-5">RAD(SDR)</th>
+                                <th class="pl-5" th:text="${managedElement.getManagedElementType().toString.equals('SDR')} ? 'RAD(SDR)' : 'RAD(ITBBU)'"></th>
                             </tr>
                             </thead>
                             <tbody th:if="${!repoInfoCell.getDataCellUMTS().isEmpty()}">

@@ -56,7 +56,7 @@ public class LoginPageController {
 
     @GetMapping("/access-denied")
     public String accessDenied(Model model) {
-//        model.addAttribute("error","You do not have permission to access this page.");
-        return "access-denied";
+        model.addAttribute("error","Access Denied!");
+        return "error";
     }
 }
