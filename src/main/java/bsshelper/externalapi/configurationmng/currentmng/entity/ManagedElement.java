@@ -1,7 +1,6 @@
 package bsshelper.externalapi.configurationmng.currentmng.entity;
 
 import bsshelper.globalutil.ManagedElementType;
-import bsshelper.globalutil.SubnetworkToBSC;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 

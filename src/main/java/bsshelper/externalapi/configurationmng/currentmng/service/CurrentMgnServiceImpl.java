@@ -19,7 +19,7 @@ import bsshelper.externalapi.configurationmng.currentmng.to.sdr.*;
 import bsshelper.externalapi.configurationmng.currentmng.util.CurrentMngBodySettings;
 import bsshelper.globalutil.GlobalUtil;
 import bsshelper.globalutil.ManagedElementType;
-import bsshelper.globalutil.SubnetworkToBSC;
+import bsshelper.globalutil.SubnetworkToBSCOrRNC;
 import bsshelper.globalutil.Verb;
 import bsshelper.globalutil.entity.ErrorEntity;
 import bsshelper.globalutil.exception.CustomNetworkConnectionException;
@@ -1110,7 +1110,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
 
     private String getGGsmCellFilter(ManagedElement managedElement) {
         String result = "";
-        String ldn = "ldn='" + "GBssFunction=" + SubnetworkToBSC.getBSCbySubnetwork(managedElement.getSubNetworkNum()) +
+        String ldn = "ldn='" + "GBssFunction=" + SubnetworkToBSCOrRNC.getBSCbySubnetwork(managedElement.getSubNetworkNum()) +
                 ",GBtsSiteManager=" + managedElement.getBTSManagedElementNum() + ",GGsmCell=";
         for (int i = 1; i < 10; i++) {
             result += ldn + i + "' or ";

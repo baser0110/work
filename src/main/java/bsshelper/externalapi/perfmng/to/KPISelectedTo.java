@@ -37,6 +37,10 @@ public class KPISelectedTo {
         List<KPISelectedTo> result = new ArrayList<>();
         result.add(new KPISelectedTo(false, KPI.VSWR.getInfo()));
         result.add(new KPISelectedTo(false, KPI.MAX_OPTIC_ERROR.getInfo()));
+        result.add(new KPISelectedTo(false, KPI.MAX_OPTIC_TX_POWER.getInfo()));
+        result.add(new KPISelectedTo(false, KPI.MAX_OPTIC_RX_POWER.getInfo()));
+        result.add(new KPISelectedTo(false, KPI.LOST_PACKET.getInfo()));
+        result.add(new KPISelectedTo(false, KPI.MEAN_JITTER.getInfo()));
         return result;
     }
 }

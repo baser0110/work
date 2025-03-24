@@ -4,9 +4,7 @@ import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
 import bsshelper.externalapi.configurationmng.currentmng.entity.mrnc.UUtranCellFDDMocSimplified;
 import bsshelper.externalapi.perfmng.entity.*;
 import bsshelper.externalapi.perfmng.service.HistoryQueryService;
-import bsshelper.externalapi.perfmng.to.KPISelectedTo;
 import bsshelper.externalapi.perfmng.util.KPI;
-import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.entity.MessageEntity;
 import bsshelper.service.LocalCacheService;
 import bsshelper.service.TokenService;
@@ -85,6 +83,10 @@ public class HistoryChartController {
         Map<String, List<HistoryForULocalCell>> checkedANT_RSSI_1AND2DataMap = new TreeMap<>();
         Map<String, List<HistoryVSWR>> VSWRDataMap = new TreeMap<>();
         Map<String, List<HistoryMaxOpticError>> MAX_OPTIC_ERRORDataMap = new TreeMap<>();
+        Map<String, List<HistoryMaxOpticPower>> MAX_OPTIC_RX_POWERDataMap = new TreeMap<>();
+        Map<String, List<HistoryMaxOpticPower>> MAX_OPTIC_TX_POWERDataMap = new TreeMap<>();
+        Map<String, List<HistoryOfficeLink>> LOST_PACKETDataMap = new TreeMap<>();
+        Map<String, List<HistoryOfficeLink>> MEAN_JITTERDataMap = new TreeMap<>();
 
         if (checkedKPIsList != null) {
             if (checkedKPIsList.contains(KPI.RTWP.getInfo())) {
@@ -152,9 +154,20 @@ public class HistoryChartController {
             if (checkedKPIsNoCellList.contains(KPI.VSWR.getInfo())) {
                 VSWRDataMap = HistoryVSWR.getChart(historyQueryService.getHistoryVSWR(tokenService.getToken(), managedElement, getTime(time)));
             }
-
             if (checkedKPIsNoCellList.contains(KPI.MAX_OPTIC_ERROR.getInfo())) {
-                MAX_OPTIC_ERRORDataMap = HistoryMaxOpticError.getChart(historyQueryService.getHistoryOptic(tokenService.getToken(), managedElement, getTime(time)));
+                MAX_OPTIC_ERRORDataMap = HistoryMaxOpticError.getChart(historyQueryService.getHistoryOpticError(tokenService.getToken(), managedElement, getTime(time)));
+            }
+            if (checkedKPIsNoCellList.contains(KPI.MAX_OPTIC_TX_POWER.getInfo())) {
+                MAX_OPTIC_TX_POWERDataMap = HistoryMaxOpticPower.getChart(historyQueryService.getHistoryOpticTxPower(tokenService.getToken(), managedElement, getTime(time)));
+            }
+            if (checkedKPIsNoCellList.contains(KPI.MAX_OPTIC_RX_POWER.getInfo())) {
+                MAX_OPTIC_RX_POWERDataMap = HistoryMaxOpticPower.getChart(historyQueryService.getHistoryOpticRxPower(tokenService.getToken(), managedElement, getTime(time)));
+            }
+            if (checkedKPIsNoCellList.contains(KPI.LOST_PACKET.getInfo())) {
+                LOST_PACKETDataMap = historyQueryService.getOfficeLinkHistory(tokenService.getToken(), managedElement, getTime(time), KPI.LOST_PACKET);
+            }
+            if (checkedKPIsNoCellList.contains(KPI.MEAN_JITTER.getInfo())) {
+                MEAN_JITTERDataMap = historyQueryService.getOfficeLinkHistory(tokenService.getToken(), managedElement, getTime(time), KPI.MEAN_JITTER);
             }
         }
 
@@ -172,6 +185,10 @@ public class HistoryChartController {
         model.addAttribute("chartNUMBER_USER_IN_CELLData", checkedNUMBER_USER_IN_CELLDataMap);
         model.addAttribute("chartVSWRData", VSWRDataMap);
         model.addAttribute("chartMAX_OPTIC_ERRORData", MAX_OPTIC_ERRORDataMap);
+        model.addAttribute("chartMAX_OPTIC_TX_POWERData", MAX_OPTIC_TX_POWERDataMap);
+        model.addAttribute("chartMAX_OPTIC_RX_POWERData", MAX_OPTIC_RX_POWERDataMap);
+        model.addAttribute("chartLOST_PACKETData", LOST_PACKETDataMap);
+        model.addAttribute("chartMEAN_JITTERData", MEAN_JITTERDataMap);
         model.addAttribute("managedElement", managedElement);
         model.addAttribute("title", null);
         return "customcharts";

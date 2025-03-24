@@ -6,7 +6,7 @@ import bsshelper.externalapi.alarmmng.activealarm.util.ActiveAlarmBodySettings;
 import bsshelper.externalapi.auth.entity.Token;
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
 import bsshelper.globalutil.GlobalUtil;
-import bsshelper.globalutil.SubnetworkToBSC;
+import bsshelper.globalutil.SubnetworkToBSCOrRNC;
 import bsshelper.globalutil.Verb;
 import bsshelper.globalutil.entity.ErrorEntity;
 import bsshelper.globalutil.exception.CustomNetworkConnectionException;
@@ -24,7 +24,6 @@ import java.net.http.HttpResponse;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -82,7 +81,7 @@ public class ActiveAlarmServiceImpl implements ActiveAlarmService {
     }
 
     public HttpRequest getActiveAlarmByBSC(Token token, ManagedElement managedElement) {
-        String bsc = String.valueOf(SubnetworkToBSC.getBSCbySubnetwork(managedElement.getSubNetworkNum()));
+        String bsc = String.valueOf(SubnetworkToBSCOrRNC.getBSCbySubnetwork(managedElement.getSubNetworkNum()));
         return HttpRequest.newBuilder()
                 .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(
                         ActiveAlarmBodySettings.builder()

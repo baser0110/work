@@ -57,6 +57,7 @@ public class AcceptMeasureController {
     private final TokenService tokenService;
     private final LocalCacheService localCacheService;
     private final ExecNeActService execNeActService;
+    private final HistoryQueryService historyQueryService;
 
     @GetMapping("/acceptanceMeasurement")
     public String cellStatus(Model model, HttpSession session) {

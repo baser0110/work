@@ -119,7 +119,9 @@ public class DryContactController {
             resultAM = areaActivating(id, modifyAndAddDataToSend);
         }
 
-        getLog(id, authentication, deleteDataToSend, modifyAndAddDataToSend, resultD, resultAM);
+        if (!modifyAndAddDataToSend.isEmpty() || !deleteDataToSend.isEmpty()) {
+            getLog(id, authentication, deleteDataToSend, modifyAndAddDataToSend, resultD, resultAM);
+        }
 
         localCacheService.messageMap.put(id, computeResultMessage(resultD, resultAM));
 

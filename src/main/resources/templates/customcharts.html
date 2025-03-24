@@ -85,6 +85,26 @@
     <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
         <div th:if="${chartMAX_OPTIC_ERRORData != null && !chartMAX_OPTIC_ERRORData.isEmpty()}" id="MAX_OPTIC_ERRORChartContainer" style="height: 400px; width: 90%;"></div>
     </div>
+
+    <div th:if="${chartMAX_OPTIC_TX_POWERData != null && !chartMAX_OPTIC_TX_POWERData.isEmpty()}" style="height: 5px;"></div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div th:if="${chartMAX_OPTIC_TX_POWERData != null && !chartMAX_OPTIC_TX_POWERData.isEmpty()}" id="MAX_OPTIC_TX_POWERChartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
+
+    <div th:if="${chartMAX_OPTIC_RX_POWERData != null && !chartMAX_OPTIC_RX_POWERData.isEmpty()}" style="height: 5px;"></div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div th:if="${chartMAX_OPTIC_RX_POWERData != null && !chartMAX_OPTIC_RX_POWERData.isEmpty()}" id="MAX_OPTIC_RX_POWERChartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
+
+    <div th:if="${chartLOST_PACKETData != null && !chartLOST_PACKETData.isEmpty()}" style="height: 5px;"></div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div th:if="${chartLOST_PACKETData != null && !chartLOST_PACKETData.isEmpty()}" id="LOST_PACKETChartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
+
+    <div th:if="${chartMEAN_JITTERData != null && !chartMEAN_JITTERData.isEmpty()}" style="height: 5px;"></div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+        <div th:if="${chartMEAN_JITTERData != null && !chartMEAN_JITTERData.isEmpty()}" id="MEAN_JITTERChartContainer" style="height: 400px; width: 90%;"></div>
+    </div>
 </div>
 
 <script th:inline="javascript">
@@ -117,6 +137,14 @@
     let dataSeriesVSWR = [];
     let chartMAX_OPTIC_ERRORData = /*[[${chartMAX_OPTIC_ERRORData}]]*/ {};
     let dataSeriesMAX_OPTIC_ERROR = [];
+    let chartMAX_OPTIC_TX_POWERData = /*[[${chartMAX_OPTIC_TX_POWERData}]]*/ {};
+    let dataSeriesMAX_OPTIC_TX_POWER = [];
+    let chartMAX_OPTIC_RX_POWERData = /*[[${chartMAX_OPTIC_RX_POWERData}]]*/ {};
+    let dataSeriesMAX_OPTIC_RX_POWER = [];
+    let chartLOST_PACKETData = /*[[${chartLOST_PACKETData}]]*/ {};
+    let dataSeriesLOST_PACKET = [];
+    let chartMEAN_JITTERData = /*[[${chartMEAN_JITTERData}]]*/ {};
+    let dataSeriesMEAN_JITTER = [];
 
     // Process RTWP data
     for (let seriesRTWP in chartRTWPData) {
@@ -366,6 +394,78 @@
                 yValueFormatString: "##0",
                 xValueFormatString: "DD-MM HH:mm",
                 dataPoints: dataPointsMAX_OPTIC_ERROR
+            });
+        }
+    }
+
+    // Process MAX_OPTIC_TX_POWER data
+    for (let seriesMAX_OPTIC_TX_POWER in chartMAX_OPTIC_TX_POWERData) {
+        if (chartMAX_OPTIC_TX_POWERData.hasOwnProperty(seriesMAX_OPTIC_TX_POWER)) {
+            let dataPointsMAX_OPTIC_TX_POWER = chartMAX_OPTIC_TX_POWERData[seriesMAX_OPTIC_TX_POWER].map(pointMAX_OPTIC_TX_POWER => {
+                return { x: new Date(pointMAX_OPTIC_TX_POWER.time), y: pointMAX_OPTIC_TX_POWER.value};
+            });
+            dataSeriesMAX_OPTIC_TX_POWER.push({
+                type: "line",
+                markerSize: 0,
+                name: seriesMAX_OPTIC_TX_POWER,
+                showInLegend: true,
+                yValueFormatString: "#0.0",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPointsMAX_OPTIC_TX_POWER
+            });
+        }
+    }
+
+    // Process MAX_OPTIC_RX_POWER data
+    for (let seriesMAX_OPTIC_RX_POWER in chartMAX_OPTIC_RX_POWERData) {
+        if (chartMAX_OPTIC_RX_POWERData.hasOwnProperty(seriesMAX_OPTIC_RX_POWER)) {
+            let dataPointsMAX_OPTIC_RX_POWER = chartMAX_OPTIC_RX_POWERData[seriesMAX_OPTIC_RX_POWER].map(pointMAX_OPTIC_RX_POWER => {
+                return { x: new Date(pointMAX_OPTIC_RX_POWER.time), y: pointMAX_OPTIC_RX_POWER.value};
+            });
+            dataSeriesMAX_OPTIC_RX_POWER.push({
+                type: "line",
+                markerSize: 0,
+                name: seriesMAX_OPTIC_RX_POWER,
+                showInLegend: true,
+                yValueFormatString: "#0.0",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPointsMAX_OPTIC_RX_POWER
+            });
+        }
+    }
+
+    // Process LOST_PACKET data
+    for (let seriesLOST_PACKET in chartLOST_PACKETData) {
+        if (chartLOST_PACKETData.hasOwnProperty(seriesLOST_PACKET)) {
+            let dataPointsLOST_PACKET = chartLOST_PACKETData[seriesLOST_PACKET].map(pointLOST_PACKET => {
+                return { x: new Date(pointLOST_PACKET.time), y: pointLOST_PACKET.value};
+            });
+            dataSeriesLOST_PACKET.push({
+                type: "line",
+                markerSize: 0,
+                name: seriesLOST_PACKET,
+                showInLegend: true,
+                yValueFormatString: "#0.##%",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPointsLOST_PACKET
+            });
+        }
+    }
+
+    // Process MEAN_JITTER data
+    for (let seriesMEAN_JITTER in chartMEAN_JITTERData) {
+        if (chartMEAN_JITTERData.hasOwnProperty(seriesMEAN_JITTER)) {
+            let dataPointsMEAN_JITTER = chartMEAN_JITTERData[seriesMEAN_JITTER].map(pointMEAN_JITTER => {
+                return { x: new Date(pointMEAN_JITTER.time), y: pointMEAN_JITTER.value};
+            });
+            dataSeriesMEAN_JITTER.push({
+                type: "line",
+                markerSize: 0,
+                name: seriesMEAN_JITTER,
+                showInLegend: true,
+                yValueFormatString: "##0",
+                xValueFormatString: "DD-MM HH:mm",
+                dataPoints: dataPointsMEAN_JITTER
             });
         }
     }
@@ -906,6 +1006,159 @@
                 data: dataSeriesMAX_OPTIC_ERROR
             });
             chartMAX_OPTIC_ERROR.render();
+        }
+
+        const MAX_OPTIC_TX_POWERChartContainer = document.getElementById("MAX_OPTIC_TX_POWERChartContainer");
+        if (MAX_OPTIC_TX_POWERChartContainer) {
+            const containerWidthMAX_OPTIC_TX_POWER = MAX_OPTIC_TX_POWERChartContainer.offsetWidth;
+            const legendMaxWidthMAX_OPTIC_TX_POWER = containerWidthMAX_OPTIC_TX_POWER * 0.9;
+            let chartMAX_OPTIC_TX_POWER = new CanvasJS.Chart("MAX_OPTIC_TX_POWERChartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "Maximum Tx Power of Optical/Electrical Module"
+                },
+                axisX: {
+                    // title: "Time",
+                    valueFormatString: "DD-MM HH:mm"
+                },
+                axisY: {
+                    title: "dbm",
+                },
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    // itemWrap: true,
+                    textAlign: "center",
+                    maxWidth: legendMaxWidthMAX_OPTIC_TX_POWER,
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    // dockInsidePlotArea: true,
+                    itemclick: function (e) {
+                        e.dataSeries.visible = !e.dataSeries.visible;
+                        chartMAX_OPTIC_TX_POWER.render();
+                    }
+                },
+                data: dataSeriesMAX_OPTIC_TX_POWER
+            });
+            chartMAX_OPTIC_TX_POWER.render();
+        }
+
+        const MAX_OPTIC_RX_POWERChartContainer = document.getElementById("MAX_OPTIC_RX_POWERChartContainer");
+        if (MAX_OPTIC_RX_POWERChartContainer) {
+            const containerWidthMAX_OPTIC_RX_POWER = MAX_OPTIC_RX_POWERChartContainer.offsetWidth;
+            const legendMaxWidthMAX_OPTIC_RX_POWER = containerWidthMAX_OPTIC_RX_POWER * 0.9;
+            let chartMAX_OPTIC_RX_POWER = new CanvasJS.Chart("MAX_OPTIC_RX_POWERChartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "Maximum Rx Power of Optical/Electrical Module"
+                },
+                axisX: {
+                    // title: "Time",
+                    valueFormatString: "DD-MM HH:mm"
+                },
+                axisY: {
+                    title: "dbm",
+                },
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    // itemWrap: true,
+                    textAlign: "center",
+                    maxWidth: legendMaxWidthMAX_OPTIC_RX_POWER,
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    // dockInsidePlotArea: true,
+                    itemclick: function (e) {
+                        e.dataSeries.visible = !e.dataSeries.visible;
+                        chartMAX_OPTIC_RX_POWER.render();
+                    }
+                },
+                data: dataSeriesMAX_OPTIC_RX_POWER
+            });
+            chartMAX_OPTIC_RX_POWER.render();
+        }
+
+        const LOST_PACKETChartContainer = document.getElementById("LOST_PACKETChartContainer");
+        if (LOST_PACKETChartContainer) {
+            const containerWidthLOST_PACKET = LOST_PACKETChartContainer.offsetWidth;
+            const legendMaxWidthLOST_PACKET = containerWidthLOST_PACKET * 0.9;
+            let chartLOST_PACKET = new CanvasJS.Chart("LOST_PACKETChartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "Rate of Lost Packet"
+                },
+                axisX: {
+                    // title: "Time",
+                    valueFormatString: "DD-MM HH:mm"
+                },
+                axisY: {
+                    title: "%",
+                    valueFormatString: "#0.##%"
+                },
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    // itemWrap: true,
+                    textAlign: "center",
+                    maxWidth: legendMaxWidthLOST_PACKET,
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    // dockInsidePlotArea: true,
+                    itemclick: function (e) {
+                        e.dataSeries.visible = !e.dataSeries.visible;
+                        chartLOST_PACKET.render();
+                    }
+                },
+                data: dataSeriesLOST_PACKET
+            });
+            chartLOST_PACKET.render();
+        }
+
+        const MEAN_JITTERChartContainer = document.getElementById("MEAN_JITTERChartContainer");
+        if (MEAN_JITTERChartContainer) {
+            const containerWidthMEAN_JITTER = MEAN_JITTERChartContainer.offsetWidth;
+            const legendMaxWidthMEAN_JITTER = containerWidthMEAN_JITTER * 0.9;
+            let chartMEAN_JITTER = new CanvasJS.Chart("MEAN_JITTERChartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "Mean Delay Jitter"
+                },
+                axisX: {
+                    // title: "Time",
+                    valueFormatString: "DD-MM HH:mm"
+                },
+                axisY: {
+                    title: "ms",
+                },
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    // itemWrap: true,
+                    textAlign: "center",
+                    maxWidth: legendMaxWidthMEAN_JITTER,
+                    verticalAlign: "top",
+                    horizontalAlign: "center",
+                    // dockInsidePlotArea: true,
+                    itemclick: function (e) {
+                        e.dataSeries.visible = !e.dataSeries.visible;
+                        chartMEAN_JITTER.render();
+                    }
+                },
+                data: dataSeriesMEAN_JITTER
+            });
+            chartMEAN_JITTER.render();
         }
     };
 </script>

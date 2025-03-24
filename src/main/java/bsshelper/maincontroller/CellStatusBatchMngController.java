@@ -147,6 +147,12 @@ public class CellStatusBatchMngController {
                 nbiotCommands.add(localCacheService.nbiotITBBUMap.get(nbiotCell.trim().toUpperCase()).getCommand());
             }
         }
+
+        if (umtsCommands.isEmpty() && gsmCommands.isEmpty() && nbiotCommands.isEmpty()) {
+            localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "No any cell data in batch!"));
+            return "redirect:/helper/cellStatusBatch";
+        }
+
         execResult = oneOperationWithResponse(umtsCommands, operationUMTS, nbiotCommands, operationNBIoT, gsmCommands, operationGSM);
         if (execResult.equals("SUCCEEDED")) {
             localCacheService.messageMap.put(id, new MessageEntity(Severity.SUCCESS, "Script execution result: " + execResult));
@@ -162,7 +168,6 @@ public class CellStatusBatchMngController {
         model.addAttribute("updateTime", updateTime);
         return "redirect:/helper/cellStatusBatch";
     }
-
 
     private String operate(List<String> UMTSData, Integer UMTSCellOperation,
                            List<String> NBIoTData, Integer NBIoTCellOperation,

@@ -21,7 +21,15 @@ public enum KPI {
     NUMBER_USER_IN_CELL ("C372480162", "Total number of users in a cell"),
     MAX_OPTIC_ERROR_SDR ("C370050001", "Maximum Ratio of Optical Interface Error"),
     MAX_OPTIC_ERROR_ITBBU ("C370380001", "Maximum Ratio of Optical Interface Error"),
-    MAX_OPTIC_ERROR ("0", "Maximum Ratio of Optical Interface Error");
+    MAX_OPTIC_ERROR ("0", "Maximum Ratio of Optical Interface Error"),
+    LOST_PACKET ("900156", "Rate of Lost Packet"),
+    MEAN_JITTER ("C380340012", "Mean Delay Jitter"),
+    MAX_OPTIC_TX_POWER_SDR ("C370370102", "Maximum Tx Power of Optical/Electrical Module"),
+    MAX_OPTIC_TX_POWER_ITBBU ("C370390102", "Maximum Tx Power of Optical/Electrical Module"),
+    MAX_OPTIC_TX_POWER ("0", "Maximum Tx Power of Optical/Electrical Module"),
+    MAX_OPTIC_RX_POWER_SDR ("C370370104", "Maximum Rx Power of Optical/Electrical Module"),
+    MAX_OPTIC_RX_POWER_ITBBU ("C370390104", "Maximum Rx Power of Optical/Electrical Module"),
+    MAX_OPTIC_RX_POWER ("0", "Maximum Rx Power of Optical/Electrical Module");
 
     private final String code;
     private final String info;
