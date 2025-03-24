@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
     public String handleException(Exception e, Model model) {
 //        System.out.println(e.getMessage());
         model.addAttribute("error", "Unidentified Internal Error");
-        log.error(">> handle error: {}, {} \n {}", e.getMessage(), e.getCause().toString(), Arrays.toString(e.getStackTrace()));
+        log.error(">> handle error: {}", e.getMessage());
         return "error";
     }
 }

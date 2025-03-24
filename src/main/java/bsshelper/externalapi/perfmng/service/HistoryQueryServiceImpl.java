@@ -66,11 +66,11 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
         HistoryQueryBodySettings bodySettingsRNC = getPacketCellBodySettings(meRNC, managedElement.getBTSManagedElementNum(), time, kpi);
 //        System.out.println(bodySettingsRNC.getBodySettings());
         jsonRNC = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettingsRNC));
-//        System.out.println(jsonRNC);
+        System.out.println(jsonRNC);
         HistoryQueryBodySettings bodySettingsBSC = getPacketCellBodySettings(meBSC, managedElement.getBTSManagedElementNum(), time, kpi);
 //        System.out.println(bodySettingsBSC.getBodySettings());
         jsonBSC = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettingsBSC));
-//        System.out.println(jsonBSC);
+        System.out.println(jsonBSC);
 
         result.putAll(getOneLinkHistory(jsonRNC,kpi));
         result.putAll(getOneLinkHistory(jsonBSC,kpi));
@@ -287,9 +287,9 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
         HistoryQueryErrorEntity error = null;
         HistoryTo historyTo = null;
         try {
-            if (json != null) {
+            if (json != null && json.contains("\"result\":0")) {
                 historyTo = new Gson().fromJson(json, HistoryTo.class);
-            }
+            } else throw new JsonSyntaxException("json result not equals 0");
         } catch (JsonSyntaxException e1) {
             log.error(" >> error in {} parsing: {}", kpi.getInfo(), e1.toString());
             try {
@@ -298,7 +298,7 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
                 log.error(" >> error in ErrorEntity parsing: {}", e2.toString());
             }
             if (error != null) {
-                log.error(" >> error {} code({})", error.getFailReason(), error.getResult());
+                log.error(" >> error {} failReason({})", error.getResult(), error.getFailReason());
             }
         }
         return historyTo;
