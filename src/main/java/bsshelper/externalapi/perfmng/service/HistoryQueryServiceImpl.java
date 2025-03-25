@@ -66,11 +66,11 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
         HistoryQueryBodySettings bodySettingsRNC = getPacketCellBodySettings(meRNC, managedElement.getBTSManagedElementNum(), time, kpi);
 //        System.out.println(bodySettingsRNC.getBodySettings());
         jsonRNC = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettingsRNC));
-        System.out.println(jsonRNC);
+//        System.out.println(jsonRNC);
         HistoryQueryBodySettings bodySettingsBSC = getPacketCellBodySettings(meBSC, managedElement.getBTSManagedElementNum(), time, kpi);
 //        System.out.println(bodySettingsBSC.getBodySettings());
         jsonBSC = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettingsBSC));
-        System.out.println(jsonBSC);
+//        System.out.println(jsonBSC);
 
         result.putAll(getOneLinkHistory(jsonRNC,kpi));
         result.putAll(getOneLinkHistory(jsonBSC,kpi));

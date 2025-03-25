@@ -1,14 +1,15 @@
 package bsshelper.externalapi.auth.service;
 
+import bsshelper.configuration.UserEntityConfiguration;
 import bsshelper.externalapi.auth.entity.Token;
 import bsshelper.externalapi.auth.mapper.TokenMapper;
 import bsshelper.externalapi.auth.to.TokenTo;
 import bsshelper.globalutil.GlobalUtil;
 import bsshelper.globalutil.entity.ErrorEntity;
-import bsshelper.globalutil.entity.UserEntity;
 import bsshelper.globalutil.Verb;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,9 @@ import java.net.http.HttpResponse;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+    private final UserEntityConfiguration userEntityConfiguration;
 
     @Override
     public Token getToken() {
@@ -102,7 +105,7 @@ public class AuthServiceImpl implements AuthService {
 
     private HttpRequest createGetRequest() {
         return HttpRequest.newBuilder()
-                .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(UserEntity.getUser()))
+                .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(userEntityConfiguration.create().getUser()))
                 .uri(URI.create(GlobalUtil.GLOBAL_PATH + GlobalUtil.API_OAUTH + GlobalUtil.OAUTH_TOKEN))
                 .version(HttpClient.Version.HTTP_1_1)
                 .header("Content-Type", "application/json; charset=UTF-8")
