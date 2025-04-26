@@ -51,7 +51,8 @@ public class SecurityConfig {
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/helper/login","/helper/access-denied").permitAll()
+//                        .requestMatchers("/helper/login","/helper/access-denied").permitAll()
+                        .requestMatchers("/helper/login","/helper/access-denied", "/helper/packetLossStat", "/helper/packetLossStat2", "/helper/acceptanceMeasurement/chartPacketLossForDomain").permitAll()
                         .requestMatchers("/helper", "/helper/change-password").authenticated()
                         .requestMatchers(HttpMethod.GET,"/helper/dryContact/**").hasAnyAuthority("EXT_ALARM_MNG_VIEW", "EXT_ALARM_MNG_FULL")
                         .requestMatchers("/helper/dryContact/**").hasAnyAuthority("EXT_ALARM_MNG_FULL")

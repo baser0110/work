@@ -85,7 +85,13 @@ public class AcceptMeasureController {
             return "redirect:/helper/acceptanceMeasurement";
         }
 
-        ManagedElement managedElement = currentMgnService.getManagedElementByNeName(tokenService.getToken(), userLabel);
+        ManagedElement managedElement = null;
+        if (localCacheService.managedElementMap.containsKey(userLabel.trim().toUpperCase())) {
+            managedElement = localCacheService.managedElementMap.get(userLabel.trim().toUpperCase());
+        } else {
+            managedElement = currentMgnService.getManagedElementByNeName(tokenService.getToken(), userLabel);
+        }
+
         if (managedElement == null) {
             localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "userLabel '" + userLabel + "' couldn't be found"));
             return "redirect:/helper/acceptanceMeasurement";
@@ -256,7 +262,7 @@ public class AcceptMeasureController {
                 umts = currentMgnService.getUUtranCellFDDMocSimplified(tokenService.getToken(), managedElement);
             }
             if (umts != null) {
-                localCacheService.UMTSCellMap.put(id, umts);
+                localCacheService.UMTSCellMap.put(managedElement.getUserLabel(), umts);
                 cellSelectedToWrapper = new CellSelectedToWrapper(CellSelectedTo.getCellSelectedTo(umts));
             }
             kpiSelectedToWrapper = new KPISelectedToWrapper(KPISelectedTo.getDefaultKpiSelectedList(),
@@ -264,7 +270,9 @@ public class AcceptMeasureController {
             isSelected.add(QueryType.CUSTOM_HISTORY.getInfo());
         }
 
-        localCacheService.managedElementMap.put(id, managedElement);
+        if (!localCacheService.managedElementMap.containsKey(managedElement.getUserLabel())) {
+            localCacheService.managedElementMap.put(managedElement.getUserLabel(), managedElement);
+        }
 
         model.addAttribute("repoInfoCell", infoCellUMTSWrapper);
         model.addAttribute("repoQueryType", new QueryTypeToWrapper(QueryTypeTo.getDefaultQueryTypeSelectedList()));

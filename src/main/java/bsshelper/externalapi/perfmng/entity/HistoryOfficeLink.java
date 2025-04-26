@@ -9,7 +9,9 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class HistoryOfficeLink {
     private final String mrnc;
+    private final String id;
     private final String siteName;
     private final double value;
     private final LocalDateTime time;
 }
+

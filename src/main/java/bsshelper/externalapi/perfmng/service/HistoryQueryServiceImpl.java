@@ -63,14 +63,10 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
         Map<String, List<HistoryOfficeLink>> result = new TreeMap<>();
         String jsonRNC = null;
         String jsonBSC = null;
-        HistoryQueryBodySettings bodySettingsRNC = getPacketCellBodySettings(meRNC, managedElement.getBTSManagedElementNum(), time, kpi);
-//        System.out.println(bodySettingsRNC.getBodySettings());
+        HistoryQueryBodySettings bodySettingsRNC = getPacketLossBodySettings(meRNC, List.of(managedElement.getBTSManagedElementNum()), time, kpi, 15);
         jsonRNC = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettingsRNC));
-//        System.out.println(jsonRNC);
-        HistoryQueryBodySettings bodySettingsBSC = getPacketCellBodySettings(meBSC, managedElement.getBTSManagedElementNum(), time, kpi);
-//        System.out.println(bodySettingsBSC.getBodySettings());
+        HistoryQueryBodySettings bodySettingsBSC = getPacketLossBodySettings(meBSC, List.of(managedElement.getBTSManagedElementNum()), time, kpi, 15);
         jsonBSC = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettingsBSC));
-//        System.out.println(jsonBSC);
 
         result.putAll(getOneLinkHistory(jsonRNC,kpi));
         result.putAll(getOneLinkHistory(jsonBSC,kpi));
@@ -87,6 +83,52 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
             rawHistoryList.remove(0);
             oneObjResult = HistoryOfficeLinkMapper.toFinalEntity(rawHistoryList);
             result.put(oneObjResult.getFirst().getMrnc(),oneObjResult);
+        }
+        log.info(" >> {} List: {}", kpi.getInfo(), oneObjResult == null ? "null" : oneObjResult.size() + " points");
+        return result;
+    }
+    @Override
+    public Map<String, List<HistoryOfficeLink>> getFullMRNCOfficeLinkHistory(Token token, String mrnc, int time, KPI kpi, int granularity) {
+        Map<String, List<HistoryOfficeLink>> result = new TreeMap<>();
+        String jsonMRNC = null;
+        HistoryQueryBodySettings bodySettingsMRNC = getFullMRNCPacketLossBodySettings(mrnc, time, kpi, granularity);
+        jsonMRNC = rawDataQuery(token, null, dataQueryRequest(token, bodySettingsMRNC));
+        result.putAll(getOneMRNCLinkHistory(jsonMRNC,kpi));
+        return result;
+    }
+
+    @Override
+    public Map<String, List<HistoryOfficeLink>> getCustomListOfficeLinkHistory(Token token, Map<String, List<String>> mrncIdMap, int time, KPI kpi, int granularity) {
+        Map<String, List<HistoryOfficeLink>> result = new TreeMap<>();
+        String jsonMRNC = null;
+        for (String mrnc: mrncIdMap.keySet()) {
+            HistoryQueryBodySettings bodySettingsMRNC = getPacketLossBodySettings(mrnc, mrncIdMap.get(mrnc), time, kpi, granularity);
+            jsonMRNC = rawDataQuery(token, null, dataQueryRequest(token, bodySettingsMRNC));
+            result.putAll(getOneMRNCLinkHistory(jsonMRNC,kpi));
+        }
+        return result;
+    }
+
+    private Map<String, List<HistoryOfficeLink>> getOneMRNCLinkHistory(String json, KPI kpi) {
+        Map<String, List<HistoryOfficeLink>> result = new TreeMap<>();
+        List<HistoryOfficeLink> oneObjResult = null;
+        HistoryTo historyTo = getHistoryTo(json, kpi);
+        if (historyTo != null) {
+            List<String> rawHistoryList = historyTo.getData();
+            if (!rawHistoryList.isEmpty()) {
+                rawHistoryList.remove(0);
+                oneObjResult = HistoryOfficeLinkMapper.toFinalEntity(rawHistoryList);
+                for (HistoryOfficeLink l : oneObjResult) {
+                    String siteName = l.getSiteName();
+                    if (!result.containsKey(siteName)) {
+                        List<HistoryOfficeLink> statList = new ArrayList<>();
+                        statList.add(l);
+                        result.put(siteName, statList);
+                    } else {
+                        result.get(siteName).add(l);
+                    }
+                }
+            }
         }
         log.info(" >> {} List: {}", kpi.getInfo(), oneObjResult == null ? "null" : oneObjResult.size() + " points");
         return result;
@@ -214,11 +256,15 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
             httpResponse = HttpClient.newBuilder().build().send(request, HttpResponse.BodyHandlers.ofString());
             response = httpResponse.body();
             if (response.contains("\"result\":0") && !response.contains("\"data\":[]")) {
-                log.info(" >> statistic for {} successfully found", managedElement.getUserLabel());
+                if (managedElement != null) {
+                    log.info(" >> statistic for {} successfully found", managedElement.getUserLabel());
+                }
             } else {
                 if (response.contains("\"result\":0")) {
-                    log.info(" >> statistic for {} successfully found but it's empty", managedElement.getUserLabel());
-                    return null;
+                    if (managedElement != null) {
+                        log.info(" >> statistic for {} successfully found but it's empty", managedElement.getUserLabel());
+                        return null;
+                    }
                 }
             }
         } catch (IOException | InterruptedException e) {
@@ -267,19 +313,34 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
                 .build();
     }
 
-    private HistoryQueryBodySettings getPacketCellBodySettings(String me, String linkId, int time, KPI kpi) {
+    private HistoryQueryBodySettings getPacketLossBodySettings(String me, List<String> linkIdList, int time, KPI kpi, int granularity) {
         return   HistoryQueryBodySettings.builder()
                 .nfctid("MRNC")
                 .motid("pm.IPPD")
-                .gr(15)
+                .gr(granularity)
                 .me(me + ", " + me)
-                .mois(List.of(linkId))
+                .mois(linkIdList)
                 .items(List.of(kpi.getCode()))
                 .showobjectname(true)
                 .starttime(TimeToString.nHoursAgoTime(time))
                 .endtime(TimeToString.nowTime())
                 .grouplayer("me,pm.OfficeLink")
                 .filterlayer("pm.OfficeLink")
+                .build();
+    }
+
+    private HistoryQueryBodySettings getFullMRNCPacketLossBodySettings(String me, int time, KPI kpi, int granularity) {
+        return   HistoryQueryBodySettings.builder()
+                .nfctid("MRNC")
+//                .motid("pm.IPPD")
+                .gr(granularity)
+                .me(me + ", " + me)
+                .items(List.of(kpi.getCode()))
+                .showobjectname(true)
+                .starttime(TimeToString.nHoursAgoTime(time))
+                .endtime(TimeToString.nowTime())
+                .grouplayer("me,pm.OfficeLink")
+//                .filterlayer("pm.OfficeLink")
                 .build();
     }
 

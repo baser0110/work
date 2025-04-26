@@ -137,7 +137,6 @@
 
         input[type="checkbox"] {
             transform: scale(1.5);
-            /*margin-right: 10px;*/
         }
 
         .radio-container {
@@ -157,14 +156,10 @@
                        placeholder="Enter sitename">
                 <button type="submit" class="btn btn-success">Search</button>
             </div>
-<!--            <div class="inline-container col-md-1">-->
-<!--                <label for="time" style="font-weight: bold">Query time (h):</label>-->
-<!--                <input style="width: 70px" type="number" id="time" name="time" th:value="${time}" placeholder="1..168" min="1" max="168">-->
-<!--            </div>-->
+
             <div class="col-md-8">
                 <table id="Request-table" border="0">
                     <thead>
-<!--                    <tr >-->
                         <tr>
                             <th th:each="object: *{repoQueryType.getDataQueryType()}" class="pl-1 pr-1">
                             <input type="checkbox" class="select-checkbox" name="measurementQuerySet"
@@ -173,14 +168,6 @@
                             <label th:text="${object.getQueryType()}"></label>
                             </th>
                         </tr>
-
-<!--                        <th><label><input type="checkbox" th:name="cells" th:checked="*{cells}"> Cells Info</label></th>-->
-<!--                        <th><label><input type="checkbox" th:name="rtwp" th:checked="*{rtwp}"> RTWP(24h)</label></th>-->
-<!--                        <th><label><input type="checkbox" th:name="vswr" th:checked="*{vswr}"> VSWR</label></th>-->
-<!--                        <th><label><input type="checkbox" th:name="optic" th:checked="*{optic}"> Optic Levels</label></th>-->
-<!--                        <th><label><input type="checkbox" th:name="sync" th:checked="*{sync}"> Sync</label></th>-->
-<!--                        <th><label><input type="checkbox" th:name="custom" th:checked="*{custom}"> Custom History Query</label></th>-->
-<!--                    </tr>-->
                     </thead>
                 </table>
             </div>
@@ -289,7 +276,7 @@
                     <div class="col-md-7">
                         <form class="inline-container" method="post" target="_blank">
                             <button type="submit" class="btn btn-primary legend-button" formaction="/helper/acceptanceMeasurement/chartVSWR">Get Chart</button>
-                            <input type="hidden" name="acceptanceMeasurementId" th:value="${acceptanceMeasurementId}">
+                            <input type="hidden" name="userLabel" th:value="${managedElement.getUserLabel()}">
                             <label for="timeVSWR" style="font-weight: bold" class="pl-3">Query time (h):</label>
                             <input style="width: 70px" type="number" id="timeVSWR" name="timeVSWR" th:value="${timeVSWR}" placeholder="1..168" min="1" max="168">
                         </form>
@@ -505,7 +492,7 @@
                             <button type="submit" class="btn btn-primary legend-button" formaction="/helper/acceptanceMeasurement/customCharts">Get Chart</button>
                             <label for="time" style="font-weight: bold" class="pl-3">Query time (h):</label>
                             <input style="width: 70px" type="number" id="time" name="time" th:value="${time}" placeholder="1..168" min="1" max="168">
-                            <input type="hidden" name="acceptanceMeasurementId" th:value="${acceptanceMeasurementId}">
+                            <input type="hidden" name="userLabel" th:value="${managedElement.getUserLabel()}">
                             </div>
                             <br>
                             <table th:object="${repoKPI}" id="KPI-table" border="1"

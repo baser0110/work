@@ -24,6 +24,7 @@ public class GlobalExceptionHandler {
 //        System.out.println(e.getMessage());
         model.addAttribute("error", "Unidentified Internal Error");
         log.error(">> handle error: {}", e.getMessage());
+        e.printStackTrace();
         return "error";
     }
 }

@@ -57,7 +57,12 @@ public class DryContactController {
     public String search(@PathVariable(value = "userLabel") String userLabel, String clearUserLabel, Model model, HttpSession session) {
         String id = session.getId();
         setMessage(id, model);
-        ManagedElement managedElement = currentMgnService.getManagedElementByNeName(tokenService.getToken(), userLabel);
+        ManagedElement managedElement = null;
+        if (localCacheService.managedElementMap.containsKey(userLabel.trim().toUpperCase())) {
+            managedElement = localCacheService.managedElementMap.get(userLabel.trim().toUpperCase());
+        } else {
+            managedElement = currentMgnService.getManagedElementByNeName(tokenService.getToken(), userLabel);
+        }
         MocDataWrapper mocDataWrapper = null;
         if (managedElement == null) {
             localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "userLabel '" + userLabel + "' couldn't be found"));
@@ -70,8 +75,11 @@ public class DryContactController {
             mocDataWrapper = new DryContactCableMocDataWrapper(DryContactCableMocDataMapper.
                     toDryContactCableMocDataTo(currentMgnService.getDryContactCableMoc(tokenService.getToken(), managedElement)));
         }
-        localCacheService.mocDataRepositoryMap.put(id, mocDataWrapper);
-        localCacheService.managedElementMap.put(id, managedElement);
+        localCacheService.mocDataRepositoryMap.put(id + "_" + managedElement.getUserLabel(), mocDataWrapper);
+
+        if (!localCacheService.managedElementMap.containsKey(managedElement.getUserLabel())) {
+            localCacheService.managedElementMap.put(managedElement.getUserLabel(), managedElement);
+        }
 
         model.addAttribute("managedElement", managedElement);
         model.addAttribute("repo", mocDataWrapper);
@@ -80,29 +88,32 @@ public class DryContactController {
     }
 
     @PostMapping ("/dryContact/addRowSDR")
-    public String dryContactAdd(@ModelAttribute("repo") DryContactDeviceMocDataWrapper repo, Model model, HttpSession session) {
+    public String dryContactAdd(@ModelAttribute("repo") DryContactDeviceMocDataWrapper repo,
+                                @ModelAttribute("userLabel") String userLabel, Model model, HttpSession session) {
         String id = session.getId();
-        localCacheService.mocDataRepositoryMap.put(id, repo);
-        localCacheService.mocDataRepositoryMap.get(id).addNew();
-        model.addAttribute("managedElement", localCacheService.managedElementMap.get(id));
-        model.addAttribute("repo", localCacheService.mocDataRepositoryMap.get(id));
+        localCacheService.mocDataRepositoryMap.put(id + "_" + userLabel, repo);
+        localCacheService.mocDataRepositoryMap.get(id + "_" + userLabel).addNew();
+        model.addAttribute("managedElement", localCacheService.managedElementMap.get(userLabel));
+        model.addAttribute("repo", localCacheService.mocDataRepositoryMap.get(id + "_" + userLabel));
         model.addAttribute("title", "External Alarms Manager");
         return "drycontact";
     }
 
     @PostMapping ("/dryContact/addRowITBBU")
-    public String dryContactAdd(@ModelAttribute("repo") DryContactCableMocDataWrapper repo, Model model, HttpSession session) {
+    public String dryContactAdd(@ModelAttribute("repo") DryContactCableMocDataWrapper repo,
+                                @ModelAttribute("userLabel") String userLabel, Model model, HttpSession session) {
         String id = session.getId();
-        localCacheService.mocDataRepositoryMap.put(id, repo);
-        localCacheService.mocDataRepositoryMap.get(id).addNew();
-        model.addAttribute("managedElement", localCacheService.managedElementMap.get(id));
-        model.addAttribute("repo", localCacheService.mocDataRepositoryMap.get(id));
+        localCacheService.mocDataRepositoryMap.put(id + "_" + userLabel, repo);
+        localCacheService.mocDataRepositoryMap.get(id + "_" + userLabel).addNew();
+        model.addAttribute("managedElement", localCacheService.managedElementMap.get(userLabel));
+        model.addAttribute("repo", localCacheService.mocDataRepositoryMap.get(id + "_" + userLabel));
         model.addAttribute("title", "External Alarms Manager");
         return "drycontact";
     }
 
     @PostMapping ("/dryContact/updateSDR")
     public String dryContactUpdateSDR(@ModelAttribute("repo") DryContactDeviceMocDataWrapper repo,
+                                      @ModelAttribute("userLabel") String userLabel,
                                       Model model, HttpSession session, Authentication authentication) {
         String id = session.getId();
         MessageEntity resultD = null;
@@ -112,24 +123,25 @@ public class DryContactController {
         List<MocData> modifyAndAddDataToSend = repo.getModAndAddFinalData();
 
         if (!deleteDataToSend.isEmpty()) {
-            resultD = areaActivating(id, deleteDataToSend);
+            resultD = areaActivating(deleteDataToSend, userLabel);
         }
 
         if (!modifyAndAddDataToSend.isEmpty()) {
-            resultAM = areaActivating(id, modifyAndAddDataToSend);
+            resultAM = areaActivating(modifyAndAddDataToSend, userLabel);
         }
 
         if (!modifyAndAddDataToSend.isEmpty() || !deleteDataToSend.isEmpty()) {
-            getLog(id, authentication, deleteDataToSend, modifyAndAddDataToSend, resultD, resultAM);
+            getLog(userLabel, authentication, deleteDataToSend, modifyAndAddDataToSend, resultD, resultAM);
         }
 
         localCacheService.messageMap.put(id, computeResultMessage(resultD, resultAM));
 
-        return "redirect:/helper/dryContact/" + localCacheService.managedElementMap.get(id).getUserLabel();
+        return "redirect:/helper/dryContact/" + userLabel;
     }
 
     @PostMapping ("/dryContact/updateITBBU")
     public String dryContactUpdateITBBU(@ModelAttribute("repo") DryContactCableMocDataWrapper repo,
+                                        @ModelAttribute("userLabel") String userLabel,
                                         Model model, HttpSession session, Authentication authentication) {
         String id = session.getId();
         MessageEntity resultD = null;
@@ -139,27 +151,27 @@ public class DryContactController {
         List<MocData> modifyAndAddDataToSend = repo.getModAndAddFinalData();
 
         if (!deleteDataToSend.isEmpty()) {
-            resultD = areaActivating(id, deleteDataToSend);
+            resultD = areaActivating(deleteDataToSend, userLabel);
         }
 
         if (!modifyAndAddDataToSend.isEmpty()) {
-            resultAM = areaActivating(id, modifyAndAddDataToSend);
+            resultAM = areaActivating(modifyAndAddDataToSend, userLabel);
         }
 
         if (!modifyAndAddDataToSend.isEmpty() || !deleteDataToSend.isEmpty()) {
-            getLog(id, authentication, deleteDataToSend, modifyAndAddDataToSend, resultD, resultAM);
+            getLog(userLabel, authentication, deleteDataToSend, modifyAndAddDataToSend, resultD, resultAM);
         }
 
         localCacheService.messageMap.put(id, computeResultMessage(resultD, resultAM));
 
-        return "redirect:/helper/dryContact/" + localCacheService.managedElementMap.get(id).getUserLabel();
+        return "redirect:/helper/dryContact/" + userLabel;
     }
 
-    private MessageEntity areaActivating(String sessionId, List<MocData> toActivate) {
+    private MessageEntity areaActivating(List<MocData> toActivate, String userLabel) {
         String dataAreaId = planMgnService.newArea(tokenService.getToken());
         PlannedServBodySettings bodySettingsToAddAndModify = PlannedServBodySettings.builder()
-                .ManagedElementType(localCacheService.managedElementMap.get(sessionId).getManagedElementType().toString())
-                .ne(localCacheService.managedElementMap.get(sessionId).getNe())
+                .ManagedElementType(localCacheService.managedElementMap.get(userLabel).getManagedElementType().toString())
+                .ne(localCacheService.managedElementMap.get(userLabel).getNe())
                 .moData(toActivate)
                 .build();
         MessageEntity result = planServService.dataConfigUnassociated(dataAreaId, tokenService.getToken(), bodySettingsToAddAndModify);
@@ -212,11 +224,11 @@ public class DryContactController {
         return null;
     }
 
-    private void getLog(String id, Authentication authentication,
+    private void getLog(String userLabel, Authentication authentication,
                        List<MocData> del, List<MocData> mod_add,
                        MessageEntity delRes, MessageEntity mod_addRes) {
 
-        ManagedElement managedElement = localCacheService.managedElementMap.get(id);
+        ManagedElement managedElement = localCacheService.managedElementMap.get(userLabel);
 
         StringBuilder log = new StringBuilder();
         log.append("User: ")

@@ -15,7 +15,10 @@ public interface HistoryQueryService {
     List<HistoryMaxOpticError> getHistoryOpticError(Token token, ManagedElement managedElement, int time);
     List<HistoryMaxOpticPower> getHistoryOpticTxPower(Token token, ManagedElement managedElement, int time);
     List<HistoryMaxOpticPower> getHistoryOpticRxPower(Token token, ManagedElement managedElement, int time);
+
     Map<String, List<HistoryOfficeLink>> getOfficeLinkHistory(Token token, ManagedElement managedElement, int time, KPI kpi);
+    Map<String, List<HistoryOfficeLink>> getFullMRNCOfficeLinkHistory(Token token, String mrnc, int time, KPI kpi, int granularity);
+    Map<String, List<HistoryOfficeLink>> getCustomListOfficeLinkHistory(Token token, Map<String, List<String>> mrncIdMap, int time, KPI kpi, int granularity);
 
     List<HistoryVSWR> getHistoryVSWR(Token token, ManagedElement managedElement, int time);
 }

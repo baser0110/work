@@ -45,6 +45,8 @@ public class LocalCacheServiceImpl implements LocalCacheService {
                 log.info(" >> managedElementMap size " + managedElementMap.size());
                 log.info(" >> historyRTWPMap size " + historyRTWPMap.size());
                 log.info(" >> historyRTWPMap size " + cellStatusDetailsMap.size());
+                log.info(" >> historyRTWPMap size " + UMTSCellMap.size());
+                log.info(" >> historyRTWPMap size " + messageMap.size());
 
                 mocDataRepositoryMap.clear();
                 log.info(" >> mocDataRepositoryMap cache has been cleared");
@@ -54,11 +56,17 @@ public class LocalCacheServiceImpl implements LocalCacheService {
                 log.info(" >> historyRTWPMap cache has been cleared");
                 cellStatusDetailsMap.clear();
                 log.info(" >> cellStatusDetailsMap cache has been cleared");
+                UMTSCellMap.clear();
+                log.info(" >> UMTSCellMap cache has been cleared");
+                messageMap.clear();
+                log.info(" >> messageMap cache has been cleared");
 
                 log.info(" >> mocDataRepositoryMap size " + mocDataRepositoryMap.size());
                 log.info(" >> managedElementMap size " + managedElementMap.size());
                 log.info(" >> historyRTWPMap size " + historyRTWPMap.size());
                 log.info(" >> historyRTWPMap size " + cellStatusDetailsMap.size());
+                log.info(" >> historyRTWPMap size " + UMTSCellMap.size());
+                log.info(" >> historyRTWPMap size " + messageMap.size());
             }, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
         } catch (Exception e) {
             log.error(" >> error in clearCache: {}", e.toString());

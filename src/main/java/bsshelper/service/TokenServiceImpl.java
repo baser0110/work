@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 @RequiredArgsConstructor
 public class TokenServiceImpl implements TokenService {
-    private static final boolean isConnectInterrupted = false;
     private final AuthService authService;
     private final AtomicReference<Token> token = new AtomicReference<>();
     private final AtomicReference<Boolean> isHandshakeFailed = new AtomicReference<>(false);

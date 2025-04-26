@@ -108,7 +108,8 @@
             <fieldset>
                 <legend>
                     <span class="legend-title" th:text="${managedElement.userLabel} + ' (' + ${managedElement.ManagedElementType} + ') '
-                        + ${managedElement.getParsedNe()}"> </span>
+                        + ${managedElement.getParsedNe()}" > </span>
+                    <input type="hidden" name="userLabel" th:value="${managedElement.userLabel}">
                     <button type="submit" class="btn btn-danger legend-button">! Change status</button>
                 </legend>
                 <div th:if="${repoUMTS.getDataUMTS() != null}" class="row">
@@ -332,6 +333,7 @@
                             <th>
                                 <form th:action="@{/helper/cellStatus/cellStatusDetails}" method="post">
                                 <button id="details-view" class="btn btn-primary text-center width-250px" type="submit" formtarget="_blank"> Cell Status Details </button>
+                                    <input type="hidden" name="userLabel" th:value="${managedElement.userLabel}">
                                 </form>
                             </th>
                         </tr>

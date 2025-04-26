@@ -1,5 +1,8 @@
 package bsshelper.service.user.entity;
 
+import lombok.Getter;
+
+@Getter
 public enum Permission {
     NO("No Access"),
     VIEW("View Only"),
@@ -9,10 +12,6 @@ public enum Permission {
 
     Permission(String description) {
         this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public static Permission getDefault() {

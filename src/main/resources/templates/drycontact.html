@@ -81,6 +81,7 @@
     <div th:if="${managedElement != null}">
         <form sec:authorize="hasAuthority('EXT_ALARM_MNG_FULL')" th:if="${managedElement.getManagedElementType().toString.equals('SDR')}" id="repoSDR" action="#"
               th:action="@{/helper/dryContact/updateSDR}" method="post" th:object="${repo}">
+            <input type="hidden" name="userLabel" th:value="${managedElement.userLabel}">
             <fieldset>
                 <legend>
                     <span class="legend-title" th:text="${managedElement.userLabel} + ' (' + ${managedElement.ManagedElementType} + ') '
@@ -147,6 +148,7 @@
 
         <form sec:authorize="hasAuthority('EXT_ALARM_MNG_FULL')" th:if="${managedElement.getManagedElementType().toString.equals('ITBBU')}" id="repoITBBU" action="#"
               th:action="@{/helper/dryContact/updateITBBU}" method="post" th:object="${repo}">
+            <input type="hidden" name="userLabel" th:value="${managedElement.userLabel}">
             <fieldset>
                 <legend>
                     <span class="legend-title" th:text="${managedElement.userLabel} + ' (' + ${managedElement.ManagedElementType} + ') '

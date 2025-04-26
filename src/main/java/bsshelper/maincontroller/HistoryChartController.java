@@ -8,6 +8,9 @@ import bsshelper.externalapi.perfmng.util.KPI;
 import bsshelper.globalutil.entity.MessageEntity;
 import bsshelper.service.LocalCacheService;
 import bsshelper.service.TokenService;
+import bsshelper.service.paketlossstat.entity.DomainStat;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,10 +32,10 @@ public class HistoryChartController {
     private final HistoryQueryService historyQueryService;
 
     @PostMapping("/acceptanceMeasurement/chartVSWR")
-    public String cellStatus(String acceptanceMeasurementId, Integer timeVSWR, Model model, HttpSession session) {
+    public String cellStatus(String userLabel, Integer timeVSWR, Model model, HttpSession session) {
         String id = session.getId();
         setMessage(id, model);
-        ManagedElement managedElement = localCacheService.managedElementMap.get(acceptanceMeasurementId);
+        ManagedElement managedElement = localCacheService.managedElementMap.get(userLabel);
         List<HistoryVSWR> historyVSWRList = historyQueryService.getHistoryVSWR(tokenService.getToken(), managedElement, getTime(timeVSWR));
         Map<String, List<HistoryVSWR>> allDataMap = HistoryVSWR.getChart(historyVSWRList);
 //        HistoryVSWRFinalWrapper historyVSWRRepoWrapper = new HistoryVSWRFinalWrapper(HistoryVSWR.getFinal(historyVSWRList));
@@ -44,8 +47,32 @@ public class HistoryChartController {
         return "chartVSWR";
     }
 
+    @PostMapping("/acceptanceMeasurement/chartPacketLossForDomain")
+    public String packetLoss(@RequestParam(name = "domain", required = false) String domain,
+                             Model model, HttpSession session) {
+
+//        System.out.println(localCacheService.packetLostCache.get(domain));
+
+        DomainStat domainStat = localCacheService.packetLostCache.get(domain);
+//
+//        System.out.println(domainStat.getIdMap2g());
+//        System.out.println(domainStat.getIdMap3g());
+//  NULL chek
+        Map<String, List<HistoryOfficeLink>> history2g = getMRNCSiteHistoryMap(domainStat.getIdMap2g());
+        Map<String, List<HistoryOfficeLink>> history3g = getMRNCSiteHistoryMap(domainStat.getIdMap3g());
+//
+//        System.out.println(history2g);
+//        System.out.println(history3g);
+//
+        model.addAttribute("data2g", getPoints(history2g));
+        model.addAttribute("data3g", getPoints(history3g));
+        model.addAttribute("domain", domain);
+
+        return "chartpacketloss";
+    }
+
     @PostMapping("/acceptanceMeasurement/customCharts")
-    public String cellStatus(String acceptanceMeasurementId, Integer time,
+    public String cellStatus(String userLabel, Integer time,
                              @RequestParam(name = "checkedCustomCellsList", required = false) List<String> checkedCustomCellsList,
                              @RequestParam(name = "checkedKPIsList", required = false) Set<String> checkedKPIsList,
                              @RequestParam(name = "checkedKPIsNoCellList", required = false) Set<String> checkedKPIsNoCellList,
@@ -53,9 +80,9 @@ public class HistoryChartController {
         String id = session.getId();
         setMessage(id, model);
         List<UUtranCellFDDMocSimplified> checkedCellList = new ArrayList<>();
-        ManagedElement managedElement = localCacheService.managedElementMap.get(acceptanceMeasurementId);
+        ManagedElement managedElement = localCacheService.managedElementMap.get(userLabel);
         if (checkedKPIsList != null) {
-            List<UUtranCellFDDMocSimplified> allCellList = localCacheService.UMTSCellMap.get(acceptanceMeasurementId);
+            List<UUtranCellFDDMocSimplified> allCellList = localCacheService.UMTSCellMap.get(userLabel);
             for (UUtranCellFDDMocSimplified cell : allCellList) {
                 if (checkedCustomCellsList.contains(cell.getUserLabel())) {
                     checkedCellList.add(cell);
@@ -242,4 +269,32 @@ public class HistoryChartController {
         }
         return result;
     }
+
+    private Map<String, List<HistoryOfficeLink>> getMRNCSiteHistoryMap(Map<String, List<String>> mrncIdMap) {
+        return  historyQueryService.getCustomListOfficeLinkHistory(
+                tokenService.getToken(),
+                mrncIdMap,
+                168,
+                KPI.LOST_PACKET,
+                60
+        );
+    }
+
+    private List<Map<String, Object>> getPoints(Map<String, List<HistoryOfficeLink>> history) {
+        List<Map<String, Object>> chartData = new ArrayList<>();
+
+        for (Map.Entry<String, List<HistoryOfficeLink>> entry : history.entrySet()) {
+            String site = entry.getKey();
+            for (HistoryOfficeLink link : entry.getValue()) {
+                Map<String, Object> point = new HashMap<>();
+                point.put("category", site);                      // site = series name
+                point.put("x", link.getTime().toString());        // time as string
+                point.put("value", link.getValue());              // value for the bar
+                chartData.add(point);
+            }
+        }
+
+        return chartData;
+    }
+
 }

@@ -62,7 +62,13 @@ public class CellStatusMngController {
 
         String id = session.getId();
         setMessage(id, model);
-        ManagedElement managedElement = currentMgnService.getManagedElementByNeName(tokenService.getToken(), userLabel);
+
+        ManagedElement managedElement = null;
+        if (localCacheService.managedElementMap.containsKey(userLabel.trim().toUpperCase())) {
+            managedElement = localCacheService.managedElementMap.get(userLabel.trim().toUpperCase());
+        } else {
+            managedElement = currentMgnService.getManagedElementByNeName(tokenService.getToken(), userLabel);
+        }
         if (managedElement == null) {
             localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "userLabel '" + userLabel + "' couldn't be found"));
             return "redirect:/helper/cellStatus";
@@ -75,10 +81,10 @@ public class CellStatusMngController {
         List<ULocalCellMocSimplified> uLocalCellList = null;
         List<ITBBUULocalCellMocSimplified> iTBBUULocalCellList = null;
 
-        if (managedElement == null) {
-            localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "userLabel '" + userLabel + "' couldn't be found"));
-            return "redirect:/helper/cellStatus";
-        }
+//        if (managedElement == null) {
+//            localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "userLabel '" + userLabel + "' couldn't be found"));
+//            return "redirect:/helper/cellStatus";
+//        }
 
 //        System.out.println(activeAlarmService.rawDataQuery(tokenService.getToken(),managedElement));
 
@@ -106,13 +112,15 @@ public class CellStatusMngController {
 //        System.out.println(uLocalCellMocListWrapper);
 //        System.out.println(gCellStatusListWrapper);
         if (uLocalCellList != null) {
-            localCacheService.cellStatusDetailsMap.put(id, CellStatusDetailsMapper.toULocalCellStatusEntitySDR(uLocalCellList, uCellMap));
+            localCacheService.cellStatusDetailsMap.put(userLabel.trim().toUpperCase(), CellStatusDetailsMapper.toULocalCellStatusEntitySDR(uLocalCellList, uCellMap));
         } else {
             if (iTBBUULocalCellList != null) {
-                localCacheService.cellStatusDetailsMap.put(id, CellStatusDetailsMapper.toULocalCellStatusEntityITBBU(iTBBUULocalCellList, uCellMap));
+                localCacheService.cellStatusDetailsMap.put(userLabel.trim().toUpperCase(), CellStatusDetailsMapper.toULocalCellStatusEntityITBBU(iTBBUULocalCellList, uCellMap));
             }
         }
-        localCacheService.managedElementMap.put(id, managedElement);
+        if (!localCacheService.managedElementMap.containsKey(managedElement.getUserLabel())) {
+            localCacheService.managedElementMap.put(managedElement.getUserLabel(), managedElement);
+        }
 
 //        activeAlarmService.alarmDataExport(tokenService.getToken(), managedElement);
 
@@ -128,6 +136,7 @@ public class CellStatusMngController {
     public String cellChangeStatus(@ModelAttribute("repoUMTS") ULocalCellStatusListWrapper repoUMTS, Integer operationUMTS,
                                    @ModelAttribute("repoNBIoT") EUtranCellNBIoTStatusListWrapper repoNBIoT, Integer operationNBIoT,
                                    @ModelAttribute("repoGSM") GCellStatusListWrapper repoGSM, Integer operationGSM,
+                                   @ModelAttribute("userLabel") String userLabel,
                                    Model model, HttpSession session, Authentication authentication) {
         String id = session.getId();
         setMessage(id, model);
@@ -136,17 +145,17 @@ public class CellStatusMngController {
                 && (operationNBIoT == null || operationNBIoT == 0)
                 && (operationGSM == null || operationGSM == 0)) {
             localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "No any operation selected!"));
-            return "redirect:/helper/cellStatus/" + localCacheService.managedElementMap.get(id).getUserLabel();
+            return "redirect:/helper/cellStatus/" + userLabel;
         }
         if ((repoUMTS.getDataUMTS() == null || !repoUMTS.isAnySelected())
                 && (repoNBIoT.getDataNBIOT() == null || !repoNBIoT.isAnySelected())
                 && (repoGSM.getDataGSM() == null || !repoGSM.isAnySelected())) {
             localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "No any data selected!"));
-            return "redirect:/helper/cellStatus/" + localCacheService.managedElementMap.get(id).getUserLabel();
+            return "redirect:/helper/cellStatus/" + userLabel;
         }
 //        if (operationUMTS == 3 || operationUMTS == 6) {}
         else {
-            execResult = oneOperationWithResponse(localCacheService.managedElementMap.get(id),
+            execResult = oneOperationWithResponse(localCacheService.managedElementMap.get(userLabel),
                     repoUMTS.getExtensionData(), operationUMTS,
                     repoNBIoT.getExtensionData(), operationNBIoT,
                     repoGSM.getDataGSM(), operationGSM);
@@ -156,14 +165,14 @@ public class CellStatusMngController {
                 localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "Script execution result: " + execResult));
             }
 
-            getLog(localCacheService.managedElementMap.get(id),
+            getLog(localCacheService.managedElementMap.get(userLabel),
                     repoUMTS.getExtensionData(), operationUMTS,
                     repoNBIoT.getExtensionData(), operationNBIoT,
                     repoGSM.getDataGSM(), operationGSM,
                     execResult, authentication);
         }
 
-        return "redirect:/helper/cellStatus/" + localCacheService.managedElementMap.get(id).getUserLabel();
+        return "redirect:/helper/cellStatus/" + userLabel;
     }
 
     private String operate(ManagedElement managedElement,

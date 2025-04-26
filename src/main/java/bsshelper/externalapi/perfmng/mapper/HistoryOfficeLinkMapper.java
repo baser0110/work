@@ -17,6 +17,7 @@ public class HistoryOfficeLinkMapper {
         String[] split = raw.split(",");
         return new HistoryOfficeLink(
                 split[6],
+                split[9],
                 split[10],
                 Double.parseDouble(split[11]),
                 LocalDateTime.parse(split[1], formatter));

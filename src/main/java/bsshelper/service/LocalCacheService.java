@@ -9,10 +9,14 @@ import bsshelper.externalapi.openscriptexecengine.entity.CellStatusDetails;
 import bsshelper.externalapi.perfmng.entity.HistoryRTWP;
 import bsshelper.externalapi.perfmng.wrapper.HistoryRTWPWrapper;
 import bsshelper.globalutil.entity.MessageEntity;
+import bsshelper.service.paketlossstat.entity.DomainStat;
+import org.apache.groovy.util.concurrent.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.stream.Collectors;
 
 public interface LocalCacheService {
     ConcurrentHashMap<String, MocDataWrapper> mocDataRepositoryMap = new ConcurrentHashMap<>();
@@ -28,5 +32,16 @@ public interface LocalCacheService {
     ConcurrentHashMap<String, CurrentMgnServiceImpl.CellInfo> nbiotSDRMap = new ConcurrentHashMap<>();
     ConcurrentHashMap<String, CurrentMgnServiceImpl.CellInfo> nbiotITBBUMap = new ConcurrentHashMap<>();
     ConcurrentHashMap<String, String> meByNEMap = new ConcurrentHashMap<>();
+
+    Map<String, DomainStat> packetLostCache = Collections.synchronizedMap(new LinkedHashMap<>());
+
+//    ConcurrentNavigableMap<String, DomainStat> packetLostRegionMN = new ConcurrentSkipListMap<>();
+//    ConcurrentNavigableMap<String, DomainStat> packetLostRegionGM = new ConcurrentSkipListMap<>();
+//    ConcurrentNavigableMap<String, DomainStat> packetLostRegionMG = new ConcurrentSkipListMap<>();
+//    ConcurrentNavigableMap<String, DomainStat> packetLostRegionVT = new ConcurrentSkipListMap<>();
+//    ConcurrentNavigableMap<String, DomainStat> packetLostRegionGR = new ConcurrentSkipListMap<>();
+//    ConcurrentNavigableMap<String, DomainStat> packetLostRegionBR = new ConcurrentSkipListMap<>();
+//    ConcurrentNavigableMap<String, DomainStat> packetLostRegionTST = new ConcurrentSkipListMap<>();
+
     void clearCache();
 }
