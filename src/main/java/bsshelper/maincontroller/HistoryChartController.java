@@ -2,6 +2,7 @@ package bsshelper.maincontroller;
 
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
 import bsshelper.externalapi.configurationmng.currentmng.entity.mrnc.UUtranCellFDDMocSimplified;
+import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnService;
 import bsshelper.externalapi.perfmng.entity.*;
 import bsshelper.externalapi.perfmng.service.HistoryQueryService;
 import bsshelper.externalapi.perfmng.util.KPI;
@@ -27,6 +28,7 @@ import java.util.*;
 @RequestMapping(value = "/helper")
 @RequiredArgsConstructor
 public class HistoryChartController {
+    private final CurrentMgnService currentMgnService;
     private final LocalCacheService localCacheService;
     private final TokenService tokenService;
     private final HistoryQueryService historyQueryService;
@@ -36,34 +38,43 @@ public class HistoryChartController {
         String id = session.getId();
         setMessage(id, model);
         ManagedElement managedElement = localCacheService.managedElementMap.get(userLabel);
-        List<HistoryVSWR> historyVSWRList = historyQueryService.getHistoryVSWR(tokenService.getToken(), managedElement, getTime(timeVSWR));
-        Map<String, List<HistoryVSWR>> allDataMap = HistoryVSWR.getChart(historyVSWRList);
-//        HistoryVSWRFinalWrapper historyVSWRRepoWrapper = new HistoryVSWRFinalWrapper(HistoryVSWR.getFinal(historyVSWRList));
-//        System.out.println(allDataMap);
-        model.addAttribute("chartData", allDataMap);
-//        model.addAttribute("repoVSWR", historyVSWRRepoWrapper);
+
+        Map<String, List<HistoryVSWR>> VSWRDataMap = new TreeMap<>();
+        VSWRDataMap = HistoryVSWR.getChart(historyQueryService.getHistoryVSWR(tokenService.getToken(), managedElement, getTime(timeVSWR)));
+
+        model.addAttribute("chartVSWRData", VSWRDataMap);
         model.addAttribute("managedElement", managedElement);
         model.addAttribute("title", null);
-        return "chartVSWR";
+        return "customcharts";
     }
 
-    @PostMapping("/acceptanceMeasurement/chartPacketLossForDomain")
-    public String packetLoss(@RequestParam(name = "domain", required = false) String domain,
-                             Model model, HttpSession session) {
+    @PostMapping("/packetLossStat/chartPacketLossForSite")
+    public String packetLossForSite(@RequestParam(name = "siteName", required = false) String siteName,
+                                    Model model, HttpSession session) {
+        String id = session.getId();
+        setMessage(id, model);
+        ManagedElement managedElement = currentMgnService.getManagedElementByNeName(tokenService.getToken(), siteName);
 
-//        System.out.println(localCacheService.packetLostCache.get(domain));
+        Map<String, List<HistoryOfficeLink>> LOST_PACKETDataMap = new TreeMap<>();
+        LOST_PACKETDataMap = historyQueryService.getOfficeLinkHistory(tokenService.getToken(), managedElement, 168, KPI.LOST_PACKET);
+
+        model.addAttribute("chartLOST_PACKETData", LOST_PACKETDataMap);
+        model.addAttribute("managedElement", managedElement);
+        model.addAttribute("title", null);
+        return "customcharts";
+    }
+
+    @PostMapping("/packetLossStat/chartPacketLossForDomain")
+    public String packetLossForDomain(@RequestParam(name = "domain", required = false) String domain,
+                                      Model model, HttpSession session) {
+        String id = session.getId();
+        setMessage(id, model);
 
         DomainStat domainStat = localCacheService.packetLostCache.get(domain);
-//
-//        System.out.println(domainStat.getIdMap2g());
-//        System.out.println(domainStat.getIdMap3g());
-//  NULL chek
+
         Map<String, List<HistoryOfficeLink>> history2g = getMRNCSiteHistoryMap(domainStat.getIdMap2g());
         Map<String, List<HistoryOfficeLink>> history3g = getMRNCSiteHistoryMap(domainStat.getIdMap3g());
-//
-//        System.out.println(history2g);
-//        System.out.println(history3g);
-//
+
         model.addAttribute("data2g", getPoints(history2g));
         model.addAttribute("data3g", getPoints(history3g));
         model.addAttribute("domain", domain);

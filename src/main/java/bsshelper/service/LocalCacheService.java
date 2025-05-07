@@ -34,14 +34,7 @@ public interface LocalCacheService {
     ConcurrentHashMap<String, String> meByNEMap = new ConcurrentHashMap<>();
 
     Map<String, DomainStat> packetLostCache = Collections.synchronizedMap(new LinkedHashMap<>());
-
-//    ConcurrentNavigableMap<String, DomainStat> packetLostRegionMN = new ConcurrentSkipListMap<>();
-//    ConcurrentNavigableMap<String, DomainStat> packetLostRegionGM = new ConcurrentSkipListMap<>();
-//    ConcurrentNavigableMap<String, DomainStat> packetLostRegionMG = new ConcurrentSkipListMap<>();
-//    ConcurrentNavigableMap<String, DomainStat> packetLostRegionVT = new ConcurrentSkipListMap<>();
-//    ConcurrentNavigableMap<String, DomainStat> packetLostRegionGR = new ConcurrentSkipListMap<>();
-//    ConcurrentNavigableMap<String, DomainStat> packetLostRegionBR = new ConcurrentSkipListMap<>();
-//    ConcurrentNavigableMap<String, DomainStat> packetLostRegionTST = new ConcurrentSkipListMap<>();
+    Map<String, String> packetLostDatesCache = new ConcurrentHashMap<>();
 
     void clearCache();
 }

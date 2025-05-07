@@ -12,7 +12,10 @@ import bsshelper.service.paketlossstat.entity.ValueStat;
 import bsshelper.service.paketlossstat.mapper.DomainMapper;
 import bsshelper.service.paketlossstat.to.DomainTo;
 import bsshelper.service.paketlossstat.util.ExcelReaderService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -20,9 +23,14 @@ import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaketLossStatServiceImpl implements PaketLossStatService{
@@ -31,47 +39,43 @@ public class PaketLossStatServiceImpl implements PaketLossStatService{
     private final TokenService tokenService;
     private final ExcelReaderService excelReaderService;
 
-//    @Value("${custom.domain.file.path}")
-    private static final String path = "C:/Users/sergey_b/Desktop/IPNodeBs_ZTE_last_version.xlsm";
+    @Value("${custom.domain.file.path}")
+    private String path;
     private static final List<String> sheetNames = List.of("Minsk","Brest","Gomel","Grodno","Mogilev","Vitebsk");
 
-//    public PaketLossStatServiceImpl(@Value("${custom.domain.file.path}") String path) {
-//        this.path = path;
-//    }
+    @PostConstruct
+    @Override
+    public void startUpdatePacketLossCacheDaily() {
+        updatePacketLossCacheDaily();
+    }
 
-
-//    public List<DomainFromFileTo> populateDomainData() {
-//        List<String> rawData = FileReaderUtil.readFromFile(path);
-//        if (rawData != null) {
-//            return DomainFromFileToMapper.toDomainFileToList(rawData);
-//        }
-//        return null;
-//    }
-
+    @Override
     public List<DomainTo> populateDomainData() {
-//        List<String> rawData = FileReaderUtil.readFromFile(path);
-//        if (rawData != null) {
-//            return DomainFromFileToMapper.toDomainFileToList(rawData);
-//        }
         return excelReaderService.readFromSheets(path, sheetNames);
+    }
+
+    private void updatePacketLossCacheDaily() {
+        log.info(" >> updatePacketLossCacheDaily is started");
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nextRun = now.withHour(6).withMinute(0).withSecond(0);
+        if (now.isAfter(nextRun)) {
+            nextRun = nextRun.plusDays(1);
+        }
+        long initialDelay = ChronoUnit.SECONDS.between(now, nextRun);
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(() -> {
+                getPacketLossInDomainStat();
+                log.info(" >> new PacketLossCache is set");
+        }, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
     }
 
     @Override
     public void getPacketLossInDomainStat() {
         List<DomainTo> data = populateDomainData();
-//        Map<String, List<String>> rncNameIdMap = DomainMapper.toRNCName_IdMap(data);
-//        Map<String, List<String>> bncNameIdMap = DomainMapper.toBNCName_IdMap(data);
         Map<String, DomainTo> siteNameDomainMap = DomainMapper.toSiteName_DomainMap(data);
-
-//        System.out.println(rncNameIdMap);
-//        System.out.println(bncNameIdMap);
-//        System.out.println(siteNameDomainMap);
 
         Map<String, List<HistoryOfficeLink>> siteHistoryRNCMap = getMRNCSiteHistoryMap(SubnetworkToBSCOrRNC.getRNCSet());
         Map<String, List<HistoryOfficeLink>> siteHistoryBSCMap = getMRNCSiteHistoryMap(SubnetworkToBSCOrRNC.getBSCSet());
-
-//        System.out.println(siteHistoryRNCMap);
-//        System.out.println(siteHistoryBSCMap);
 
         Map<String, DomainStat> result = new HashMap<>();
 
@@ -190,7 +194,9 @@ public class PaketLossStatServiceImpl implements PaketLossStatService{
 
         normalizeValues(result);
         roundValues(result);
+        localCacheService.packetLostCache.clear();
         localCacheService.packetLostCache.putAll(sortAndGet(result));
+        setDates();
     }
 
     private Map<String, List<HistoryOfficeLink>> getMRNCSiteHistoryMap(Set<String> mrncSet) {
@@ -348,6 +354,17 @@ public class PaketLossStatServiceImpl implements PaketLossStatService{
                         (a, b) -> a,
                         LinkedHashMap::new
                 ));
+    }
+
+    private void setDates() {
+        localCacheService.packetLostDatesCache.clear();
+        LocalDateTime now = LocalDateTime.now();
+        localCacheService.packetLostDatesCache.put("TODAY", now.minusDays(1).getDayOfWeek().toString());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM");
+        for (int i = 1; i < 8; i++) {
+            LocalDateTime before = now.minusDays(i);
+            localCacheService.packetLostDatesCache.put(before.getDayOfWeek().toString(), before.format(formatter));
+        }
     }
 
     private String parseMRNC(String mrnc) {

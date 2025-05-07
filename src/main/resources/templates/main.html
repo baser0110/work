@@ -31,6 +31,10 @@
         <br/>
         <a id="am" class="btn btn-primary text-center width-250px" th:href="@{/helper/acceptanceMeasurement}">Acceptance Measurement</a>
     </form>
+    <form sec:authorize="!hasAuthority('PACKET_LOSS_INSPECTOR_NO')">
+        <br/>
+        <a id="pli" class="btn btn-primary text-center width-250px" th:href="@{/helper/packetLossStat}">Packet Loss Inspector</a>
+    </form>
     <form sec:authorize="!hasAuthority('VASILY_TOOLS_NO')">
         <br/>
         <a id="vvt" class="btn btn-warning text-center width-250px" target="_blank" th:href="@{/helper/vasily-tools}">Vasily Vorohobko Tool</a>
@@ -62,6 +66,11 @@
         overflow: auto;
     }
     #am {
+        width: 300px;
+        height: 40px;
+        overflow: auto;
+    }
+    #pli {
         width: 300px;
         height: 40px;
         overflow: auto;

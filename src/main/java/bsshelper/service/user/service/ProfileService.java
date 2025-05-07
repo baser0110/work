@@ -48,6 +48,7 @@ public class ProfileService {
             profile.setCellStatMngSingle(Permission.FULL);
             profile.setCellStatMngBatch(Permission.FULL);
             profile.setAcceptMeasurement(Permission.FULL);
+            profile.setPacketLossInspector(Permission.FULL);
             profile.setVasilyTools(Permission.FULL);
             profile.setUserMng(Permission.FULL);
             profileRepository.save(profile);
@@ -86,6 +87,7 @@ public class ProfileService {
         existingProfile.setCellStatMngSingle(profile.getCellStatMngSingle());
         existingProfile.setCellStatMngBatch(profile.getCellStatMngBatch());
         existingProfile.setAcceptMeasurement(profile.getAcceptMeasurement());
+        existingProfile.setPacketLossInspector(profile.getPacketLossInspector());
         existingProfile.setVasilyTools(profile.getVasilyTools());
         existingProfile.setUserMng(profile.getUserMng());
         return profileRepository.save(existingProfile);

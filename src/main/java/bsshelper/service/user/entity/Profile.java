@@ -39,6 +39,10 @@ public class Profile {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    private Permission packetLossInspector = Permission.NO;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Permission userMng = Permission.NO;
 
     @Enumerated(EnumType.STRING)
@@ -51,6 +55,7 @@ public class Profile {
                 new SimpleGrantedAuthority("CELL_STAT_MNG_SINGLE_" + cellStatMngSingle.name()),
                 new SimpleGrantedAuthority("CELL_STAT_MNG_BATCH_" + cellStatMngBatch.name()),
                 new SimpleGrantedAuthority("ACCEPT_MEASUREMENT_" + acceptMeasurement.name()),
+                new SimpleGrantedAuthority("PACKET_LOSS_INSPECTOR_" + packetLossInspector.name()),
                 new SimpleGrantedAuthority("USER_MNG_" + userMng.name()),
                 new SimpleGrantedAuthority("VASILY_TOOLS_" + vasilyTools.name())
         );

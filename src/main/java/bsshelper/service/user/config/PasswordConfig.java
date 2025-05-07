@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 @Configuration
 public class PasswordConfig {
-    private final static String PASSWORD_PATTERN = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d!?@#$%^&*()]{8,}$";
+    private final static String PASSWORD_PATTERN = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d!?@#$%^&*()_]{8,}$";
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);

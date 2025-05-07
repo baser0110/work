@@ -64,6 +64,13 @@
             vertical-align: middle;
         }
 
+        .value-col-last {
+            width: 4.16%;
+            text-align: center;
+            vertical-align: middle;
+            background-color: rgba(255, 204, 204, 0.69);
+        }
+
         .value-col-week-2g {
             width: 4.16%;
             background-color: rgba(173, 214, 255, 0.69);
@@ -113,40 +120,54 @@
                     <input type="text" id="domainFilter" style="width: 90%; padding-top: 0px; padding-bottom: 0px" placeholder=" . . ." oninput="filterRows()">
                 </th>
                 <th class="value-col"></th>
-                <th class="value-col" th:text="${dates.get('MONDAY')}"></th>
-                <th class="value-col" th:text="${dates.get('TUESDAY')}"></th>
-                <th class="value-col" th:text="${dates.get('WEDNESDAY')}"></th>
-                <th class="value-col" th:text="${dates.get('THURSDAY')}"></th>
-                <th class="value-col" th:text="${dates.get('FRIDAY')}"></th>
-                <th class="value-col" th:text="${dates.get('SATURDAY')}"></th>
-                <th class="value-col" th:text="${dates.get('SUNDAY')}"></th>
+                <th class="value-col" th:text="${dates.get('MONDAY')}"
+                    th:style="${dates.get('TODAY') == 'MONDAY'} ? 'color: red;' : 'color: black;'"></th>
+                <th class="value-col" th:text="${dates.get('TUESDAY')}"
+                    th:style="${dates.get('TODAY') == 'TUESDAY'} ? 'color: red;' : 'color: black;'"></th>
+                <th class="value-col" th:text="${dates.get('WEDNESDAY')}"
+                    th:style="${dates.get('TODAY') == 'WEDNESDAY'} ? 'color: red;' : 'color: black;'"></th>
+                <th class="value-col" th:text="${dates.get('THURSDAY')}"
+                    th:style="${dates.get('TODAY') == 'THURSDAY'} ? 'color: red;' : 'color: black;'"></th>
+                <th class="value-col" th:text="${dates.get('FRIDAY')}"
+                    th:style="${dates.get('TODAY') == 'FRIDAY'} ? 'color: red;' : 'color: black;'"></th>
+                <th class="value-col" th:text="${dates.get('SATURDAY')}"
+                    th:style="${dates.get('TODAY') == 'SATURDAY'} ? 'color: red;' : 'color: black;'"></th>
+                <th class="value-col" th:text="${dates.get('SUNDAY')}"
+                    th:style="${dates.get('TODAY') == 'SUNDAY'} ? 'color: red;' : 'color: black;'"></th>
                 <th class="value-col"></th>
-                <th class="value-col" th:text="${dates.get('MONDAY')}"></th>
-                <th class="value-col" th:text="${dates.get('TUESDAY')}"></th>
-                <th class="value-col" th:text="${dates.get('WEDNESDAY')}"></th>
-                <th class="value-col" th:text="${dates.get('THURSDAY')}"></th>
-                <th class="value-col" th:text="${dates.get('FRIDAY')}"></th>
-                <th class="value-col" th:text="${dates.get('SATURDAY')}"></th>
-                <th class="value-col" th:text="${dates.get('SUNDAY')}"></th>
+                <th class="value-col" th:text="${dates.get('MONDAY')}"
+                    th:style="${dates.get('TODAY') == 'MONDAY'} ? 'color: red;' : 'color: black;'"></th>
+                <th class="value-col" th:text="${dates.get('TUESDAY')}"
+                    th:style="${dates.get('TODAY') == 'TUESDAY'} ? 'color: red;' : 'color: black;'"></th>
+                <th class="value-col" th:text="${dates.get('WEDNESDAY')}"
+                    th:style="${dates.get('TODAY') == 'WEDNESDAY'} ? 'color: red;' : 'color: black;'"></th>
+                <th class="value-col" th:text="${dates.get('THURSDAY')}"
+                    th:style="${dates.get('TODAY') == 'THURSDAY'} ? 'color: red;' : 'color: black;'"></th>
+                <th class="value-col" th:text="${dates.get('FRIDAY')}"
+                    th:style="${dates.get('TODAY') == 'FRIDAY'} ? 'color: red;' : 'color: black;'"></th>
+                <th class="value-col" th:text="${dates.get('SATURDAY')}"
+                    th:style="${dates.get('TODAY') == 'SATURDAY'} ? 'color: red;' : 'color: black;'"></th>
+                <th class="value-col" th:text="${dates.get('SUNDAY')}"
+                    th:style="${dates.get('TODAY') == 'SUNDAY'} ? 'color: red;' : 'color: black;'"></th>
             </tr>
             <tr>
                 <th class="text-center" colspan="3">
                 <th class="value-col">WEEK</th>
-                <th class="value-col">MON</th>
-                <th class="value-col">TUE</th>
-                <th class="value-col">WED</th>
-                <th class="value-col">THU</th>
-                <th class="value-col">FRI</th>
-                <th class="value-col">SAT</th>
-                <th class="value-col">SUN</th>
+                <th class="value-col" th:style="${dates.get('TODAY') == 'MONDAY'} ? 'color: red;' : 'color: black;'">MON</th>
+                <th class="value-col" th:style="${dates.get('TODAY') == 'TUESDAY'} ? 'color: red;' : 'color: black;'">TUE</th>
+                <th class="value-col" th:style="${dates.get('TODAY') == 'WEDNESDAY'} ? 'color: red;' : 'color: black;'">WED</th>
+                <th class="value-col" th:style="${dates.get('TODAY') == 'THURSDAY'} ? 'color: red;' : 'color: black;'">THU</th>
+                <th class="value-col" th:style="${dates.get('TODAY') == 'FRIDAY'} ? 'color: red;' : 'color: black;'">FRI</th>
+                <th class="value-col" th:style="${dates.get('TODAY') == 'SATURDAY'} ? 'color: red;' : 'color: black;'">SAT</th>
+                <th class="value-col" th:style="${dates.get('TODAY') == 'SUNDAY'} ? 'color: red;' : 'color: black;'">SUN</th>
                 <th class="value-col">WEEK</th>
-                <th class="value-col">MON</th>
-                <th class="value-col">TUE</th>
-                <th class="value-col">WED</th>
-                <th class="value-col">THU</th>
-                <th class="value-col">FRI</th>
-                <th class="value-col">SAT</th>
-                <th class="value-col">SUN</th>
+                <th class="value-col" th:style="${dates.get('TODAY') == 'MONDAY'} ? 'color: red;' : 'color: black;'">MON</th>
+                <th class="value-col" th:style="${dates.get('TODAY') == 'TUESDAY'} ? 'color: red;' : 'color: black;'">TUE</th>
+                <th class="value-col" th:style="${dates.get('TODAY') == 'WEDNESDAY'} ? 'color: red;' : 'color: black;'">WED</th>
+                <th class="value-col" th:style="${dates.get('TODAY') == 'THURSDAY'} ? 'color: red;' : 'color: black;'">THU</th>
+                <th class="value-col" th:style="${dates.get('TODAY') == 'FRIDAY'} ? 'color: red;' : 'color: black;'">FRI</th>
+                <th class="value-col" th:style="${dates.get('TODAY') == 'SATURDAY'} ? 'color: red;' : 'color: black;'">SAT</th>
+                <th class="value-col" th:style="${dates.get('TODAY') == 'SUNDAY'} ? 'color: red;' : 'color: black;'">SUN</th>
             </tr>
             </thead>
             <tbody th:each="entry : ${data}">
@@ -154,7 +175,7 @@
                 <td class="value-col" th:text="${entry.value.region}" style="font-weight: bold"></td>
                 <td class="value-col" th:text="${entry.value.cluster}" style="font-weight: bold"></td>
                 <td class="value-col">
-                    <form th:action="@{/helper/acceptanceMeasurement/chartPacketLossForDomain}" method="post">
+                    <form th:action="@{/helper/packetLossStat/chartPacketLossForDomain}" method="post">
                         <button id="chart-domain" class="btn btn-success btn-sm"
                                 type="submit" formtarget="_blank" th:text="${entry.value.domain}"
                                 style="font-weight: bold; padding-top: 2px; padding-bottom: 2px"></button>
@@ -191,60 +212,79 @@
                                     <th class="mrnc-col">MRNC 2G</th>
                                     <th class="mrnc-col">MRNC 3G</th>
                                     <th class="value-col">WEEK</th>
-                                    <th class="value-col">MON</th>
-                                    <th class="value-col">TUE</th>
-                                    <th class="value-col">WED</th>
-                                    <th class="value-col">THU</th>
-                                    <th class="value-col">FRI</th>
-                                    <th class="value-col">SAT</th>
-                                    <th class="value-col">SUN</th>
+                                    <th class="value-col" th:style="${dates.get('TODAY') == 'MONDAY'} ? 'color: red;' : 'color: black;'">MON</th>
+                                    <th class="value-col" th:style="${dates.get('TODAY') == 'TUESDAY'} ? 'color: red;' : 'color: black;'">TUE</th>
+                                    <th class="value-col" th:style="${dates.get('TODAY') == 'WEDNESDAY'} ? 'color: red;' : 'color: black;'">WED</th>
+                                    <th class="value-col" th:style="${dates.get('TODAY') == 'THURSDAY'} ? 'color: red;' : 'color: black;'">THU</th>
+                                    <th class="value-col" th:style="${dates.get('TODAY') == 'FRIDAY'} ? 'color: red;' : 'color: black;'">FRI</th>
+                                    <th class="value-col" th:style="${dates.get('TODAY') == 'SATURDAY'} ? 'color: red;' : 'color: black;'">SAT</th>
+                                    <th class="value-col" th:style="${dates.get('TODAY') == 'SUNDAY'} ? 'color: red;' : 'color: black;'">SUN</th>
                                     <th class="value-col">WEEK</th>
-                                    <th class="value-col">MON</th>
-                                    <th class="value-col">TUE</th>
-                                    <th class="value-col">WED</th>
-                                    <th class="value-col">THU</th>
-                                    <th class="value-col">FRI</th>
-                                    <th class="value-col">SAT</th>
-                                    <th class="value-col">SUN</th>
+                                    <th class="value-col" th:style="${dates.get('TODAY') == 'MONDAY'} ? 'color: red;' : 'color: black;'">MON</th>
+                                    <th class="value-col" th:style="${dates.get('TODAY') == 'TUESDAY'} ? 'color: red;' : 'color: black;'">TUE</th>
+                                    <th class="value-col" th:style="${dates.get('TODAY') == 'WEDNESDAY'} ? 'color: red;' : 'color: black;'">WED</th>
+                                    <th class="value-col" th:style="${dates.get('TODAY') == 'THURSDAY'} ? 'color: red;' : 'color: black;'">THU</th>
+                                    <th class="value-col" th:style="${dates.get('TODAY') == 'FRIDAY'} ? 'color: red;' : 'color: black;'">FRI</th>
+                                    <th class="value-col" th:style="${dates.get('TODAY') == 'SATURDAY'} ? 'color: red;' : 'color: black;'">SAT</th>
+                                    <th class="value-col" th:style="${dates.get('TODAY') == 'SUNDAY'} ? 'color: red;' : 'color: black;'">SUN</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr th:each="siteName : ${entry.value.getSiteSet(entry.value.sites2g,entry.value.sites3g)}">
 <!--                                        th:each="siteName : ${#sets.union((entry.value.sites2g != null ? entry.value.sites2g.keySet() : T(java.util.Collection).emptySet()), (entry.value.sites3g != null ? entry.value.sites3g.keySet() : T(java.util.Collection).emptySet()))}">-->
-                                    <td class="value-col" th:text="${siteName}">
-
+                                    <td class="value-col">
+                                        <form th:action="@{/helper/packetLossStat/chartPacketLossForSite}" method="post">
+                                            <button id="chart-site" class="btn btn-light btn-sm"
+                                                    type="submit" formtarget="_blank" th:text="${siteName}"
+                                                    style="font-weight: bold; padding-top: 2px; padding-bottom: 2px"></button>
+                                            <input type="hidden" name="siteName" th:value="${siteName}">
+                                        </form>
                                     </td>
                                     <td class="value-col" th:text="${entry.value.sites2g.get(siteName)?.mrnc ?: '-'}"></td>
                                     <td class="value-col" th:text="${entry.value.sites3g.get(siteName)?.mrnc ?: '-'}"></td>
                                     <td class="value-col-week-2g" th:text="${entry.value.sites2g.get(siteName)?.values?.week != null ? (entry.value.sites2g.get(siteName)?.values?.week == 0.00049 ? '<0.001' : entry.value.sites2g.get(siteName)?.values?.week) : '-'}"></td>
-                                    <td class="value-col" th:style="${entry.value.sites2g.get(siteName)?.values?.monday == null || entry.value.sites2g.get(siteName)?.values?.monday == 0.0} ? 'color: lightgray;' : 'color: black;'"
-                                        th:text="${entry.value.sites2g.get(siteName)?.values?.monday != null ? (entry.value.sites2g.get(siteName)?.values?.monday == 0.00049 ? '<0.0001' : entry.value.sites2g.get(siteName)?.values?.monday) : '-'}"></td>
-                                    <td class="value-col" th:style="${entry.value.sites2g.get(siteName)?.values?.tuesday == null || entry.value.sites2g.get(siteName)?.values?.tuesday == 0.0} ? 'color: lightgray;' : 'color: black;'"
+                                    <td th:class="${dates.get('TODAY') == 'MONDAY'} ? 'value-col-last' : 'value-col'"
+                                        th:style="${entry.value.sites2g.get(siteName)?.values?.monday == null || entry.value.sites2g.get(siteName)?.values?.monday == 0.0} ? 'color: lightgray;' : 'color: black;'"
+                                        th:text="${entry.value.sites2g.get(siteName)?.values?.monday != null ? (entry.value.sites2g.get(siteName)?.values?.monday == 0.00049 ? '<0.001' : entry.value.sites2g.get(siteName)?.values?.monday) : '-'}"></td>
+                                    <td th:class="${dates.get('TODAY') == 'TUESDAY'} ? 'value-col-last' : 'value-col'"
+                                        th:style="${entry.value.sites2g.get(siteName)?.values?.tuesday == null || entry.value.sites2g.get(siteName)?.values?.tuesday == 0.0} ? 'color: lightgray;' : 'color: black;'"
                                         th:text="${entry.value.sites2g.get(siteName)?.values?.tuesday != null ? (entry.value.sites2g.get(siteName)?.values?.tuesday == 0.00049 ? '<0.001' : entry.value.sites2g.get(siteName)?.values?.tuesday) : '-'}"></td>
-                                    <td class="value-col" th:style="${entry.value.sites2g.get(siteName)?.values?.wednesday == null || entry.value.sites2g.get(siteName)?.values?.wednesday == 0.0} ? 'color: lightgray;' : 'color: black;'"
+                                    <td th:class="${dates.get('TODAY') == 'WEDNESDAY'} ? 'value-col-last' : 'value-col'"
+                                        th:style="${entry.value.sites2g.get(siteName)?.values?.wednesday == null || entry.value.sites2g.get(siteName)?.values?.wednesday == 0.0} ? 'color: lightgray;' : 'color: black;'"
                                         th:text="${entry.value.sites2g.get(siteName)?.values?.wednesday != null ? (entry.value.sites2g.get(siteName)?.values?.wednesday == 0.00049 ? '<0.001' : entry.value.sites2g.get(siteName)?.values?.wednesday) : '-'}"></td>
-                                    <td class="value-col" th:style="${entry.value.sites2g.get(siteName)?.values?.tuesday == null || entry.value.sites2g.get(siteName)?.values?.thursday == 0.0} ? 'color: lightgray;' : 'color: black;'"
+                                    <td th:class="${dates.get('TODAY') == 'THURSDAY'} ? 'value-col-last' : 'value-col'"
+                                        th:style="${entry.value.sites2g.get(siteName)?.values?.tuesday == null || entry.value.sites2g.get(siteName)?.values?.thursday == 0.0} ? 'color: lightgray;' : 'color: black;'"
                                         th:text="${entry.value.sites2g.get(siteName)?.values?.thursday != null ? (entry.value.sites2g.get(siteName)?.values?.thursday == 0.00049 ? '<0.001' : entry.value.sites2g.get(siteName)?.values?.thursday) : '-'}"></td>
-                                    <td class="value-col" th:style="${entry.value.sites2g.get(siteName)?.values?.friday == null || entry.value.sites2g.get(siteName)?.values?.friday == 0.0} ? 'color: lightgray;' : 'color: black;'"
+                                    <td th:class="${dates.get('TODAY') == 'FRIDAY'} ? 'value-col-last' : 'value-col'"
+                                        th:style="${entry.value.sites2g.get(siteName)?.values?.friday == null || entry.value.sites2g.get(siteName)?.values?.friday == 0.0} ? 'color: lightgray;' : 'color: black;'"
                                         th:text="${entry.value.sites2g.get(siteName)?.values?.friday != null ? (entry.value.sites2g.get(siteName)?.values?.friday == 0.00049 ? '<0.001' : entry.value.sites2g.get(siteName)?.values?.friday) : '-'}"></td>
-                                    <td class="value-col" th:style="${entry.value.sites2g.get(siteName)?.values?.saturday == null || entry.value.sites2g.get(siteName)?.values?.saturday == 0.0} ? 'color: lightgray;' : 'color: black;'"
+                                    <td th:class="${dates.get('TODAY') == 'SATURDAY'} ? 'value-col-last' : 'value-col'"
+                                        th:style="${entry.value.sites2g.get(siteName)?.values?.saturday == null || entry.value.sites2g.get(siteName)?.values?.saturday == 0.0} ? 'color: lightgray;' : 'color: black;'"
                                         th:text="${entry.value.sites2g.get(siteName)?.values?.saturday != null ? (entry.value.sites2g.get(siteName)?.values?.saturday == 0.00049 ? '<0.001' : entry.value.sites2g.get(siteName)?.values?.saturday) : '-'}"></td>
-                                    <td class="value-col" th:style="${entry.value.sites2g.get(siteName)?.values?.sunday == null || entry.value.sites2g.get(siteName)?.values?.sunday == 0.0} ? 'color: lightgray;' : 'color: black;'"
+                                    <td th:class="${dates.get('TODAY') == 'SUNDAY'} ? 'value-col-last' : 'value-col'"
+                                        th:style="${entry.value.sites2g.get(siteName)?.values?.sunday == null || entry.value.sites2g.get(siteName)?.values?.sunday == 0.0} ? 'color: lightgray;' : 'color: black;'"
                                         th:text="${entry.value.sites2g.get(siteName)?.values?.sunday != null ? (entry.value.sites2g.get(siteName)?.values?.sunday == 0.00049 ? '<0.001' : entry.value.sites2g.get(siteName)?.values?.sunday) : '-'}"></td>
                                     <td class="value-col-week-3g" th:text="${entry.value.sites3g.get(siteName)?.values?.week != null ? (entry.value.sites3g.get(siteName)?.values?.week == 0.00049 ? '<0.001' : entry.value.sites3g.get(siteName)?.values?.week) : '-'}"></td>
-                                    <td class="value-col" th:style="${entry.value.sites3g.get(siteName)?.values?.monday == null || entry.value.sites3g.get(siteName)?.values?.monday == 0.0} ? 'color: lightgray;' : 'color: black;'"
+                                    <td th:class="${dates.get('TODAY') == 'MONDAY'} ? 'value-col-last' : 'value-col'"
+                                        th:style="${entry.value.sites3g.get(siteName)?.values?.monday == null || entry.value.sites3g.get(siteName)?.values?.monday == 0.0} ? 'color: lightgray;' : 'color: black;'"
                                         th:text="${entry.value.sites3g.get(siteName)?.values?.monday != null ? (entry.value.sites3g.get(siteName)?.values?.monday == 0.00049 ? '<0.001' : entry.value.sites3g.get(siteName)?.values?.monday) : '-'}"></td>
-                                    <td class="value-col" th:style="${entry.value.sites3g.get(siteName)?.values?.tuesday == null || entry.value.sites3g.get(siteName)?.values?.tuesday == 0.0} ? 'color: lightgray;' : 'color: black;'"
+                                    <td th:class="${dates.get('TODAY') == 'TUESDAY'} ? 'value-col-last' : 'value-col'"
+                                        th:style="${entry.value.sites3g.get(siteName)?.values?.tuesday == null || entry.value.sites3g.get(siteName)?.values?.tuesday == 0.0} ? 'color: lightgray;' : 'color: black;'"
                                         th:text="${entry.value.sites3g.get(siteName)?.values?.tuesday != null ? (entry.value.sites3g.get(siteName)?.values?.tuesday == 0.00049 ? '<0.001' : entry.value.sites3g.get(siteName)?.values?.tuesday) : '-'}"></td>
-                                    <td class="value-col" th:style="${entry.value.sites3g.get(siteName)?.values?.wednesday == null || entry.value.sites3g.get(siteName)?.values?.wednesday == 0.0} ? 'color: lightgray;' : 'color: black;'"
+                                    <td th:class="${dates.get('TODAY') == 'WEDNESDAY'} ? 'value-col-last' : 'value-col'"
+                                        th:style="${entry.value.sites3g.get(siteName)?.values?.wednesday == null || entry.value.sites3g.get(siteName)?.values?.wednesday == 0.0} ? 'color: lightgray;' : 'color: black;'"
                                         th:text="${entry.value.sites3g.get(siteName)?.values?.wednesday != null ? (entry.value.sites3g.get(siteName)?.values?.wednesday == 0.00049 ? '<0.001' : entry.value.sites3g.get(siteName)?.values?.wednesday) : '-'}"></td>
-                                    <td class="value-col" th:style="${entry.value.sites3g.get(siteName)?.values?.thursday == null || entry.value.sites3g.get(siteName)?.values?.thursday == 0.0} ? 'color: lightgray;' : 'color: black;'"
+                                    <td th:class="${dates.get('TODAY') == 'THURSDAY'} ? 'value-col-last' : 'value-col'"
+                                        th:style="${entry.value.sites3g.get(siteName)?.values?.thursday == null || entry.value.sites3g.get(siteName)?.values?.thursday == 0.0} ? 'color: lightgray;' : 'color: black;'"
                                         th:text="${entry.value.sites3g.get(siteName)?.values?.thursday != null ? (entry.value.sites3g.get(siteName)?.values?.thursday == 0.00049 ? '<0.001' : entry.value.sites3g.get(siteName)?.values?.thursday) : '-'}"></td>
-                                    <td class="value-col" th:style="${entry.value.sites3g.get(siteName)?.values?.friday == null || entry.value.sites3g.get(siteName)?.values?.friday == 0.0} ? 'color: lightgray;' : 'color: black;'"
+                                    <td th:class="${dates.get('TODAY') == 'FRIDAY'} ? 'value-col-last' : 'value-col'"
+                                        th:style="${entry.value.sites3g.get(siteName)?.values?.friday == null || entry.value.sites3g.get(siteName)?.values?.friday == 0.0} ? 'color: lightgray;' : 'color: black;'"
                                         th:text="${entry.value.sites3g.get(siteName)?.values?.friday != null ? (entry.value.sites3g.get(siteName)?.values?.friday == 0.00049 ? '<0.001' : entry.value.sites3g.get(siteName)?.values?.friday) : '-'}"></td>
-                                    <td class="value-col" th:style="${entry.value.sites3g.get(siteName)?.values?.saturday == null || entry.value.sites3g.get(siteName)?.values?.saturday == 0.0} ? 'color: lightgray;' : 'color: black;'"
+                                    <td th:class="${dates.get('TODAY') == 'SATURDAY'} ? 'value-col-last' : 'value-col'"
+                                        th:style="${entry.value.sites3g.get(siteName)?.values?.saturday == null || entry.value.sites3g.get(siteName)?.values?.saturday == 0.0} ? 'color: lightgray;' : 'color: black;'"
                                         th:text="${entry.value.sites3g.get(siteName)?.values?.saturday != null ? (entry.value.sites3g.get(siteName)?.values?.saturday == 0.00049 ? '<0.001' : entry.value.sites3g.get(siteName)?.values?.saturday) : '-'}"></td>
-                                    <td class="value-col" th:style="${entry.value.sites3g.get(siteName)?.values?.sunday == null || entry.value.sites3g.get(siteName)?.values?.sunday == 0.0} ? 'color: lightgray;' : 'color: black;'"
+                                    <td th:class="${dates.get('TODAY') == 'SUNDAY'} ? 'value-col-last' : 'value-col'"
+                                        th:style="${entry.value.sites3g.get(siteName)?.values?.sunday == null || entry.value.sites3g.get(siteName)?.values?.sunday == 0.0} ? 'color: lightgray;' : 'color: black;'"
                                         th:text="${entry.value.sites3g.get(siteName)?.values?.sunday != null ? (entry.value.sites3g.get(siteName)?.values?.sunday == 0.00049 ? '<0.001' : entry.value.sites3g.get(siteName)?.values?.sunday) : '-'}"></td>
                                 </tr>
                                 </tbody>
@@ -258,27 +298,6 @@
     </div>
 </div>
 
-<!--<script>-->
-<!--    function filterRows() {-->
-<!--        const domainFilter = document.getElementById("domainFilter").value.toLowerCase();-->
-<!--        const clusterFilter = document.getElementById("clusterFilter").value.toLowerCase();-->
-<!--        const rows = document.querySelectorAll(".domain-row");-->
-
-<!--        rows.forEach(row => {-->
-<!--            const text = row.children[0].textContent.toLowerCase()-->
-<!--                + row.children[1].textContent.toLowerCase()-->
-<!--                + row.children[2].textContent.toLowerCase();-->
-<!--            const match = text.includes(domainFilter) && text.includes(clusterFilter);-->
-<!--            row.style.display = match ? "" : "none";-->
-<!--            const detailsRow = row.nextElementSibling;-->
-<!--            if (detailsRow && detailsRow.tagName === "TR") {-->
-<!--                detailsRow.style.display = match ? "" : "none";-->
-<!--            }-->
-<!--        });-->
-
-
-<!--    }-->
-<!--</script>-->
 <script>
     function filterRows() {
         const regionFilter = document.getElementById("regionFilter").value.toLowerCase();

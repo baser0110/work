@@ -28,17 +28,20 @@ public class PacketLossStatController {
     private final PaketLossStatService paketLossStatService;
     private final LocalCacheService localCacheService;
 
-    @GetMapping("/packetLossStat2")
-    public void getPacketLossStat() {
-        paketLossStatService.getPacketLossInDomainStat();
+//    @GetMapping("/packetLossStat2")
+//    public void getPacketLossStat() {
+//        paketLossStatService.getPacketLossInDomainStat();
 //        model.addAttribute("data", packetLossInDomainStat);
 //        return "packetloss";
-    }
+//    }
 
     @GetMapping("/packetLossStat")
     public String getPacketLossStat(Model model, HttpSession session) {
+        if (localCacheService.packetLostCache.isEmpty() || localCacheService.packetLostCache == null) {
+            paketLossStatService.getPacketLossInDomainStat();
+        }
         model.addAttribute("data", localCacheService.packetLostCache);
-        model.addAttribute("dates", getDates());
+        model.addAttribute("dates", localCacheService.packetLostDatesCache);
         model.addAttribute("title", "Packet Loss Inspector");
         return "packetloss";
     }

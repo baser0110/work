@@ -51,8 +51,7 @@ public class SecurityConfig {
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/helper/login","/helper/access-denied").permitAll()
-                        .requestMatchers("/helper/login","/helper/access-denied", "/helper/packetLossStat", "/helper/packetLossStat2", "/helper/acceptanceMeasurement/chartPacketLossForDomain").permitAll()
+                        .requestMatchers("/helper/login","/helper/access-denied").permitAll()
                         .requestMatchers("/helper", "/helper/change-password").authenticated()
                         .requestMatchers(HttpMethod.GET,"/helper/dryContact/**").hasAnyAuthority("EXT_ALARM_MNG_VIEW", "EXT_ALARM_MNG_FULL")
                         .requestMatchers("/helper/dryContact/**").hasAnyAuthority("EXT_ALARM_MNG_FULL")
@@ -61,6 +60,7 @@ public class SecurityConfig {
                         .requestMatchers("/helper/cellStatus/**").hasAnyAuthority("CELL_STAT_MNG_SINGLE_FULL")
                         .requestMatchers("/helper/cellStatusBatch/**").hasAnyAuthority("CELL_STAT_MNG_BATCH_VIEW", "CELL_STAT_MNG_BATCH_FULL")
                         .requestMatchers("/helper/acceptanceMeasurement/**").hasAnyAuthority("ACCEPT_MEASUREMENT_VIEW", "ACCEPT_MEASUREMENT_FULL")
+                        .requestMatchers("/helper/packetLossStat/**").hasAnyAuthority("PACKET_LOSS_INSPECTOR_VIEW", "PACKET_LOSS_INSPECTOR_FULL")
                         .requestMatchers("/helper/appAccessMng", "/helper/appAccessMng/logs").hasAnyAuthority("USER_MNG_VIEW", "USER_MNG_FULL")
                         .requestMatchers("/helper/appAccessMng/**").hasAnyAuthority("USER_MNG_FULL")
                         .requestMatchers("/helper/vasily-tools").hasAnyAuthority("VASILY_TOOLS_VIEW", "VASILY_TOOLS_FULL")
