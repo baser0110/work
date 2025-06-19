@@ -5,7 +5,7 @@ import bsshelper.externalapi.openscriptexecengine.util.StringFileEntity;
 import bsshelper.globalutil.GlobalUtil;
 import bsshelper.globalutil.Verb;
 import bsshelper.globalutil.entity.ErrorEntity;
-import bsshelper.globalutil.exception.CustomNetworkConnectionException;
+import bsshelper.exception.CustomNetworkConnectionException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;

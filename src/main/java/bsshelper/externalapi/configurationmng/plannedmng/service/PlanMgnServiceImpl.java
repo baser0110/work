@@ -4,7 +4,7 @@ import bsshelper.externalapi.auth.entity.Token;
 import bsshelper.globalutil.GlobalUtil;
 import bsshelper.globalutil.Verb;
 import bsshelper.globalutil.entity.ErrorEntity;
-import bsshelper.globalutil.exception.CustomNetworkConnectionException;
+import bsshelper.exception.CustomNetworkConnectionException;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import lombok.extern.slf4j.Slf4j;

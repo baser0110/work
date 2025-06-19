@@ -14,7 +14,7 @@ import bsshelper.globalutil.GlobalUtil;
 import bsshelper.globalutil.SubnetworkToBSCOrRNC;
 import bsshelper.globalutil.Verb;
 import bsshelper.globalutil.entity.ErrorEntity;
-import bsshelper.globalutil.exception.CustomNetworkConnectionException;
+import bsshelper.exception.CustomNetworkConnectionException;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import lombok.extern.slf4j.Slf4j;
@@ -157,10 +157,31 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
     }
 
     @Override
-    public List<HistoryForULocalCell> getHistoryCell(Token token, ManagedElement managedElement, int time, KPI kpi) {
+    public List<HistoryForULocalCell> getHistoryCellWithIgnoreRestrictionOnStringCapacity (Token token, ManagedElement managedElement, int time, KPI kpi) {
+        List<HistoryForULocalCell> result = new ArrayList<>();
+        List<String> rawResult = new ArrayList<>();
+        if (time <= 96) {
+            List<String> firstResult = getRawHistoryCell(token,managedElement,time,0, kpi);
+            if (firstResult != null) rawResult.addAll(firstResult);
+        }
+        if (time > 96) {
+            List<String> secondResult = getRawHistoryCell(token,managedElement,96,0, kpi);
+            List<String> firstResult = getRawHistoryCell(token,managedElement,time,96, kpi);
+            if (firstResult != null && secondResult != null) firstResult.addAll(secondResult);
+            if (firstResult != null) rawResult.addAll(firstResult);
+        }
+        switch (managedElement.getManagedElementType()) {
+            case SDR -> result.addAll(HistorySDRForULocalCellMapper.toFinalEntity(rawResult));
+            case ITBBU -> result.addAll(HistoryITBBUForULocalCellMapper.toFinalEntity(rawResult));
+        }
+            log.info(" >> HistoryForULocalCell: {}", result.isEmpty() ? "empty" : result.size() + " points");
+        return result;
+    }
+
+    private List<String> getRawHistoryCell(
+            Token token, ManagedElement managedElement, int startTime, int endTime, KPI kpi) {
         String json = null;
-        List<HistoryForULocalCell> result = null;
-        HistoryQueryBodySettings bodySettings = getSDROrITBBUBodySettings(managedElement, time, kpi);
+        HistoryQueryBodySettings bodySettings = getSDROrITBBUBodySettingsWithTimeSelection(managedElement, startTime, endTime, kpi);
         if (bodySettings != null) {
             json = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettings));
         }
@@ -169,13 +190,9 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
         if (historyTo != null) {
             List<String> rawHistoryForULocalCellList = historyTo.getData();
             rawHistoryForULocalCellList.remove(0);
-            switch (managedElement.getManagedElementType()) {
-                case SDR -> result = HistorySDRForULocalCellMapper.toFinalEntity(rawHistoryForULocalCellList);
-                case ITBBU -> result = HistoryITBBUForULocalCellMapper.toFinalEntity(rawHistoryForULocalCellList);
-            }
+            return  rawHistoryForULocalCellList;
         }
-        log.info(" >> HistoryForULocalCell: {}", result == null ? "null" : result.size() + " points");
-        return result;
+        return null;
     }
 
     @Override
@@ -296,6 +313,21 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
                         .starttime(TimeToString.nHoursAgoTime(time))
                         .endtime(TimeToString.nowTime())
                         .build();
+        } else return null;
+    }
+
+    private HistoryQueryBodySettings getSDROrITBBUBodySettingsWithTimeSelection(ManagedElement managedElement, int startTime, int endTime, KPI kpi) {
+        String type = managedElement.getManagedElementType().toString();
+        if (type.equals("SDR") || type.equals("ITBBU")) {
+            return   HistoryQueryBodySettings.builder()
+                    .nfctid(type)
+                    .gr(15)
+                    .me(managedElement.getSubNetworkNum() + "," + managedElement.getManagedElementNum())
+                    .items(List.of(kpi.getCode()))
+                    .showobjectname(true)
+                    .starttime(TimeToString.nHoursAgoTime(startTime))
+                    .endtime(TimeToString.nHoursAgoTime(endTime))
+                    .build();
         } else return null;
     }
 

@@ -1,6 +1,5 @@
 package bsshelper.maincontroller;
 
-import bsshelper.externalapi.alarmmng.activealarm.entity.AlarmEntity;
 import bsshelper.externalapi.alarmmng.activealarm.service.ActiveAlarmService;
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
 import bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.ITBBUULocalCellMocSimplified;
@@ -8,7 +7,6 @@ import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.UCellMocSimp
 import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.ULocalCellMocSimplified;
 import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnService;
 import bsshelper.externalapi.openscriptexecengine.entity.CellStatus;
-import bsshelper.externalapi.openscriptexecengine.entity.CellStatusDetails;
 import bsshelper.externalapi.openscriptexecengine.entity.GCellStatus;
 import bsshelper.externalapi.openscriptexecengine.mapper.*;
 import bsshelper.externalapi.openscriptexecengine.service.ExecuteUCLIBatchScriptService;
@@ -21,9 +19,10 @@ import bsshelper.externalapi.openscriptexecengine.wrapper.ULocalCellStatusListWr
 import bsshelper.globalutil.ManagedElementType;
 import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.entity.MessageEntity;
-import bsshelper.service.LocalCacheService;
-import bsshelper.service.TokenService;
-import bsshelper.service.logger.LoggerUtil;
+import bsshelper.localservice.localcache.LocalCacheService;
+import bsshelper.localservice.searchcache.SearchCacheService;
+import bsshelper.localservice.token.TokenService;
+import bsshelper.globalutil.logger.LoggerUtil;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +32,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.http.HttpRequest;
 import java.util.*;
 
 @Slf4j
@@ -47,6 +45,7 @@ public class CellStatusMngController {
     private final ExecuteUCLIBatchScriptService executeUCLIBatchScriptService;
     private static final Logger operationLog = LoggerUtil.getOperationLogger();
     private final ActiveAlarmService activeAlarmService;
+    private final SearchCacheService searchCacheService;
 
     @GetMapping("/cellStatus")
     public String cellStatus(Model model, HttpSession session) {
@@ -54,6 +53,7 @@ public class CellStatusMngController {
         setMessage(id, model);
         model.addAttribute("managedElement", null);
         model.addAttribute("title", "Cell Status Manager (Single NE)");
+        model.addAttribute("searchCache", searchCacheService.getList());
         return "cellstatus";
     }
 
@@ -124,11 +124,14 @@ public class CellStatusMngController {
 
 //        activeAlarmService.alarmDataExport(tokenService.getToken(), managedElement);
 
+        searchCacheService.add(managedElement.getUserLabel());
+
         model.addAttribute("managedElement", managedElement);
         model.addAttribute("repoUMTS", uLocalCellMocListWrapper);
         model.addAttribute("repoNBIoT", eUtranCellNBIoTMocListWrapper);
         model.addAttribute("repoGSM", gCellStatusListWrapper);
         model.addAttribute("title", "Cell Status Manager (Single NE)");
+        model.addAttribute("searchCache", searchCacheService.getList());
         return "cellstatus";
     }
 

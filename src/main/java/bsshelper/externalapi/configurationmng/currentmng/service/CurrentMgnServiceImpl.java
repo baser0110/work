@@ -22,7 +22,7 @@ import bsshelper.globalutil.ManagedElementType;
 import bsshelper.globalutil.SubnetworkToBSCOrRNC;
 import bsshelper.globalutil.Verb;
 import bsshelper.globalutil.entity.ErrorEntity;
-import bsshelper.globalutil.exception.CustomNetworkConnectionException;
+import bsshelper.exception.CustomNetworkConnectionException;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import lombok.Data;
@@ -530,7 +530,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         String mocName = "UIubLink";
         List<UIubLinkMocSimplified> uIubLinkMocSimplifiedList = null;
         UIubLinkMocSimplifiedTo uIubLinkMocSimplifiedTo = null;
-        CurrentMngBodySettings bodySettings = getUIubLinkMocSimplifiedBodySettings(token, managedElement);
+        CurrentMngBodySettings bodySettings = getUIubLinkMocSimplifiedBodySettings(managedElement);
         if (bodySettings == null) {
             log.error(" >> couldn't found UIubLink data for {}", managedElement.getUserLabel());
             return null;
@@ -546,6 +546,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         }
         if (uIubLinkMocSimplifiedTo != null) {
             uIubLinkMocSimplifiedList = uIubLinkMocSimplifiedTo.getResult().get(0).getMoData();
+            if (uIubLinkMocSimplifiedTo.getResult().size() > 1) uIubLinkMocSimplifiedList.addAll(uIubLinkMocSimplifiedTo.getResult().get(1).getMoData());
         }
         log.info(" >> uIubLinkMocSimplifiedList: {}", uIubLinkMocSimplifiedList);
         return uIubLinkMocSimplifiedList;
@@ -1097,7 +1098,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
                 .build();
     }
 
-    private CurrentMngBodySettings getUIubLinkMocSimplifiedBodySettings(Token token, ManagedElement managedElement) {
+    private CurrentMngBodySettings getUIubLinkMocSimplifiedBodySettings(ManagedElement managedElement) {
         return CurrentMngBodySettings.builder()
                 .ManagedElementType(ManagedElementType.MRNC.toString())
                 .mocList(List.of("UIubLink"))

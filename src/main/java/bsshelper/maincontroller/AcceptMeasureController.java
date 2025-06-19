@@ -5,7 +5,6 @@ import bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.ITBBUULoca
 import bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.ReplaceableUnitMoc;
 import bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.RiCableMoc;
 import bsshelper.externalapi.configurationmng.currentmng.entity.mrnc.GGsmCellMocSimplified;
-import bsshelper.externalapi.configurationmng.currentmng.entity.mrnc.GTrxMocSimplified;
 import bsshelper.externalapi.configurationmng.currentmng.entity.mrnc.UUtranCellFDDMocSimplified;
 import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.FiberCableMoc;
 import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.SdrDeviceGroupMoc;
@@ -18,24 +17,21 @@ import bsshelper.externalapi.configurationmng.nemoactserv.mapper.FiberTableMappe
 import bsshelper.externalapi.configurationmng.nemoactserv.service.ExecNeActService;
 import bsshelper.externalapi.configurationmng.nemoactserv.wrapper.FiberTableWrapper;
 import bsshelper.externalapi.configurationmng.nemoactserv.wrapper.VSWRListWrapper;
-import bsshelper.externalapi.perfmng.entity.HistoryForUMTSCell;
-import bsshelper.externalapi.perfmng.entity.HistoryRTWP;
 import bsshelper.externalapi.perfmng.entity.InfoCellUMTS;
 import bsshelper.externalapi.perfmng.mapper.InfoCellUMTSMapper;
 import bsshelper.externalapi.perfmng.mapper.InfoCodeGSMMapper;
 import bsshelper.externalapi.perfmng.mapper.InfoCodeUMTSMapper;
-import bsshelper.externalapi.perfmng.service.HistoryQueryService;
 import bsshelper.externalapi.perfmng.to.CellSelectedTo;
 import bsshelper.externalapi.perfmng.to.KPISelectedTo;
 import bsshelper.externalapi.perfmng.to.QueryTypeTo;
-import bsshelper.externalapi.perfmng.util.KPI;
 import bsshelper.externalapi.perfmng.util.QueryType;
 import bsshelper.externalapi.perfmng.wrapper.*;
 import bsshelper.globalutil.ManagedElementType;
 import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.entity.MessageEntity;
-import bsshelper.service.LocalCacheService;
-import bsshelper.service.TokenService;
+import bsshelper.localservice.localcache.LocalCacheService;
+import bsshelper.localservice.searchcache.SearchCacheService;
+import bsshelper.localservice.token.TokenService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +53,7 @@ public class AcceptMeasureController {
     private final TokenService tokenService;
     private final LocalCacheService localCacheService;
     private final ExecNeActService execNeActService;
-    private final HistoryQueryService historyQueryService;
+    private final SearchCacheService searchCacheService;
 
     @GetMapping("/acceptanceMeasurement")
     public String cellStatus(Model model, HttpSession session) {
@@ -67,6 +63,7 @@ public class AcceptMeasureController {
         model.addAttribute("isSelected", new ArrayList<>(List.of(false,false,false,false)));
         model.addAttribute("title", "Acceptance Measurement");
         model.addAttribute("repoQueryType", new QueryTypeToWrapper(QueryTypeTo.getDefaultQueryTypeSelectedList()));
+        model.addAttribute("searchCache", searchCacheService.getList());
         return "measurement";
     }
 
@@ -78,6 +75,7 @@ public class AcceptMeasureController {
         setMessage(id, model);
 
         Set<String> isSelected = new HashSet<>();
+        ManagedElement managedElement = null;
 
         if (measurementQuerySet.isEmpty()) {
             localCacheService.messageMap.put(id, new MessageEntity(
@@ -85,7 +83,6 @@ public class AcceptMeasureController {
             return "redirect:/helper/acceptanceMeasurement";
         }
 
-        ManagedElement managedElement = null;
         if (localCacheService.managedElementMap.containsKey(userLabel.trim().toUpperCase())) {
             managedElement = localCacheService.managedElementMap.get(userLabel.trim().toUpperCase());
         } else {
@@ -97,182 +94,65 @@ public class AcceptMeasureController {
             return "redirect:/helper/acceptanceMeasurement";
         }
 
+        // CELL INFO
+        List<UUtranCellFDDMocSimplified> umts = null;
+
+        if (measurementQuerySet.contains(QueryType.CELL_INFO.getInfo()) || measurementQuerySet.contains(QueryType.CUSTOM_HISTORY.getInfo())) {
+            umts = setUMTSCellList(managedElement);
+        }
+
         InfoCodesGSMWrapper infoCodesGSMWrapper = null;
         InfoCodesUMTSWrapper infoCodesUMTSWrapper = null;
         InfoCellUMTSWrapper infoCellUMTSWrapper = null;
-        List<UUtranCellFDDMocSimplified> umts = null;
-        List<GGsmCellMocSimplified> gsm = null;
-        List<GTrxMocSimplified> trxMRNC = null;
 
-        // CELL INFO
         if (measurementQuerySet.contains(QueryType.CELL_INFO.getInfo())) {
-            umts = currentMgnService.getUUtranCellFDDMocSimplified(tokenService.getToken(), managedElement);
-            gsm = currentMgnService.getGGsmCellMocSimplified(tokenService.getToken(), managedElement);
-
-            List<ULocalCellMocSimplified> umtsSDR = null;
-            List<ITBBUULocalCellMocSimplified> umtsITBBU = null;
-            List<InfoCellUMTS> infoCellUMTS = null;
-            if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
-                umtsSDR = currentMgnService.getULocalCellMocSimplified(tokenService.getToken(), managedElement);
-                infoCellUMTS = InfoCellUMTSMapper.toEntityForSDR(InfoCellUMTSMapper.cellRNCtoMap(umts),InfoCellUMTSMapper.cellSDRtoMap(umtsSDR));
-            } else {
-                umtsITBBU = currentMgnService.getITBBUULocalCellMocSimplified(tokenService.getToken(), managedElement);
-                infoCellUMTS = InfoCellUMTSMapper.toEntityForITBBU(InfoCellUMTSMapper.cellRNCtoMap(umts),InfoCellUMTSMapper.cellITBBUtoMap(umtsITBBU));
-            }
-
-            infoCellUMTSWrapper = new InfoCellUMTSWrapper(infoCellUMTS);
-            infoCodesGSMWrapper = new InfoCodesGSMWrapper(InfoCodeGSMMapper.toFinalEntity(gsm));
-            infoCodesUMTSWrapper = new InfoCodesUMTSWrapper(InfoCodeUMTSMapper.toFinalEntity(umts));
-
+            infoCodesGSMWrapper = setInfoCodesGSMForModel(managedElement);
+            infoCodesUMTSWrapper = setInfoCodesUMTSForModel(umts);
+            infoCellUMTSWrapper =  setCellInfoForModel(managedElement, umts);
             isSelected.add(QueryType.CELL_INFO.getInfo());
-
-//            trxMRNC = currentMgnService.getGTrxMocSimplified(tokenService.getToken(), managedElement, gsm);
-
         }
 
-        List<ReplaceableUnitMoc> replaceableUnitMocList = null;
         List<SdrDeviceGroupMoc> sdrDeviceGroupMocList = null;
-        VSWRListWrapper vswrListWrapper = null;
+        List<ReplaceableUnitMoc> replaceableUnitMocList = null;
+
+        if (measurementQuerySet.contains(QueryType.OPTIC_LEVELS.getInfo()) || measurementQuerySet.contains(QueryType.VSWR.getInfo())) {
+            if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) sdrDeviceGroupMocList = setSdrDeviceGroupList(managedElement);
+            else if (managedElement.getManagedElementType().equals(ManagedElementType.ITBBU)) replaceableUnitMocList = setReplaceableUnitList(managedElement);
+        }
 
         // VSWR
+        VSWRListWrapper vswrListWrapper = null;
+
         if (measurementQuerySet.contains(QueryType.VSWR.getInfo())) {
-            List<VSWRTestFinal> vswrTestFinalList = null;
-            if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
-                sdrDeviceGroupMocList = currentMgnService.getSdrDeviceGroupMoc(tokenService.getToken(), managedElement);
-                vswrTestFinalList = execNeActService.vswrTestFinalDataQuery(tokenService.getToken(), managedElement, sdrDeviceGroupMocList);
-            } else {
-                if (managedElement.getManagedElementType().equals(ManagedElementType.ITBBU)) {
-                    replaceableUnitMocList = currentMgnService.getReplaceableUnitMoc(tokenService.getToken(), managedElement);
-                    vswrTestFinalList = execNeActService.vswrTestFinalITBBUDataQuery(tokenService.getToken(), managedElement, replaceableUnitMocList);
-                }
-            }
-            vswrListWrapper = new VSWRListWrapper(vswrTestFinalList);
+            vswrListWrapper = setVSWRForModel(managedElement, sdrDeviceGroupMocList, replaceableUnitMocList);
             isSelected.add(QueryType.VSWR.getInfo());
         }
 
+        // OPTIC LEVELS
         FiberTableWrapper fiberTableWrapper =
                 new FiberTableWrapper(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
                         new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
-        // OPTIC LEVELS
         if (measurementQuerySet.contains(QueryType.OPTIC_LEVELS.getInfo())) {
-            if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
-                if (sdrDeviceGroupMocList == null) {
-                    sdrDeviceGroupMocList = currentMgnService.getSdrDeviceGroupMoc(tokenService.getToken(), managedElement);
-                }
-                List<FiberCableMoc> fiberCableMocsList = currentMgnService.getFiberCableMoc(tokenService.getToken(), managedElement);
-                List<OpticInfoFinal> opticInfoFinalList = execNeActService.opticInfoFinalDataQuery(tokenService.getToken(), managedElement, sdrDeviceGroupMocList);
-                if (fiberCableMocsList != null) {
-                    Map<String, List<String>> map = FiberTableMapper.getFiberTableMap(fiberCableMocsList, opticInfoFinalList);
-                    if (!map.isEmpty()) {
-                        int count = 0;
-                        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-                            if (count < 6) {
-                                fiberTableWrapper.getDataOpticDev1().add(entry.getValue());
-                                count++;
-                                continue;
-                            }
-                            if (count < 12) {
-                                fiberTableWrapper.getDataOpticDev2().add(entry.getValue());
-                                count++;
-                                continue;
-                            }
-                            if (count < 18) {
-                                fiberTableWrapper.getDataOpticDev3().add(entry.getValue());
-                                count++;
-                                continue;
-                            }
-                            if (count < 24) {
-                                fiberTableWrapper.getDataOpticDev4().add(entry.getValue());
-                                count++;
-                                continue;
-                            }
-                            if (count < 30) {
-                                fiberTableWrapper.getDataOpticDev5().add(entry.getValue());
-                                count++;
-                                continue;
-                            }
-                            fiberTableWrapper.getDataOpticDev6().add(entry.getValue());
-                            count++;
-                        }
-                    }
-                }
-                Map<String, List<String>> map = FiberTableMapper.getLinkTableMap(opticInfoFinalList);
-                for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-                    fiberTableWrapper.getDataOpticLink().add(entry.getValue());
-                }
-                fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticDev1().stream().mapToInt(List::size).max().orElse(0));
-                fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticDev2().stream().mapToInt(List::size).max().orElse(0));
-                fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticDev3().stream().mapToInt(List::size).max().orElse(0));
-                fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticDev4().stream().mapToInt(List::size).max().orElse(0));
-                fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticDev5().stream().mapToInt(List::size).max().orElse(0));
-                fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticDev6().stream().mapToInt(List::size).max().orElse(0));
-                fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticLink().stream().mapToInt(List::size).max().orElse(0));
-            } else {
-                if (replaceableUnitMocList == null) {
-                    replaceableUnitMocList = currentMgnService.getReplaceableUnitMoc(tokenService.getToken(), managedElement);
-                }
-                List<RiCableMoc> riCableMocList = currentMgnService.getRiCableMoc(tokenService.getToken(), managedElement);
-                List<OpticInfoFinal> opticInfoFinalList = execNeActService.opticInfoFinalITBBUDataQuery(tokenService.getToken(), managedElement, replaceableUnitMocList);
-
-                if (riCableMocList != null) {
-                    Map<String, List<String>> map = FiberTableITBBUMapper.getFiberTableMap(riCableMocList, opticInfoFinalList);
-                    if (!map.isEmpty()) {
-                        int count = 0;
-                        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-                            if (count < 6) {
-                                fiberTableWrapper.getDataOpticDevItbbu1_1().add(entry.getValue());
-                                count++;
-                                continue;
-                            }
-                            if (count < 10) {
-                                fiberTableWrapper.getDataOpticDevItbbu1_2().add(entry.getValue());
-                                count++;
-                                continue;
-                            }
-                            if (count < 16) {
-                                fiberTableWrapper.getDataOpticDevItbbu2_1().add(entry.getValue());
-                                count++;
-                                continue;
-                            }
-                            fiberTableWrapper.getDataOpticDevItbbu2_2().add(entry.getValue());
-                            count++;
-                        }
-                    }
-                }
-                Map<String, List<String>> map = FiberTableITBBUMapper.getLinkTableMap(opticInfoFinalList);
-                for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-                    fiberTableWrapper.getDataOpticLinkItbbu().add(entry.getValue());
-                }
-                fiberTableWrapper.getMaxSizeItbbu().add(fiberTableWrapper.getDataOpticDevItbbu1_1().stream().mapToInt(List::size).max().orElse(0));
-                fiberTableWrapper.getMaxSizeItbbu().add(fiberTableWrapper.getDataOpticDevItbbu1_2().stream().mapToInt(List::size).max().orElse(0));
-                fiberTableWrapper.getMaxSizeItbbu().add(fiberTableWrapper.getDataOpticDevItbbu2_1().stream().mapToInt(List::size).max().orElse(0));
-                fiberTableWrapper.getMaxSizeItbbu().add(fiberTableWrapper.getDataOpticDevItbbu2_2().stream().mapToInt(List::size).max().orElse(0));
-                fiberTableWrapper.getMaxSizeItbbu().add(fiberTableWrapper.getDataOpticLinkItbbu().stream().mapToInt(List::size).max().orElse(0));
-            }
+            setFiberTableForModel(managedElement, fiberTableWrapper, sdrDeviceGroupMocList, replaceableUnitMocList);
             isSelected.add(QueryType.OPTIC_LEVELS.getInfo());
         }
 
+        // CHARTS
         CellSelectedToWrapper cellSelectedToWrapper = null;
         KPISelectedToWrapper kpiSelectedToWrapper = null;
 
-        // CHARTS
         if (measurementQuerySet.contains(QueryType.CUSTOM_HISTORY.getInfo())) {
-            if (umts == null) {
-                umts = currentMgnService.getUUtranCellFDDMocSimplified(tokenService.getToken(), managedElement);
-            }
-            if (umts != null) {
-                localCacheService.UMTSCellMap.put(managedElement.getUserLabel(), umts);
-                cellSelectedToWrapper = new CellSelectedToWrapper(CellSelectedTo.getCellSelectedTo(umts));
-            }
-            kpiSelectedToWrapper = new KPISelectedToWrapper(KPISelectedTo.getDefaultKpiSelectedList(),
-                    KPISelectedTo.getDefaultNoCellKpiSelectedList());
+            cellSelectedToWrapper = setCellSelectedToForModel(managedElement, umts);
+            kpiSelectedToWrapper = setKPISelectedToForModel();
             isSelected.add(QueryType.CUSTOM_HISTORY.getInfo());
         }
 
         if (!localCacheService.managedElementMap.containsKey(managedElement.getUserLabel())) {
             localCacheService.managedElementMap.put(managedElement.getUserLabel(), managedElement);
         }
+
+        searchCacheService.add(managedElement.getUserLabel());
 
         model.addAttribute("repoInfoCell", infoCellUMTSWrapper);
         model.addAttribute("repoQueryType", new QueryTypeToWrapper(QueryTypeTo.getDefaultQueryTypeSelectedList()));
@@ -286,7 +166,170 @@ public class AcceptMeasureController {
         model.addAttribute("isSelected", isSelected);
         model.addAttribute("acceptanceMeasurementId", id);
         model.addAttribute("title", "Acceptance Measurement");
+        model.addAttribute("searchCache", searchCacheService.getList());
         return "measurement";
+    }
+
+    private InfoCellUMTSWrapper setCellInfoForModel(ManagedElement managedElement,
+                                     List<UUtranCellFDDMocSimplified> umts) {
+
+        List<InfoCellUMTS> infoCellUMTS = null;
+        if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
+            List<ULocalCellMocSimplified> umtsSDR = currentMgnService.getULocalCellMocSimplified(tokenService.getToken(), managedElement);
+            infoCellUMTS = InfoCellUMTSMapper.toEntityForSDR(InfoCellUMTSMapper.cellRNCtoMap(umts),InfoCellUMTSMapper.cellSDRtoMap(umtsSDR));
+        } else {
+            List<ITBBUULocalCellMocSimplified> umtsITBBU = currentMgnService.getITBBUULocalCellMocSimplified(tokenService.getToken(), managedElement);
+            infoCellUMTS = InfoCellUMTSMapper.toEntityForITBBU(InfoCellUMTSMapper.cellRNCtoMap(umts),InfoCellUMTSMapper.cellITBBUtoMap(umtsITBBU));
+        }
+        return new InfoCellUMTSWrapper(infoCellUMTS);
+    }
+
+    private VSWRListWrapper setVSWRForModel(ManagedElement managedElement,
+                                 List<SdrDeviceGroupMoc> sdrDeviceGroupMocList,
+                                 List<ReplaceableUnitMoc> replaceableUnitMocList) {
+
+        List<VSWRTestFinal> vswrTestFinalList = null;
+        if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
+            vswrTestFinalList = execNeActService.vswrTestFinalDataQuery(tokenService.getToken(), managedElement, sdrDeviceGroupMocList);
+        } else {
+            if (managedElement.getManagedElementType().equals(ManagedElementType.ITBBU)) {
+                vswrTestFinalList = execNeActService.vswrTestFinalITBBUDataQuery(tokenService.getToken(), managedElement, replaceableUnitMocList);
+            }
+        }
+        return vswrTestFinalList == null ? null : new VSWRListWrapper(vswrTestFinalList);
+    }
+
+    private void setFiberTableForModel (ManagedElement managedElement,
+                                        FiberTableWrapper fiberTableWrapper,
+                                        List<SdrDeviceGroupMoc> sdrDeviceGroupMocList,
+                                        List<ReplaceableUnitMoc> replaceableUnitMocList) {
+
+        if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
+            if (sdrDeviceGroupMocList == null) {
+                sdrDeviceGroupMocList = currentMgnService.getSdrDeviceGroupMoc(tokenService.getToken(), managedElement);
+            }
+            List<FiberCableMoc> fiberCableMocsList = currentMgnService.getFiberCableMoc(tokenService.getToken(), managedElement);
+            List<OpticInfoFinal> opticInfoFinalList = execNeActService.opticInfoFinalDataQuery(tokenService.getToken(), managedElement, sdrDeviceGroupMocList);
+            if (fiberCableMocsList != null) {
+                Map<String, List<String>> map = FiberTableMapper.getFiberTableMap(fiberCableMocsList, opticInfoFinalList);
+                if (!map.isEmpty()) {
+                    int count = 0;
+                    for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+                        if (count < 6) {
+                            fiberTableWrapper.getDataOpticDev1().add(entry.getValue());
+                            count++;
+                            continue;
+                        }
+                        if (count < 12) {
+                            fiberTableWrapper.getDataOpticDev2().add(entry.getValue());
+                            count++;
+                            continue;
+                        }
+                        if (count < 18) {
+                            fiberTableWrapper.getDataOpticDev3().add(entry.getValue());
+                            count++;
+                            continue;
+                        }
+                        if (count < 24) {
+                            fiberTableWrapper.getDataOpticDev4().add(entry.getValue());
+                            count++;
+                            continue;
+                        }
+                        if (count < 30) {
+                            fiberTableWrapper.getDataOpticDev5().add(entry.getValue());
+                            count++;
+                            continue;
+                        }
+                        fiberTableWrapper.getDataOpticDev6().add(entry.getValue());
+                        count++;
+                    }
+                }
+            }
+            Map<String, List<String>> map = FiberTableMapper.getLinkTableMap(opticInfoFinalList);
+            for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+                fiberTableWrapper.getDataOpticLink().add(entry.getValue());
+            }
+            fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticDev1().stream().mapToInt(List::size).max().orElse(0));
+            fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticDev2().stream().mapToInt(List::size).max().orElse(0));
+            fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticDev3().stream().mapToInt(List::size).max().orElse(0));
+            fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticDev4().stream().mapToInt(List::size).max().orElse(0));
+            fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticDev5().stream().mapToInt(List::size).max().orElse(0));
+            fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticDev6().stream().mapToInt(List::size).max().orElse(0));
+            fiberTableWrapper.getMaxSize().add(fiberTableWrapper.getDataOpticLink().stream().mapToInt(List::size).max().orElse(0));
+        } else {
+            if (replaceableUnitMocList == null) {
+                replaceableUnitMocList = currentMgnService.getReplaceableUnitMoc(tokenService.getToken(), managedElement);
+            }
+            List<RiCableMoc> riCableMocList = currentMgnService.getRiCableMoc(tokenService.getToken(), managedElement);
+            List<OpticInfoFinal> opticInfoFinalList = execNeActService.opticInfoFinalITBBUDataQuery(tokenService.getToken(), managedElement, replaceableUnitMocList);
+            if (riCableMocList != null) {
+                Map<String, List<String>> map = FiberTableITBBUMapper.getFiberTableMap(riCableMocList, opticInfoFinalList);
+                if (!map.isEmpty()) {
+                    int count = 0;
+                    for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+                        if (count < 6) {
+                            fiberTableWrapper.getDataOpticDevItbbu1_1().add(entry.getValue());
+                            count++;
+                            continue;
+                        }
+                        if (count < 10) {
+                            fiberTableWrapper.getDataOpticDevItbbu1_2().add(entry.getValue());
+                            count++;
+                            continue;
+                        }
+                        if (count < 16) {
+                            fiberTableWrapper.getDataOpticDevItbbu2_1().add(entry.getValue());
+                            count++;
+                            continue;
+                        }
+                        fiberTableWrapper.getDataOpticDevItbbu2_2().add(entry.getValue());
+                        count++;
+                    }
+                }
+            }
+            Map<String, List<String>> map = FiberTableITBBUMapper.getLinkTableMap(opticInfoFinalList);
+            for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+                fiberTableWrapper.getDataOpticLinkItbbu().add(entry.getValue());
+            }
+            fiberTableWrapper.getMaxSizeItbbu().add(fiberTableWrapper.getDataOpticDevItbbu1_1().stream().mapToInt(List::size).max().orElse(0));
+            fiberTableWrapper.getMaxSizeItbbu().add(fiberTableWrapper.getDataOpticDevItbbu1_2().stream().mapToInt(List::size).max().orElse(0));
+            fiberTableWrapper.getMaxSizeItbbu().add(fiberTableWrapper.getDataOpticDevItbbu2_1().stream().mapToInt(List::size).max().orElse(0));
+            fiberTableWrapper.getMaxSizeItbbu().add(fiberTableWrapper.getDataOpticDevItbbu2_2().stream().mapToInt(List::size).max().orElse(0));
+            fiberTableWrapper.getMaxSizeItbbu().add(fiberTableWrapper.getDataOpticLinkItbbu().stream().mapToInt(List::size).max().orElse(0));
+        }
+    }
+
+    private List<SdrDeviceGroupMoc> setSdrDeviceGroupList(ManagedElement managedElement) {
+        return currentMgnService.getSdrDeviceGroupMoc(tokenService.getToken(), managedElement);
+    }
+
+    private List<ReplaceableUnitMoc> setReplaceableUnitList(ManagedElement managedElement) {
+        return currentMgnService.getReplaceableUnitMoc(tokenService.getToken(), managedElement);
+    }
+
+    private List<UUtranCellFDDMocSimplified> setUMTSCellList(ManagedElement managedElement) {
+        return currentMgnService.getUUtranCellFDDMocSimplified(tokenService.getToken(), managedElement);
+    }
+
+    private InfoCodesUMTSWrapper setInfoCodesUMTSForModel(List<UUtranCellFDDMocSimplified> umts) {
+        return new InfoCodesUMTSWrapper(InfoCodeUMTSMapper.toFinalEntity(umts));
+    }
+
+    private InfoCodesGSMWrapper setInfoCodesGSMForModel (ManagedElement managedElement) {
+        List<GGsmCellMocSimplified> gsm = currentMgnService.getGGsmCellMocSimplified(tokenService.getToken(), managedElement);
+        return new InfoCodesGSMWrapper(InfoCodeGSMMapper.toFinalEntity(gsm));
+    }
+
+    private CellSelectedToWrapper setCellSelectedToForModel(ManagedElement managedElement,List<UUtranCellFDDMocSimplified> umts) {
+        if (umts != null) {
+            localCacheService.UMTSCellMap.put(managedElement.getUserLabel(), umts);
+            return new CellSelectedToWrapper(CellSelectedTo.getCellSelectedTo(umts));
+        }
+        return null;
+    }
+
+    private KPISelectedToWrapper setKPISelectedToForModel() {
+        return new KPISelectedToWrapper(KPISelectedTo.getDefaultKpiSelectedList(), KPISelectedTo.getDefaultNoCellKpiSelectedList());
     }
 
     private void setMessage(String sessionId, Model model) {
@@ -296,4 +339,6 @@ public class AcceptMeasureController {
             localCacheService.messageMap.remove(sessionId);
         } else model.addAttribute("message", null);
     }
+
+
 }

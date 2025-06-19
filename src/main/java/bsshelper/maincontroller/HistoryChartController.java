@@ -1,5 +1,6 @@
 package bsshelper.maincontroller;
 
+import bsshelper.externalapi.auth.entity.Token;
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
 import bsshelper.externalapi.configurationmng.currentmng.entity.mrnc.UUtranCellFDDMocSimplified;
 import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnService;
@@ -7,11 +8,9 @@ import bsshelper.externalapi.perfmng.entity.*;
 import bsshelper.externalapi.perfmng.service.HistoryQueryService;
 import bsshelper.externalapi.perfmng.util.KPI;
 import bsshelper.globalutil.entity.MessageEntity;
-import bsshelper.service.LocalCacheService;
-import bsshelper.service.TokenService;
-import bsshelper.service.paketlossstat.entity.DomainStat;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import bsshelper.localservice.localcache.LocalCacheService;
+import bsshelper.localservice.token.TokenService;
+import bsshelper.localservice.paketlossstat.entity.DomainStat;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -129,61 +128,61 @@ public class HistoryChartController {
         if (checkedKPIsList != null) {
             if (checkedKPIsList.contains(KPI.RTWP.getInfo())) {
                 checkedRTWPDataMap = HistoryForUMTSCell
-                        .getChart(historyQueryService.getUMTSCellHistory(tokenService.getToken(), managedElement, checkedCellList, getTime(time), KPI.RTWP));
+                        .getChart(uploadHistoryWithIgnoreRestrictionOnStringCapacityForUMTSCell(tokenService.getToken(), managedElement, checkedCellList, getTime(time), KPI.RTWP));
             }
             if (checkedKPIsList.contains(KPI.RRC_ATTEMPT.getInfo())) {
                 checkedRRCAttemptDataMap = HistoryForUMTSCell
-                        .getChart(historyQueryService.getUMTSCellHistory(tokenService.getToken(), managedElement, checkedCellList, getTime(time), KPI.RRC_ATTEMPT));
+                        .getChart(uploadHistoryWithIgnoreRestrictionOnStringCapacityForUMTSCell(tokenService.getToken(), managedElement, checkedCellList, getTime(time), KPI.RRC_ATTEMPT));
             }
             if (checkedKPIsList.contains(KPI.RRC.getInfo())) {
                 checkedRRCDataMap = HistoryForUMTSCell
-                        .getChart(historyQueryService.getUMTSCellHistory(tokenService.getToken(), managedElement, checkedCellList, getTime(time), KPI.RRC));
+                        .getChart(uploadHistoryWithIgnoreRestrictionOnStringCapacityForUMTSCell(tokenService.getToken(), managedElement, checkedCellList, getTime(time), KPI.RRC));
             }
             if (checkedKPIsList.contains(KPI.RAB.getInfo())) {
                 checkedRABDataMap = HistoryForUMTSCell
-                        .getChart(historyQueryService.getUMTSCellHistory(tokenService.getToken(), managedElement, checkedCellList, getTime(time), KPI.RAB));
+                        .getChart(uploadHistoryWithIgnoreRestrictionOnStringCapacityForUMTSCell(tokenService.getToken(), managedElement, checkedCellList, getTime(time), KPI.RAB));
             }
             if (checkedKPIsList.contains(KPI.HSUPA.getInfo())) {
                 checkedHSUPADataMap = HistoryForUMTSCell
-                        .getChart(historyQueryService.getUMTSCellHistory(tokenService.getToken(), managedElement, checkedCellList, getTime(time), KPI.HSUPA));
+                        .getChart(uploadHistoryWithIgnoreRestrictionOnStringCapacityForUMTSCell(tokenService.getToken(), managedElement, checkedCellList, getTime(time), KPI.HSUPA));
             }
             if (checkedKPIsList.contains(KPI.HSDPA.getInfo())) {
                 checkedHSDPADataMap = HistoryForUMTSCell
-                        .getChart(historyQueryService.getUMTSCellHistory(tokenService.getToken(), managedElement, checkedCellList, getTime(time), KPI.HSDPA));
+                        .getChart(uploadHistoryWithIgnoreRestrictionOnStringCapacityForUMTSCell(tokenService.getToken(), managedElement, checkedCellList, getTime(time), KPI.HSDPA));
             }
             if (checkedKPIsList.contains(KPI.RLC.getInfo())) {
                 checkedRLCDataMap = HistoryForUMTSCell
-                        .getChart(historyQueryService.getUMTSCellHistory(tokenService.getToken(), managedElement, checkedCellList, getTime(time), KPI.RLC));
+                        .getChart(uploadHistoryWithIgnoreRestrictionOnStringCapacityForUMTSCell(tokenService.getToken(), managedElement, checkedCellList, getTime(time), KPI.RLC));
             }
             if (checkedKPIsList.contains(KPI.ANT_RSSI_1.getInfo())) {
                 allANT_RSSI_1DataMap = HistoryForULocalCell
-                        .getChart(historyQueryService.getHistoryCell(tokenService.getToken(), managedElement, getTime(time), KPI.ANT_RSSI_1));
+                        .getChart(historyQueryService.getHistoryCellWithIgnoreRestrictionOnStringCapacity(tokenService.getToken(), managedElement, getTime(time), KPI.ANT_RSSI_1));
                 checkedANT_RSSI_1DataMap = allToChecked(allANT_RSSI_1DataMap, checkedCellList);
             }
             if (checkedKPIsList.contains(KPI.ANT_RSSI_2.getInfo())) {
                 allANT_RSSI_2DataMap = HistoryForULocalCell
-                        .getChart(historyQueryService.getHistoryCell(tokenService.getToken(), managedElement, getTime(time), KPI.ANT_RSSI_2));
+                        .getChart(historyQueryService.getHistoryCellWithIgnoreRestrictionOnStringCapacity(tokenService.getToken(), managedElement, getTime(time), KPI.ANT_RSSI_2));
                 checkedANT_RSSI_2DataMap = allToChecked(allANT_RSSI_2DataMap, checkedCellList);
             }
             if (checkedKPIsList.contains(KPI.ANT_RSSI_1AND2.getInfo())) {
                 if (allANT_RSSI_1DataMap.isEmpty()) {
                     allANT_RSSI_1DataMap = HistoryForULocalCell
-                            .getChart(historyQueryService.getHistoryCell(tokenService.getToken(), managedElement, getTime(time), KPI.ANT_RSSI_1));
+                            .getChart(historyQueryService.getHistoryCellWithIgnoreRestrictionOnStringCapacity(tokenService.getToken(), managedElement, getTime(time), KPI.ANT_RSSI_1));
                 }
                 if (allANT_RSSI_2DataMap.isEmpty()) {
                     allANT_RSSI_2DataMap = HistoryForULocalCell
-                            .getChart(historyQueryService.getHistoryCell(tokenService.getToken(), managedElement, getTime(time), KPI.ANT_RSSI_2));
+                            .getChart(historyQueryService.getHistoryCellWithIgnoreRestrictionOnStringCapacity(tokenService.getToken(), managedElement, getTime(time), KPI.ANT_RSSI_2));
                 }
                 checkedANT_RSSI_1AND2DataMap = allToCheckedForAntenna1and2(allANT_RSSI_1DataMap, allANT_RSSI_2DataMap, checkedCellList);
             }
             if (checkedKPIsList.contains(KPI.CELL_DIVERSITY.getInfo())) {
                 allCELL_DIVERSITYDataMap = HistoryForULocalCell
-                        .getChart(historyQueryService.getHistoryCell(tokenService.getToken(), managedElement, getTime(time), KPI.CELL_DIVERSITY));
+                        .getChart(historyQueryService.getHistoryCellWithIgnoreRestrictionOnStringCapacity(tokenService.getToken(), managedElement, getTime(time), KPI.CELL_DIVERSITY));
                 checkedCELL_DIVERSITYDataMap = allToChecked(allCELL_DIVERSITYDataMap, checkedCellList);
             }
             if (checkedKPIsList.contains(KPI.NUMBER_USER_IN_CELL.getInfo())) {
                 allNUMBER_USER_IN_CELLDataMap = HistoryForULocalCell
-                        .getChart(historyQueryService.getHistoryCell(tokenService.getToken(), managedElement, getTime(time), KPI.NUMBER_USER_IN_CELL));
+                        .getChart(historyQueryService.getHistoryCellWithIgnoreRestrictionOnStringCapacity(tokenService.getToken(), managedElement, getTime(time), KPI.NUMBER_USER_IN_CELL));
                 checkedNUMBER_USER_IN_CELLDataMap = allToChecked(allNUMBER_USER_IN_CELLDataMap, checkedCellList);
             }
         }
@@ -243,8 +242,9 @@ public class HistoryChartController {
     private Integer getTime(Integer time) {
         int timeToUse = 168;
         if (time != null) {
-            if (time > 0 && time < 169) { timeToUse = time; }
-            else {
+            if (time > 0 && time < 169) {
+                timeToUse = time;
+            } else {
                 if (time < 1) {
                     timeToUse = 1;
                 }
@@ -266,7 +266,7 @@ public class HistoryChartController {
 
     private Map<String, List<HistoryForULocalCell>> allToCheckedForAntenna1and2(Map<String, List<HistoryForULocalCell>> all1,
                                                                                 Map<String, List<HistoryForULocalCell>> all2,
-                                                                 List<UUtranCellFDDMocSimplified> checkedCellList) {
+                                                                                List<UUtranCellFDDMocSimplified> checkedCellList) {
         Map<String, List<HistoryForULocalCell>> result = new TreeMap<>();
         for (UUtranCellFDDMocSimplified cell : checkedCellList) {
             if (all1.containsKey(cell.getUserLabel())) {
@@ -282,7 +282,7 @@ public class HistoryChartController {
     }
 
     private Map<String, List<HistoryOfficeLink>> getMRNCSiteHistoryMap(Map<String, List<String>> mrncIdMap) {
-        return  historyQueryService.getCustomListOfficeLinkHistory(
+        return historyQueryService.getCustomListOfficeLinkHistory(
                 tokenService.getToken(),
                 mrncIdMap,
                 168,
@@ -308,4 +308,21 @@ public class HistoryChartController {
         return chartData;
     }
 
+    private List<? extends HistoryForUMTSCell> uploadHistoryWithIgnoreRestrictionOnStringCapacityForUMTSCell(
+            Token token, ManagedElement managedElement, List<UUtranCellFDDMocSimplified> checkedCellList, Integer time, KPI kpi) {
+        int step = 25;
+        int startIndex = 0;
+        int residualSize = checkedCellList.size();
+        List<HistoryForUMTSCell> result = new ArrayList<>();
+        if (residualSize <= step) {
+            return historyQueryService.getUMTSCellHistory(token, managedElement, checkedCellList, getTime(time), kpi);
+        }
+        while (residualSize != 0) {
+            List<UUtranCellFDDMocSimplified> stepList = checkedCellList.subList(startIndex, residualSize > step ? startIndex + step : startIndex + residualSize);
+            result.addAll(historyQueryService.getUMTSCellHistory(token, managedElement, stepList, getTime(time), kpi));
+            startIndex = startIndex + step;
+            residualSize = residualSize > step ? residualSize - step : 0;
+        }
+        return result;
+    }
 }

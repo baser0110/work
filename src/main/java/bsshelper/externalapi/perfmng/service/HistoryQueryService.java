@@ -11,7 +11,7 @@ import java.util.Map;
 
 public interface HistoryQueryService {
     List<HistoryForUMTSCell> getUMTSCellHistory(Token token, ManagedElement managedElement, List<UUtranCellFDDMocSimplified> cells, int time, KPI kpi);
-    List<HistoryForULocalCell> getHistoryCell(Token token, ManagedElement managedElement, int time, KPI kpi);
+    List<HistoryForULocalCell> getHistoryCellWithIgnoreRestrictionOnStringCapacity(Token token, ManagedElement managedElement, int time, KPI kpi);
     List<HistoryMaxOpticError> getHistoryOpticError(Token token, ManagedElement managedElement, int time);
     List<HistoryMaxOpticPower> getHistoryOpticTxPower(Token token, ManagedElement managedElement, int time);
     List<HistoryMaxOpticPower> getHistoryOpticRxPower(Token token, ManagedElement managedElement, int time);

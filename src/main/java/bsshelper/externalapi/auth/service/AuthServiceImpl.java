@@ -1,6 +1,6 @@
 package bsshelper.externalapi.auth.service;
 
-import bsshelper.configuration.UserEntityConfiguration;
+import bsshelper.externalapi.configuration.ApiUserEntityConfiguration;
 import bsshelper.externalapi.auth.entity.Token;
 import bsshelper.externalapi.auth.mapper.TokenMapper;
 import bsshelper.externalapi.auth.to.TokenTo;
@@ -24,7 +24,7 @@ import java.net.http.HttpResponse;
 @Slf4j
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-    private final UserEntityConfiguration userEntityConfiguration;
+    private final ApiUserEntityConfiguration apiUserEntityConfiguration;
 
     @Override
     public Token getToken() {
@@ -105,7 +105,7 @@ public class AuthServiceImpl implements AuthService {
 
     private HttpRequest createGetRequest() {
         return HttpRequest.newBuilder()
-                .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(userEntityConfiguration.create().getUser()))
+                .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(apiUserEntityConfiguration.create().getUser()))
                 .uri(URI.create(GlobalUtil.GLOBAL_PATH + GlobalUtil.API_OAUTH + GlobalUtil.OAUTH_TOKEN))
                 .version(HttpClient.Version.HTTP_1_1)
                 .header("Content-Type", "application/json; charset=UTF-8")

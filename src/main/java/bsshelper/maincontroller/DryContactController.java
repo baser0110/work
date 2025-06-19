@@ -16,9 +16,10 @@ import bsshelper.externalapi.configurationmng.plannedserv.service.PlanServServic
 import bsshelper.globalutil.ManagedElementType;
 import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.entity.MessageEntity;
-import bsshelper.service.LocalCacheService;
-import bsshelper.service.TokenService;
-import bsshelper.service.logger.LoggerUtil;
+import bsshelper.localservice.localcache.LocalCacheService;
+import bsshelper.localservice.searchcache.SearchCacheService;
+import bsshelper.localservice.token.TokenService;
+import bsshelper.globalutil.logger.LoggerUtil;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +41,7 @@ public class DryContactController {
     private final PlanMgnService planMgnService;
     private final TokenService tokenService;
     private final LocalCacheService localCacheService;
+    private final SearchCacheService searchCacheService;
     private static final Logger operationLog = LoggerUtil.getOperationLogger();
 
 
@@ -50,6 +52,7 @@ public class DryContactController {
         model.addAttribute("managedElement", null);
         model.addAttribute("repo", null);
         model.addAttribute("title", "External Alarms Manager");
+        model.addAttribute("searchCache", searchCacheService.getList());
         return "drycontact";
     }
 
@@ -81,9 +84,12 @@ public class DryContactController {
             localCacheService.managedElementMap.put(managedElement.getUserLabel(), managedElement);
         }
 
+        searchCacheService.add(managedElement.getUserLabel());
+
         model.addAttribute("managedElement", managedElement);
         model.addAttribute("repo", mocDataWrapper);
         model.addAttribute("title", "External Alarms Manager");
+        model.addAttribute("searchCache", searchCacheService.getList());
         return "drycontact";
     }
 

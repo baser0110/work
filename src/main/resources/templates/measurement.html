@@ -146,14 +146,21 @@
             align-items: flex-start;
         }
 
+        input::-webkit-calendar-picker-indicator {
+            display: none !important;
+        }
     </style>
 
     <form id="search" method="get" onsubmit="searchByUserLabel()">
         <div class="row">
             <div class="col-md-4">
                 <input type="text" id="userlabel" name="userlabel"
-                       th:value="${managedElement != null} ? ${managedElement.getUserLabel()} : ${sitename}"
-                       placeholder="Enter sitename">
+                       th:value="${managedElement != null} ? ${managedElement.getUserLabel()} : ${sitename}" placeholder="Enter sitename" list="recent-list">
+                <datalist id="recent-list">
+                    <th:block th:each="query : ${searchCache}">
+                        <option th:value="${query}"></option>
+                    </th:block>
+                </datalist>
                 <button type="submit" class="btn btn-success">Search</button>
             </div>
 

@@ -1,6 +1,6 @@
 package bsshelper.maincontroller;
 
-import bsshelper.service.logger.LogEntry;
+import bsshelper.globalutil.logger.LogEntry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

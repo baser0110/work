@@ -29,7 +29,12 @@
 <!--    "${managedElement != null} ? ${managedElement.getUserLabel()} : ${sitename}"-->
     <div style="display: flex; gap: 5px;">
     <form id="search" method="get" onsubmit="searchByUserLabel()">
-        <input type="text" id="userlabel" name="userlabel" th:value="${sitename}" placeholder="Enter sitename">
+        <input type="text" id="userlabel" name="userlabel" th:value="${sitename}" placeholder="Enter sitename" list="recent-list">
+        <datalist id="recent-list">
+            <th:block th:each="query : ${searchCache}">
+                <option th:value="${query}"></option>
+            </th:block>
+        </datalist>
         <button type="submit" class="btn btn-success">Search</button>
     </form>
     <form th:if="${managedElement != null}" id="refresh" method="get"
@@ -66,6 +71,9 @@
             flex-direction: column;
             justify-content: center;
             align-items: flex-start;
+        }
+        input::-webkit-calendar-picker-indicator {
+            display: none !important;
         }
     </style>
 

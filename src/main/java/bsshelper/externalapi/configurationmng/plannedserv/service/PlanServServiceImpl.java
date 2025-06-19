@@ -6,7 +6,7 @@ import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.Verb;
 import bsshelper.externalapi.configurationmng.plannedserv.util.PlannedServBodySettings;
 import bsshelper.globalutil.entity.MessageEntity;
-import bsshelper.globalutil.exception.CustomNetworkConnectionException;
+import bsshelper.exception.CustomNetworkConnectionException;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

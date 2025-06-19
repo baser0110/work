@@ -2,7 +2,7 @@ package bsshelper.maincontroller;
 
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
 import bsshelper.externalapi.openscriptexecengine.entity.CellStatusDetails;
-import bsshelper.service.LocalCacheService;
+import bsshelper.localservice.localcache.LocalCacheService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

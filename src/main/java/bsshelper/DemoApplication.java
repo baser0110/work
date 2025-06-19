@@ -1,15 +1,5 @@
 package bsshelper;
 
-import bsshelper.externalapi.auth.entity.Token;
-import bsshelper.externalapi.auth.service.AuthServiceImpl;
-import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
-import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnServiceImpl;
-import bsshelper.externalapi.configurationmng.plannedmng.service.PlanMgnServiceImpl;
-import bsshelper.externalapi.configurationmng.plannedserv.service.PlanServService;
-import bsshelper.externalapi.configurationmng.plannedserv.service.PlanServServiceImpl;
-import bsshelper.service.TokenServiceImpl;
-import bsshelper.service.paketlossstat.service.PaketLossStatService;
-import bsshelper.service.paketlossstat.service.PaketLossStatServiceImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
