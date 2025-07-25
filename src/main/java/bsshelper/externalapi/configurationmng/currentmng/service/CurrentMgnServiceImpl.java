@@ -224,6 +224,24 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
     }
 
     @Override
+    public List<IpMoc> getIpMoc(Token token, ManagedElement managedElement) {
+        String mocName = "Ip";
+        List<IpMoc> ipMocList = null;
+        IpMocTo ipMocTo = null;
+        String json = rawDataQuery(token, managedElement, mocName);
+        try {
+            ipMocTo = new Gson().fromJson(json, IpMocTo.class);
+        } catch (JsonSyntaxException e1) {
+            log.error(" >> error in IpMocTo parsing: {}", e1.toString());
+        }
+        if (ipMocTo != null) {
+            ipMocList = ipMocTo.getResult().get(0).getMoData();
+        }
+        log.info(" >> ipMocList: {}", ipMocList);
+        return ipMocList;
+    }
+
+    @Override
     public List<FiberCableMoc> getFiberCableMoc(Token token, ManagedElement managedElement) {
         String mocName = "FiberCable";
         List<FiberCableMoc> fiberCableMocList = null;
@@ -278,6 +296,42 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
     }
 
     @Override
+    public List<EthernetSwitchDeviceMoc> getEthernetSwitchDevice(Token token, ManagedElement managedElement) {
+        String mocName = "EthernetSwitchDevice";
+        List<EthernetSwitchDeviceMoc> ethernetSwitchDeviceMocList = null;
+        EthernetSwitchDeviceMocTo ethernetSwitchDeviceMocTo = null;
+        String json = rawDataQuery(token, managedElement, mocName);
+        try {
+            ethernetSwitchDeviceMocTo = new Gson().fromJson(json, EthernetSwitchDeviceMocTo.class);
+        } catch (JsonSyntaxException e1) {
+            log.error(" >> error in sdrDeviceGroupMocTo parsing: {}", e1.toString());
+        }
+        if (ethernetSwitchDeviceMocTo != null) {
+            ethernetSwitchDeviceMocList = ethernetSwitchDeviceMocTo.getResult().get(0).getMoData();
+        }
+        log.info(" >> ethernetSwitchDeviceMocList: {}", ethernetSwitchDeviceMocList);
+        return ethernetSwitchDeviceMocList;
+    }
+
+    @Override
+    public List<IpLayerConfigMoc> getIpLayerConfigMoc(Token token, ManagedElement managedElement) {
+        String mocName = "IpLayerConfig";
+        List<IpLayerConfigMoc> ipLayerConfigList = null;
+        IpLayerConfigMocTo ipLayerConfigMocTo = null;
+        String json = rawDataQuery(token, managedElement, mocName);
+        try {
+            ipLayerConfigMocTo = new Gson().fromJson(json, IpLayerConfigMocTo.class);
+        } catch (JsonSyntaxException e1) {
+            log.error(" >> error in ipLayerConfigMocTo parsing: {}", e1.toString());
+        }
+        if (ipLayerConfigMocTo != null) {
+            ipLayerConfigList = ipLayerConfigMocTo.getResult().get(0).getMoData();
+        }
+        log.info(" >> ipLayerConfigList: {}", ipLayerConfigList);
+        return ipLayerConfigList;
+    }
+
+    @Override
     public List<ULocalCellMoc> getULocalCellMoc(Token token, ManagedElement managedElement) {
         String mocName = "ULocalCell";
         List<ULocalCellMoc> ULocalCellMocList = null;
@@ -296,6 +350,48 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         }
         log.info(" >> uLocalCellMocList: {}", ULocalCellMocList);
         return ULocalCellMocList;
+    }
+
+    @Override
+    public List<SDRGTrxMoc> getSDRGTrxMoc(Token token, ManagedElement managedElement) {
+        String mocName = "GTrx";
+        List<SDRGTrxMoc> sDRGTrxMocList = null;
+        SDRGTrxMocTo sDRGTrxMocTo = null;
+        String json = rawDataQuery(token, managedElement, mocName);
+        if (json != null) {
+            try {
+                sDRGTrxMocTo = new Gson().fromJson(json, SDRGTrxMocTo.class);
+            } catch (JsonSyntaxException e1) {
+                e1.printStackTrace();
+                log.error(" >> error in ULocalCellMocTo parsing: {}", e1.toString());
+            }
+        }
+        if (sDRGTrxMocTo != null) {
+            sDRGTrxMocList = sDRGTrxMocTo.getResult().get(0).getMoData();
+        }
+        log.info(" >> sDRGTrxMocList: {}", sDRGTrxMocList);
+        return sDRGTrxMocList;
+    }
+
+    @Override
+    public List<ITBBUGTrxMoc> getITBBUGTrxMoc(Token token, ManagedElement managedElement) {
+        String mocName = "GTrx";
+        List<ITBBUGTrxMoc> iTBBUTrxMocList = null;
+        ITBBUGTrxMocTo iTBBUGTrxMocTo = null;
+        String json = rawDataQuery(token, managedElement, mocName);
+        if (json != null) {
+            try {
+                iTBBUGTrxMocTo = new Gson().fromJson(json, ITBBUGTrxMocTo.class);
+            } catch (JsonSyntaxException e1) {
+                e1.printStackTrace();
+                log.error(" >> error in ULocalCellMocTo parsing: {}", e1.toString());
+            }
+        }
+        if (iTBBUGTrxMocTo != null) {
+            iTBBUTrxMocList = iTBBUGTrxMocTo.getResult().get(0).getMoData();
+        }
+        log.info(" >> iTBBUTrxMocList: {}", iTBBUTrxMocList);
+        return iTBBUTrxMocList;
     }
 
     @Override
@@ -933,6 +1029,23 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
                                 .neList(List.of(managedElement.getNe()))
                                 .mocList(List.of("ULocalCell"))
                                 .attrFilter(List.of(new CurrentMngBodySettings.AttrFilter("ULocalCell",
+                                        List.of("userLabel", "adminState", "operState", "cellRadius", "maxDlPwr", "localCellId", "availStatus"))))
+                                .build().getBodySettings()))
+                .uri(URI.create(GlobalUtil.GLOBAL_PATH + GlobalUtil.API_CURRENTAREA + GlobalUtil.CURRENTAREA_QUERY))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Content-Type", "application/json; charset=utf-8")
+                .header("accessToken", token.getAccessToken())
+                .build();
+    }
+
+    private HttpRequest getSimplifyITBBUGTrxByNeNameRequest(Token token, ManagedElement managedElement) {
+        return HttpRequest.newBuilder()
+                .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(
+                        CurrentMngBodySettings.builder()
+                                .ManagedElementType(managedElement.getManagedElementType().toString())
+                                .neList(List.of(managedElement.getNe()))
+                                .mocList(List.of("GTrx"))
+                                .attrFilter(List.of(new CurrentMngBodySettings.AttrFilter("GTrx",
                                         List.of("userLabel", "adminState", "operState", "cellRadius", "maxDlPwr", "localCellId", "availStatus"))))
                                 .build().getBodySettings()))
                 .uri(URI.create(GlobalUtil.GLOBAL_PATH + GlobalUtil.API_CURRENTAREA + GlobalUtil.CURRENTAREA_QUERY))

@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum QueryType {
+    GENERAL_INFO("General Info"),
     CELL_INFO("Cell Info"),
     VSWR("VSWR"),
     OPTIC_LEVELS("Optic Levels"),

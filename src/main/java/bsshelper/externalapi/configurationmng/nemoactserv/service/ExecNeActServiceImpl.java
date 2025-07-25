@@ -155,7 +155,6 @@ public class ExecNeActServiceImpl implements ExecNeActService {
     public List<OpticInfoFinal> opticInfoFinalITBBUDataQuery(Token token, ManagedElement managedElement, List<ReplaceableUnitMoc> replaceableUnitMocList) {
         if (replaceableUnitMocList.isEmpty()) {return null;}
         List<OpticInfoFinal> result = new ArrayList<>();
-
         for (ReplaceableUnitMoc unit : replaceableUnitMocList) {
             String ldn = unit.getLdn();
             if (unit.getSlotNo().isEmpty()) {
@@ -163,12 +162,14 @@ public class ExecNeActServiceImpl implements ExecNeActService {
                 continue;
             }
             if (unit.getLdn().contains("VBP")) {
-                result.addAll(OpticInfoFinal.toOpticInfoFinalForITBBU(unit.getMoId().replace("_1_", "(Slot") + ")",
+                String newName = unit.getMoId().replace("_1_", "(Slot") + ")";
+                result.addAll(OpticInfoFinal.toOpticInfoFinalForITBBU(newName.replace("VBP", unit.getName()),
                         getOpticInfoITBBUList(token, managedElement, ldn)));
                 continue;
             }
             if (unit.getLdn().contains("VSW")) {
-                result.addAll(OpticInfoFinal.toOpticInfoFinalForITBBU(unit.getMoId().replace("_1_", "(Slot") + ")",
+                String newName = unit.getMoId().replace("_1_", "(Slot") + ")";
+                result.addAll(OpticInfoFinal.toOpticInfoFinalForITBBU(newName.replace("VSW", unit.getName()),
                         getOpticInfoITBBUList(token, managedElement, ldn)));
             }
         }

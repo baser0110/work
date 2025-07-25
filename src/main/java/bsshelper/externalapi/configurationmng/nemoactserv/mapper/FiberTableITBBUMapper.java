@@ -13,27 +13,26 @@ public class FiberTableITBBUMapper {
 
     public static Map<String, List<String>> getFiberTableMap(List<RiCableMoc> riCableMocList, List<OpticInfoFinal> opticInfoFinalList) {
         if (riCableMocList == null) { return null; }
-        Map<String, String> connectinMap = getConnectionMap(riCableMocList);
+        Map<String, String> connectionMap = getConnectionMap(riCableMocList);
         Map<String, OpticInfoFinal> opticMap = getOpticMap(opticInfoFinalList);
         Map<String, List<String>> fiberTableMap = new TreeMap<>();
         for (Map.Entry<String, OpticInfoFinal> opt: opticMap.entrySet()) {
-            String name = opt.getValue().getPortName();
+            String originalName = opt.getValue().getPortName();
+            String name = originalName.replace(originalName.substring(3,5),"");
             if (name.contains("VBP")) {
-                String vbpName = name;
-                if (name.contains("EOF")) vbpName = name.replace("EOF", "ZZZ");
-                fiberTableMap.put(vbpName, new ArrayList<>(List.of(name, "Tx: " + (opt.getValue().getTxPwr() == null ? "n/a" : opt.getValue().getTxPwr())
+                fiberTableMap.put(originalName, new ArrayList<>(List.of(originalName, "Tx: " + (opt.getValue().getTxPwr() == null ? "n/a" : opt.getValue().getTxPwr())
                         + " / Rx: " + (opt.getValue().getRxPwr() == null ? "n/a" : opt.getValue().getRxPwr()))));
                 while (name != null) {
-                    if (connectinMap.containsKey(name)) {
-                        String nextName = connectinMap.get(name);
+                    if (connectionMap.containsKey(name)) {
+                        String nextName = connectionMap.get(name);
                         OpticInfoFinal nextValue = opticMap.get(nextName);
-                        fiberTableMap.get(vbpName).addAll(new ArrayList<>(List.of(":", " Rx: " + (nextValue.getRxPwr() == null ? "n/a" : nextValue.getRxPwr())
+                        fiberTableMap.get(originalName).addAll(new ArrayList<>(List.of(":", " Rx: " + (nextValue.getRxPwr() == null ? "n/a" : nextValue.getRxPwr())
                                 + " / Tx: " + (nextValue.getTxPwr() == null ? "n/a" : nextValue.getTxPwr()), nextName)));
                         nextName = nextName.replace(":1", ":2");
                         nextValue = opticMap.get(nextName);
-                        fiberTableMap.get(vbpName).addAll(new ArrayList<>(List.of(nextName, "Tx: " + (nextValue.getTxPwr() == null ? "n/a" : nextValue.getTxPwr())
+                        fiberTableMap.get(originalName).addAll(new ArrayList<>(List.of(nextName, "Tx: " + (nextValue.getTxPwr() == null ? "n/a" : nextValue.getTxPwr())
                                 + " / Rx: " + (nextValue.getRxPwr() == null ? "n/a" : nextValue.getRxPwr()))));
-                        if (connectinMap.containsKey(nextName)) {
+                        if (connectionMap.containsKey(nextName)) {
                             name = nextName;
                         } else name = null;
                     } else name = null;

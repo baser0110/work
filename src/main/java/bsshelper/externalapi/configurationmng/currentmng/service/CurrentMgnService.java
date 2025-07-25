@@ -19,11 +19,16 @@ public interface CurrentMgnService {
     List<DryContactDeviceMoc> getDryContactDeviceMoc (Token token, ManagedElement managedElement);
     List<DryContactCableMoc> getDryContactCableMoc(Token token, ManagedElement managedElement);
     List<SdrDeviceGroupMoc> getSdrDeviceGroupMoc(Token token, ManagedElement managedElement);
+    List<EthernetSwitchDeviceMoc> getEthernetSwitchDevice(Token token, ManagedElement managedElement);
+    List<IpLayerConfigMoc> getIpLayerConfigMoc(Token token, ManagedElement managedElement);
     List<FiberCableMoc> getFiberCableMoc(Token token, ManagedElement managedElement);
     List<RiCableMoc> getRiCableMoc(Token token, ManagedElement managedElement);
     List<ReplaceableUnitMoc> getReplaceableUnitMoc(Token token, ManagedElement managedElement);
+    List<IpMoc> getIpMoc(Token token, ManagedElement managedElement);
+    List<ITBBUGTrxMoc> getITBBUGTrxMoc(Token token, ManagedElement managedElement);
     List<ULocalCellMoc> getULocalCellMoc(Token token, ManagedElement managedElement);
     List<ITBBUULocalCellMoc> getITBBUULocalCellMoc(Token token, ManagedElement managedElement);
+    List<SDRGTrxMoc> getSDRGTrxMoc(Token token, ManagedElement managedElement);
     String simplifiedRawDataQuery(Token token, ManagedElement managedElement, String mocName, HttpRequest httpRequest);
     List<ULocalCellMocSimplified> getULocalCellMocSimplified(Token token, ManagedElement managedElement);
     List<UCellMocSimplified> getUCellMocSimplified(Token token, ManagedElement managedElement);

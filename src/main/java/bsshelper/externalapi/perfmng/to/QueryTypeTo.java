@@ -19,6 +19,7 @@ public class QueryTypeTo {
 
     public static List<QueryTypeTo> getDefaultQueryTypeSelectedList() {
         List<QueryTypeTo> result = new ArrayList<>();
+        result.add(new QueryTypeTo(false, QueryType.GENERAL_INFO.getInfo()));
         result.add(new QueryTypeTo(false, QueryType.CELL_INFO.getInfo()));
         result.add(new QueryTypeTo(false, QueryType.VSWR.getInfo()));
         result.add(new QueryTypeTo(false, QueryType.OPTIC_LEVELS.getInfo()));
