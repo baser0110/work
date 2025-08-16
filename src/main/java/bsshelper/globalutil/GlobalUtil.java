@@ -32,6 +32,10 @@ public class GlobalUtil {
     public static final String EXEC_NE_SERV_BOARD_DIAGNOSIS = "/moaction/diagnoseBoard";
     public static final String EXEC_NE_SERV_QUERY_OPT_ITBBU = "/moaction/queryOptAndElecInfo";
     public static final String EXEC_NE_SERV_QUERY_VSWR_ITBBU ="/moaction/queryFddRruVswr";
+    public static final String EXEC_NE_SERV_QUERY_CLOCK_STATUS_ITBBU ="/moaction/queryClockStatus";
+    public static final String EXEC_NE_SERV_QUERY_SYNCE_ITBBU ="/moaction/querySyncEInformation";
+    public static final String EXEC_NE_SERV_QUERY_1588_ITBBU ="/moaction/query1588ClockInformation";
+    public static final String EXEC_NE_SERV_QUERY_GNSS_ITBBU ="/moaction/queryInnerGNSSInformation";
 
     public static final String API_EXPRT_ACTIVE_ALARM = "/api/fm-active/v2/activealarms/openapi/export";
     public static final String API_QUER_ACTIVE_ALARM = "/api/fm-active/v1/north/openapi/v1/activealarms";

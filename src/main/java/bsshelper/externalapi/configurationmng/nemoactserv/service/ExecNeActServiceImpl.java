@@ -5,13 +5,12 @@ import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
 import bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.ReplaceableUnitMoc;
 import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.SdrDeviceGroupMoc;
 import bsshelper.externalapi.configurationmng.nemoactserv.entity.*;
-import bsshelper.externalapi.configurationmng.nemoactserv.to.DiagnosisRowTo;
-import bsshelper.externalapi.configurationmng.nemoactserv.to.OpticInfoITBBUTo;
-import bsshelper.externalapi.configurationmng.nemoactserv.to.VSWRTestITBBUTo;
+import bsshelper.externalapi.configurationmng.nemoactserv.to.*;
 import bsshelper.externalapi.configurationmng.nemoactserv.util.BoardDiagnosisBodySettings;
 import bsshelper.externalapi.configurationmng.nemoactserv.util.BoardDiagnosisITBBUBodySettings;
 import bsshelper.externalapi.configurationmng.nemoactserv.util.DiagnosisAction;
 import bsshelper.globalutil.GlobalUtil;
+import bsshelper.globalutil.ManagedElementType;
 import bsshelper.globalutil.Verb;
 import bsshelper.globalutil.entity.ErrorEntity;
 import bsshelper.exception.CustomNetworkConnectionException;
@@ -282,6 +281,147 @@ public class ExecNeActServiceImpl implements ExecNeActService {
         }
         return opticInfoITBBUList;
     }
+
+    private ClockStatusITBBU getClockStatusITBBU(Token token, ManagedElement managedElement) {
+        String ldn = "SupportFunction=1,ClockSyncConfig=1";
+        ClockStatusITBBUTo clockStatusITBBUTo = null;
+        String json = null;
+        ClockStatusITBBU clockStatusITBBU = null;
+        json = ITBBUDataQuery(token, managedElement, ldn,
+                GlobalUtil.EXEC_NE_SERV_QUERY_CLOCK_STATUS_ITBBU,
+                DiagnosisAction.CLOCK_STATUS_QUERY.getInfo());
+        if (json != null) {
+            try {
+                clockStatusITBBUTo = new Gson().fromJson(json, ClockStatusITBBUTo.class);
+            } catch (JsonSyntaxException e1) {
+                e1.printStackTrace();
+                log.error(" >> error in ClockStatusITBBUTo parsing: {}", e1.toString());
+            }
+            if (clockStatusITBBUTo != null) {
+                clockStatusITBBU = clockStatusITBBUTo.getOutput();
+            }
+        }
+        return clockStatusITBBU;
+    }
+
+    private ClockSyncEInformationITBBU getClockSyncEInformationITBBU(Token token, ManagedElement managedElement) {
+        String ldn = "SupportFunction=1,ClockSyncConfig=1,ClockSourceSyncE=1";
+        ClockSyncEInformationITBBUTo clockSyncEInformationITBBUTo = null;
+        String json = null;
+        ClockSyncEInformationITBBU clockSyncEInformationITBBU = null;
+        json = ITBBUDataQuery(token, managedElement, ldn,
+                GlobalUtil.EXEC_NE_SERV_QUERY_SYNCE_ITBBU,
+                DiagnosisAction.CLOCK_SYNCE_QUERY.getInfo());
+        if (json != null) {
+            try {
+                clockSyncEInformationITBBUTo = new Gson().fromJson(json, ClockSyncEInformationITBBUTo.class);
+            } catch (JsonSyntaxException e1) {
+                e1.printStackTrace();
+                log.error(" >> error in ClockSyncEInformationITBBUTo parsing: {}", e1.toString());
+            }
+            if (clockSyncEInformationITBBUTo != null) {
+                clockSyncEInformationITBBU = clockSyncEInformationITBBUTo.getOutput();
+            }
+        }
+        return clockSyncEInformationITBBU;
+    }
+
+    private Clock1588InformationITBBU getClock1588InformationITBBU(Token token, ManagedElement managedElement) {
+        String ldn = "SupportFunction=1,ClockSyncConfig=1,ClockSource1588=1";
+        Clock1588InformationITBBUTo clock1588InformationITBBUTo = null;
+        String json = null;
+        Clock1588InformationITBBU clock1588InformationITBBU = null;
+        json = ITBBUDataQuery(token, managedElement, ldn,
+                GlobalUtil.EXEC_NE_SERV_QUERY_1588_ITBBU,
+                DiagnosisAction.CLOCK_1588_INFORMATION_QUERY.getInfo());
+        if (json != null) {
+            try {
+                clock1588InformationITBBUTo = new Gson().fromJson(json, Clock1588InformationITBBUTo.class);
+            } catch (JsonSyntaxException e1) {
+                e1.printStackTrace();
+                log.error(" >> error in Clock1588InformationITBBUTo parsing: {}", e1.toString());
+            }
+            if (clock1588InformationITBBUTo != null) {
+                clock1588InformationITBBU = clock1588InformationITBBUTo.getOutput();
+            }
+        }
+        return clock1588InformationITBBU;
+    }
+
+    private ClockGNSSInformationITBBU getClockGNSSInformationITBBU(Token token, ManagedElement managedElement) {
+        String ldn = "SupportFunction=1,ClockSyncConfig=1,ClockSourceGnss=1";
+        ClockGNSSInformationITBBUTo clockGNSSInformationITBBUTo = null;
+        String json = null;
+        ClockGNSSInformationITBBU clockGNSSInformationITBBU = null;
+        json = ITBBUDataQuery(token, managedElement, ldn,
+                GlobalUtil.EXEC_NE_SERV_QUERY_GNSS_ITBBU,
+                DiagnosisAction.CLOCK_GNSS_INFORMATION_QUERY.getInfo());
+        if (json != null) {
+            try {
+                clockGNSSInformationITBBUTo = new Gson().fromJson(json, ClockGNSSInformationITBBUTo.class);
+            } catch (JsonSyntaxException e1) {
+                e1.printStackTrace();
+                log.error(" >> error in ClockGNSSInformationITBBUTo parsing: {}", e1.toString());
+            }
+            if (clockGNSSInformationITBBUTo != null) {
+                clockGNSSInformationITBBU = clockGNSSInformationITBBUTo.getOutput();
+            }
+        }
+        return clockGNSSInformationITBBU;
+    }
+
+    @Override
+    public List<SyncFinal> getSync(Token token, ManagedElement managedElement, List<SdrDeviceGroupMoc> sdrDeviceGroupMocList) {
+        if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
+            String ldn = null;
+            for (SdrDeviceGroupMoc dev : sdrDeviceGroupMocList) {
+                if (dev.getProductData_productName().equals("CCC")) {
+                    ldn = dev.getLdn();
+                    break;
+                }
+            }
+            return getSyncSDR(token, managedElement, ldn);
+        }
+        if (managedElement.getManagedElementType().equals(ManagedElementType.ITBBU)) {
+            return getSyncITBBU(token, managedElement);
+        }
+        return null;
+    }
+
+    public List<SyncFinal> getSyncSDR(Token token, ManagedElement managedElement, String ldn) {
+        List<DiagnosisRow> result = new ArrayList<>();
+        List<DiagnosisAction> query = List.of(
+                DiagnosisAction.CLOCK_STATUS_QUERY,
+                DiagnosisAction.CLOCK_1588_INFORMATION_QUERY,
+                DiagnosisAction.CLOCK_SYNCE_QUERY);
+        for (DiagnosisAction qr : query) {
+            List<DiagnosisRow> diagnosisRowList = null;
+            DiagnosisRowTo diagnosisRowTo = null;
+            String json = diagnosisSDRDataQuery(token, managedElement, ldn, qr);
+            if (json != null) {
+                try {
+                    diagnosisRowTo = new Gson().fromJson(json, DiagnosisRowTo.class);
+                } catch (JsonSyntaxException e1) {
+                    e1.printStackTrace();
+                    log.error(" >> error in DiagnosisRowTo parsing: {}", e1.toString());
+                }
+                diagnosisRowList = diagnosisRowTo.getOutput().getResultInfo();
+            }
+            if (diagnosisRowList != null) {
+                result.addAll(diagnosisRowList);
+            }
+        }
+        return SyncFinal.toSyncFinalSDR(result);
+    }
+
+    public List<SyncFinal> getSyncITBBU(Token token, ManagedElement managedElement) {
+        return SyncFinal.toSyncFinalITBBU(
+                getClockStatusITBBU(token, managedElement),
+                getClockSyncEInformationITBBU(token, managedElement),
+                getClock1588InformationITBBU(token, managedElement),
+                getClockGNSSInformationITBBU(token, managedElement));
+    }
+
 
     private Map<String, List<String>> getLdnMap(List<SdrDeviceGroupMoc> sdrDeviceGroupMocList) {
         Map<String, List<String>> map = new HashMap<>();

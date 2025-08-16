@@ -35,7 +35,7 @@ public class OpticInfoFinal {
                 result.add(new OpticInfoFinal(name + ":EOF", "n/a", "n/a"));
                 return result;
             }
-            if (name.contains("VBPc7")) {
+            if (name.contains("VBPc7") || name.contains("VBPc0")) {
                 result.add(new OpticInfoFinal(name + ":OF1", "n/a", "n/a"));
                 result.add(new OpticInfoFinal(name + ":OF2", "n/a", "n/a"));
                 result.add(new OpticInfoFinal(name + ":OF3", "n/a", "n/a"));

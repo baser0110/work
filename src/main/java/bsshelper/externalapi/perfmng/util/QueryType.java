@@ -8,7 +8,7 @@ public enum QueryType {
     CELL_INFO("Cell Info"),
     VSWR("VSWR"),
     OPTIC_LEVELS("Optic Levels"),
-//    SYNCHRONIZATION("Sync"),
+    SYNC("Sync"),
     CUSTOM_HISTORY("Custom History");
 
     private final String info;

@@ -23,7 +23,7 @@ public class QueryTypeTo {
         result.add(new QueryTypeTo(false, QueryType.CELL_INFO.getInfo()));
         result.add(new QueryTypeTo(false, QueryType.VSWR.getInfo()));
         result.add(new QueryTypeTo(false, QueryType.OPTIC_LEVELS.getInfo()));
-//        result.add(new QueryTypeTo(false, QueryType.SYNCHRONIZATION.getInfo()));
+        result.add(new QueryTypeTo(false, QueryType.SYNC.getInfo()));
         result.add(new QueryTypeTo(false, QueryType.CUSTOM_HISTORY.getInfo()));
         return result;
     }

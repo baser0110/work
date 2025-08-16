@@ -13,12 +13,13 @@ public class InventoryEntityMapper {
         if (inventoryEntityList.get(0).getNetype().equals(ManagedElementType.SDR.toString())) {
             for (InventoryEntity inv : inventoryEntityList) {
                 String position = inv.getUnitposition();
+                String unitType = inv.getInventoryunittype();
                 if (position.contains("rack=1,shelf=1,slot=")) {
                     result.put(position.replace("rack=1,shelf=1,slot=", "Slot"),
                             inv.getVendorunittypename() + " (" + inv.getSerialnumber() + ")");
                     continue;
                 }
-                if (!position.contains("rack=1") && !position.contains(",aisgid=")) {
+                if (unitType.equals("RRU")) {
                     result.put(position.replace("rack=", "").replace(",shelf=1,slot=1", ""),
                             inv.getVendorunittypename() + " (" + inv.getSerialnumber() + ")");
                 }

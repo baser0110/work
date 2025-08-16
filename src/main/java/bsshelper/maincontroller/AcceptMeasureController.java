@@ -59,7 +59,7 @@ public class AcceptMeasureController {
         String id = session.getId();
         setMessage(id, model);
         model.addAttribute("managedElement", null);
-        model.addAttribute("isSelected", new ArrayList<>(List.of(false,false,false,false,false)));
+        model.addAttribute("isSelected", new ArrayList<>(List.of(false,false,false,false,false,false)));
         model.addAttribute("title", "Acceptance Measurement");
         model.addAttribute("repoQueryType", new QueryTypeToWrapper(QueryTypeTo.getDefaultQueryTypeSelectedList()));
         model.addAttribute("searchCache", searchCacheService.getList());
@@ -94,6 +94,7 @@ public class AcceptMeasureController {
         }
 
         // GENERAL INFO
+
         List<SdrDeviceGroupMoc> sdrDeviceGroupMocList = null;
         List<ReplaceableUnitMoc> replaceableUnitMocList = null;
 
@@ -161,6 +162,17 @@ public class AcceptMeasureController {
             isSelected.add(QueryType.OPTIC_LEVELS.getInfo());
         }
 
+        // SYNC
+        SyncWrapper syncWrapper = null;
+
+        if (measurementQuerySet.contains(QueryType.SYNC.getInfo())) {
+            if (sdrDeviceGroupMocList == null && managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
+                sdrDeviceGroupMocList = setSdrDeviceGroupList(managedElement);
+            }
+            syncWrapper = new SyncWrapper(execNeActService.getSync(tokenService.getToken(), managedElement, sdrDeviceGroupMocList));
+            isSelected.add(QueryType.SYNC.getInfo());
+        }
+
         // CHARTS
         CellSelectedToWrapper cellSelectedToWrapper = null;
         KPISelectedToWrapper kpiSelectedToWrapper = null;
@@ -181,6 +193,7 @@ public class AcceptMeasureController {
         model.addAttribute("repoQueryType", new QueryTypeToWrapper(QueryTypeTo.getDefaultQueryTypeSelectedList()));
         model.addAttribute("repoGeneral", infoGeneral);
         model.addAttribute("repoCell", cellSelectedToWrapper);
+        model.addAttribute("repoSync", syncWrapper);
         model.addAttribute("repoKPI", kpiSelectedToWrapper);
         model.addAttribute("repoOptic", fiberTableWrapper);
         model.addAttribute("repoGSMCodes", infoCodesGSMWrapper);

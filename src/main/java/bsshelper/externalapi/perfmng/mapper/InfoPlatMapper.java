@@ -159,7 +159,7 @@ public class InfoPlatMapper {
         if (bp.equals("VBPc1")) {
             switch (Integer.parseInt(mode)) {
                 case 514 -> {return List.of(36,0,0);}
-                case 256 -> {return List.of(0,24,0);}
+                case 257 -> {return List.of(0,24,0);}
                 case 16385 -> {return List.of(0,0,36);}
                 case 1049344 -> {return List.of(36,24,0);}
                 case 16901 -> {return List.of(18,0,30);}

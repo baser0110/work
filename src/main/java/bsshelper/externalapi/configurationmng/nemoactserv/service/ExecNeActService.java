@@ -5,6 +5,7 @@ import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
 import bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.ReplaceableUnitMoc;
 import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.SdrDeviceGroupMoc;
 import bsshelper.externalapi.configurationmng.nemoactserv.entity.OpticInfoFinal;
+import bsshelper.externalapi.configurationmng.nemoactserv.entity.SyncFinal;
 import bsshelper.externalapi.configurationmng.nemoactserv.entity.VSWRTestFinal;
 import bsshelper.externalapi.configurationmng.nemoactserv.util.DiagnosisAction;
 
@@ -17,4 +18,5 @@ public interface ExecNeActService {
     String ITBBUDataQuery(Token token, ManagedElement managedElement, String ldn, String query, String description);
     List<OpticInfoFinal> opticInfoFinalITBBUDataQuery(Token token, ManagedElement managedElement, List<ReplaceableUnitMoc> replaceableUnitMocList);
     List<VSWRTestFinal> vswrTestFinalITBBUDataQuery(Token token, ManagedElement managedElement, List<ReplaceableUnitMoc> replaceableUnitMocList);
+    List<SyncFinal> getSync(Token token, ManagedElement managedElement, List<SdrDeviceGroupMoc> sdrDeviceGroupMocList);
 }

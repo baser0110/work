@@ -611,9 +611,29 @@
                     </div>
                 </div>
             </div>
+
             <div th:if="${isSelected.contains('Sync')}">
-                <h2>Sync (Coming soon...)</h2>
+                <h2>Synchronization</h2>
+                <div th:if="${repoSync.getDataSync() != null}">
+                    <table th:object="${repoSync}" id="Sync-table" border="1" class="table table-striped table-sm table-bordered">
+                        <thead>
+                        <tr>
+                            <th class="pl-4">Function</th>
+                            <th class="pl-4">Element</th>
+                            <th class="pl-4">Result</th>
+                        </tr>
+                        </thead>
+                        <tbody th:if="${!repoSync.getDataSync().isEmpty()}">
+                        <tr th:each="object: *{dataSync}">
+                            <td class="pl-3" style="font-size: smaller" th:text="${object.getQuery()}"></td>
+                            <td class="pl-3" style="font-size: smaller" th:text="${object.getElement()}"></td>
+                            <td class="pl-3" style="font-size: smaller" th:text="${object.getResult()}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
             <div th:if="${isSelected.contains('Custom History')}">
                 <h2>History Query</h2>
                 <form id="getCustom" method="post" target="_blank" onsubmit="getCustomChart()">
