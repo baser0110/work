@@ -64,7 +64,8 @@ public class OpticInfoFinal {
         DiagnosisRow first = infoList.get(0);
         String pos = first.getPosition();
         String name = "RU" + pos.substring(pos.lastIndexOf("(") + 1, pos.lastIndexOf(")") - 4);
-        if (first.getResult().equals("Board communication link is interrupted.")) {
+        if (first.getResult().equals("Board communication link is interrupted.") ||
+                first.getResult().equals("The specified board does not support this test.")) {
             result.add(new OpticInfoFinal(name + ":1", "n/a", "n/a"));
             result.add(new OpticInfoFinal(name + ":2", "n/a", "n/a"));
             return result;
@@ -78,7 +79,8 @@ public class OpticInfoFinal {
         DiagnosisRow first = infoList.get(0);
         String pos = first.getPosition();
         String name = pos.replace("1.1.", "Slot");
-        if (first.getResult().equals("Board communication link is interrupted.")) {
+        if (first.getResult().equals("Board communication link is interrupted.") ||
+                first.getResult().equals("The specified board does not support this test.")) {
             result.add(new OpticInfoFinal(name + ":OF0", "n/a", "n/a"));
             result.add(new OpticInfoFinal(name + ":OF1", "n/a", "n/a"));
             result.add(new OpticInfoFinal(name + ":OF2", "n/a", "n/a"));
@@ -96,7 +98,8 @@ public class OpticInfoFinal {
         DiagnosisRow first = infoList.get(0);
         String pos = first.getPosition();
         String name = pos.replace("1.1.", "Slot");
-        if (first.getResult().equals("Board communication link is interrupted.")) {
+        if (first.getResult().equals("Board communication link is interrupted.") ||
+                first.getResult().equals("The specified board does not support this test.")) {
             result.add(new OpticInfoFinal(name + ":ETH0", "n/a", "n/a"));
             return result;
         }
@@ -109,7 +112,8 @@ public class OpticInfoFinal {
         DiagnosisRow first = infoList.get(0);
         String pos = first.getPosition();
         String name = pos.replace("1.1.", "Slot");
-        if (first.getResult().equals("Board communication link is interrupted.")) {
+        if (first.getResult().equals("Board communication link is interrupted.") ||
+                first.getResult().equals("The specified board does not support this test.")) {
             result.add(new OpticInfoFinal(name + ":X4/UPLINK", "n/a", "n/a"));
             result.add(new OpticInfoFinal(name + ":UPLINK", "n/a", "n/a"));
             return result;
@@ -124,7 +128,8 @@ public class OpticInfoFinal {
         DiagnosisRow first = infoList.get(0);
         String pos = first.getPosition();
         String name = pos.replace("1.1.", "Slot");
-        if (first.getResult().equals("Board communication link is interrupted.")) {
+        if (first.getResult().equals("Board communication link is interrupted.") ||
+                first.getResult().equals("The specified board does not support this test.")) {
             result.add(new OpticInfoFinal(name + ":OF0", "n/a", "n/a"));
             result.add(new OpticInfoFinal(name + ":OF1", "n/a", "n/a"));
             result.add(new OpticInfoFinal(name + ":OF2", "n/a", "n/a"));

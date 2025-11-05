@@ -632,6 +632,9 @@
                         </tbody>
                     </table>
                 </div>
+                <div th:if="${repoSync.getDataSync() == null}">
+                    <h5>Sync info couldn't be found, please, check the site status!</h5>
+                </div>
             </div>
 
             <div th:if="${isSelected.contains('Custom History')}">

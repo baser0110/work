@@ -55,6 +55,8 @@
     let charts = []
 
     function createChart(containerId, data, title) {
+        const timeZoneOffset = new Date().getTimezoneOffset();
+
         const chart = anychart.column3d();
         chart.container(containerId);
 
@@ -81,7 +83,7 @@
 
         chart.title(title);
         chart.xAxis().labels().rotation(-45).format(function () {
-            return anychart.format.dateTime(this.value, "MM.dd HH:mm")
+            return anychart.format.dateTime(this.value, "MM.dd HH:mm", timeZoneOffset)
         });
         // chart.yAxis().title("%");
         chart.yAxis().labels().format("{%value}%")

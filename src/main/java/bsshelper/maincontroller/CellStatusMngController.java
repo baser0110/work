@@ -1,6 +1,8 @@
 package bsshelper.maincontroller;
 
+import bsshelper.externalapi.alarmmng.activealarm.entity.AlarmEntity;
 import bsshelper.externalapi.alarmmng.activealarm.service.ActiveAlarmService;
+import bsshelper.externalapi.alarmmng.activealarm.util.Comments;
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
 import bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.ITBBUULocalCellMocSimplified;
 import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.UCellMocSimplified;
@@ -33,6 +35,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Controller
@@ -131,6 +137,7 @@ public class CellStatusMngController {
         model.addAttribute("repoNBIoT", eUtranCellNBIoTMocListWrapper);
         model.addAttribute("repoGSM", gCellStatusListWrapper);
         model.addAttribute("title", "Cell Status Manager (Single NE)");
+        model.addAttribute("comments", Comments.values());
         model.addAttribute("searchCache", searchCacheService.getList());
         return "cellstatus";
     }
@@ -140,6 +147,7 @@ public class CellStatusMngController {
                                    @ModelAttribute("repoNBIoT") EUtranCellNBIoTStatusListWrapper repoNBIoT, Integer operationNBIoT,
                                    @ModelAttribute("repoGSM") GCellStatusListWrapper repoGSM, Integer operationGSM,
                                    @ModelAttribute("userLabel") String userLabel,
+                                   @ModelAttribute("comment") String comment,
                                    Model model, HttpSession session, Authentication authentication) {
         String id = session.getId();
         setMessage(id, model);
@@ -161,7 +169,7 @@ public class CellStatusMngController {
             execResult = oneOperationWithResponse(localCacheService.managedElementMap.get(userLabel),
                     repoUMTS.getExtensionData(), operationUMTS,
                     repoNBIoT.getExtensionData(), operationNBIoT,
-                    repoGSM.getDataGSM(), operationGSM);
+                    repoGSM.getDataGSM(), operationGSM, comment);
             if (execResult.equals("SUCCEEDED")) {
                 localCacheService.messageMap.put(id, new MessageEntity(Severity.SUCCESS, "Script execution result: " + execResult));
             } else {
@@ -181,11 +189,18 @@ public class CellStatusMngController {
     private String operate(ManagedElement managedElement,
                            List<CellStatus> UMTSData, Integer UMTSCellOperation,
                            List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
-                           List<GCellStatus> GSMData, Integer GSMCellOperation) {
+                           List<GCellStatus> GSMData, Integer GSMCellOperation,
+                           String comment) {
         StringFileEntity file = BatchFileBuilder.buildAllData(managedElement,
                 UMTSData, UMTSCellOperation,
                 NBIoTData, NBIoTCellOperation,
                 GSMData, GSMCellOperation);
+        if (!comment.isBlank())
+            setCommentForAlarmsScheduler(managedElement,
+                UMTSData,UMTSCellOperation,
+                NBIoTData,NBIoTCellOperation,
+                GSMData,GSMCellOperation,
+                comment);
 
 //        System.out.println(file.getFile());
 
@@ -197,10 +212,10 @@ public class CellStatusMngController {
     private String oneOperationWithResponse(ManagedElement managedElement,
                                             List<CellStatus> UMTSData, Integer UMTSCellOperation,
                                             List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
-                                            List<GCellStatus> GSMData, Integer GSMCellOperation) {
+                                            List<GCellStatus> GSMData, Integer GSMCellOperation, String comment) {
         int tryings = 10;
         int response = -1;
-        String execId = operate(managedElement, UMTSData, UMTSCellOperation, NBIoTData, NBIoTCellOperation, GSMData, GSMCellOperation);
+        String execId = operate(managedElement, UMTSData, UMTSCellOperation, NBIoTData, NBIoTCellOperation, GSMData, GSMCellOperation, comment);
         try {
             while ((response == -1 || response == 2) && tryings > 0) {
                 Thread.sleep(5000);
@@ -289,4 +304,86 @@ public class CellStatusMngController {
             default -> "Unknown";
         };
     }
+
+    private void setCommentForAlarmsScheduler(ManagedElement managedElement,
+                                              List<CellStatus> UMTSData, Integer UMTSCellOperation,
+                                              List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
+                                              List<GCellStatus> GSMData, Integer GSMCellOperation,
+                                              String comment) {
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.schedule( () -> {
+            try {
+                setCommentForAlarms(managedElement,
+                        UMTSData, UMTSCellOperation,
+                        NBIoTData, NBIoTCellOperation,
+                        GSMData, GSMCellOperation,
+                        comment);
+            } catch (Exception e) {
+                log.error(" >> error in alarmCommentProcess: {}", e.toString());
+            }
+        }, 60, TimeUnit.SECONDS);
+    }
+
+    private void setCommentForAlarms(ManagedElement managedElement,
+                                     List<CellStatus> UMTSData, Integer UMTSCellOperation,
+                                     List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
+                                     List<GCellStatus> GSMData, Integer GSMCellOperation,
+                                     String comment) {
+        Set<String> expectedNBIoTCells = new HashSet<>();
+        Set<String> expectedGSMCells = new HashSet<>();
+        Set<String> expectedUMTSCells = new HashSet<>();
+        List<String> ids = new ArrayList<>();
+
+        if (NBIoTCellOperation != null && NBIoTCellOperation == 1) {
+            for (CellStatus cell : NBIoTData) {
+                if (cell.isSelected()) expectedNBIoTCells.add(cell.getUserLabel());
+            }
+            if (!expectedNBIoTCells.isEmpty()) {
+                List<AlarmEntity> site = activeAlarmService.alarmDataExport(tokenService.getToken(),
+                        activeAlarmService.getActiveAlarmBySDRSite(tokenService.getToken(), managedElement), managedElement);
+                if (site != null && !site.isEmpty()) {
+                    for (AlarmEntity alm : site) {
+                        if (expectedNBIoTCells.contains(alm.getRan_fm_alarm_object_name().getDisplayname()))
+                            ids.add(alm.getId());
+                    }
+                }
+            }
+        }
+        if (GSMCellOperation != null && GSMCellOperation == 1) {
+            for (GCellStatus cell : GSMData) {
+                if (cell.isSelected()) expectedGSMCells.add(cell.getUserLabel());
+            }
+            if (!expectedGSMCells.isEmpty()) {
+                List<AlarmEntity> bsc = activeAlarmService.alarmDataExport(tokenService.getToken(),
+                        activeAlarmService.getActiveAlarmByBSC(tokenService.getToken(), managedElement), managedElement);
+                if (bsc != null && !bsc.isEmpty()) {
+                    for (AlarmEntity alm : bsc) {
+                        if (expectedGSMCells.contains(alm.getRan_fm_alarm_object_name().getDisplayname()))
+                            ids.add(alm.getId());
+                    }
+                }
+            }
+        }
+        if (UMTSCellOperation != null && (UMTSCellOperation == 1 || UMTSCellOperation == 2)) {
+            for (CellStatus cell : UMTSData) {
+                if (cell.isSelected()) expectedUMTSCells.add(cell.getUserLabel());
+            }
+            if (!expectedUMTSCells.isEmpty()) {
+                List<AlarmEntity> rnc = activeAlarmService.alarmDataExport(tokenService.getToken(),
+                        activeAlarmService.getActiveAlarmByRNC(tokenService.getToken(), managedElement), managedElement);
+                if (rnc != null && !rnc.isEmpty()) {
+                    for (AlarmEntity alm : rnc) {
+                        if (expectedUMTSCells.contains(alm.getRan_fm_alarm_object_name().getDisplayname()))
+                            ids.add(alm.getId());
+                    }
+                }
+            }
+        }
+
+        if (!ids.isEmpty()) {
+            activeAlarmService.setAlarmComment(tokenService.getToken(),
+                    activeAlarmService.setAlarmCommentRequest(tokenService.getToken(), ids, comment), managedElement);
+        }
+    }
+
 }

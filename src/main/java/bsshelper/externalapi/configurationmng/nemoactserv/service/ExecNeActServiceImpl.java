@@ -372,6 +372,7 @@ public class ExecNeActServiceImpl implements ExecNeActService {
 
     @Override
     public List<SyncFinal> getSync(Token token, ManagedElement managedElement, List<SdrDeviceGroupMoc> sdrDeviceGroupMocList) {
+        if (sdrDeviceGroupMocList == null) return null;
         if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
             String ldn = null;
             for (SdrDeviceGroupMoc dev : sdrDeviceGroupMocList) {

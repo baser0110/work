@@ -35,7 +35,7 @@ public class SyncFinal {
                             syncTypeName(staus.getCurrentActiveReferenceClock())));
             result.add(new SyncFinal("Clock Status Query", "Control status of the current reference source",
                     staus.getControllingStatus() == null ? "N/A" :
-                            staus.getControllingStatus().equals("2") ? "Control status of the current reference source" :
+                            staus.getControllingStatus().equals("2") ? "Locked" :
                                     staus.getControllingStatus()));
             result.add(new SyncFinal("Clock Status Query", "Active/standby status of the clock module",
                     staus.getClockModuleStatus() == null ? "N/A" :

@@ -114,12 +114,20 @@
     <div th:if="${managedElement != null}">
         <form sec:authorize="hasAuthority('CELL_STAT_MNG_SINGLE_FULL')" action="#" th:action="@{/helper/cellStatus/changeStatus}" method="post">
             <fieldset>
-                <legend>
+                <legend style="gap:5px;">
                     <span class="legend-title" th:text="${managedElement.userLabel} + ' (' + ${managedElement.ManagedElementType} + ') '
-                        + ${managedElement.getParsedNe()}" > </span>
+                        + ${managedElement.getParsedNe()}"></span>
                     <input type="hidden" name="userLabel" th:value="${managedElement.userLabel}">
+                    <input style="width: 400px; height: 30px; font-size: 15px;"
+                            type="text" id="comment" name="comment" th:value="${comment}" placeholder="Enter comment information for blocking cells" list="comment-list">
+                    <datalist id="comment-list">
+                        <th:block th:each="query : ${comments}">
+                            <option th:value="${query}"></option>
+                        </th:block>
+                    </datalist>
                     <button type="submit" class="btn btn-danger legend-button">! Change status</button>
                 </legend>
+
                 <div th:if="${repoUMTS.getDataUMTS() != null}" class="row">
                     <div style="position: relative;" class="col-md-8">
                         <table th:object="${repoUMTS}" id="UMTS-table" border="1"

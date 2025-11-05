@@ -10,6 +10,10 @@ import java.util.Set;
 
 public interface ActiveAlarmService {
     List<AlarmEntity> alarmDataExport(Token token, HttpRequest httpRequest, ManagedElement managedElement);
+    void setAlarmComment(Token token, HttpRequest httpRequest, ManagedElement managedElement);
     HttpRequest getActiveAlarmByBSC(Token token, ManagedElement managedElement);
+    HttpRequest getActiveAlarmByRNC(Token token, ManagedElement managedElement);
+    HttpRequest getActiveAlarmBySDRSite(Token token, ManagedElement managedElement);
     Set<String> getHasAlarmSetByMEonBSC (Token token, ManagedElement managedElement);
+    HttpRequest setAlarmCommentRequest(Token token, List<String> ids, String comment);
 }

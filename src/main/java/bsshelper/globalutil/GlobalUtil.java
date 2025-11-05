@@ -38,6 +38,7 @@ public class GlobalUtil {
     public static final String EXEC_NE_SERV_QUERY_GNSS_ITBBU ="/moaction/queryInnerGNSSInformation";
 
     public static final String API_EXPRT_ACTIVE_ALARM = "/api/fm-active/v2/activealarms/openapi/export";
+    public static final String API_COMMENT_ALARM = "/api/fm-active/v2/activealarms/openapi/comment";
     public static final String API_QUER_ACTIVE_ALARM = "/api/fm-active/v1/north/openapi/v1/activealarms";
 
     public static final String API_QUER_HW_INVENTORY = "/api/ranim/v1/inventorys/hw/query";
