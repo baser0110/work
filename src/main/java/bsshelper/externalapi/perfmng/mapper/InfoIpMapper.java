@@ -16,6 +16,7 @@ public class InfoIpMapper {
                 case 2 -> tech = "UMTS";
                 case 3 -> tech = "NBIoT";
                 case 4 -> tech = "OAM";
+                case 5 -> tech = "LTE";
             }
         return new InfoGeneral.InfoIp(
                 tech,
@@ -44,6 +45,7 @@ public class InfoIpMapper {
             case 2 -> tech = "GSM";
             case 3 -> tech = "UMTS";
             case 4 -> tech = "NBIoT";
+            case 5 -> tech = "LTE";
         }
         return new InfoGeneral.InfoIp(
                 tech,

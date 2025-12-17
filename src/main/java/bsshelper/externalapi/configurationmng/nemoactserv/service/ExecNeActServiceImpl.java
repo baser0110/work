@@ -125,7 +125,13 @@ public class ExecNeActServiceImpl implements ExecNeActService {
                 }
                 if (error != null) {
                     log.error(" >> error {} code({})", error.getMessage(), error.getCode());
+                } else {
+                    if (action.equals(DiagnosisAction.OPTICAL_ELECTRIC_INTERFACE_STATUS_TEST)) {
+                        System.out.println("!!!!!!!! NEW UNDEFINED ERROR BODY FOR OPTIC: " + response); //SOUT
+                        return response;
+                    }
                 }
+                System.out.println("!!!!!!!! NEW UNDEFINED ERROR BODY: " + response); //SOUT
                 response = null;
             }
         } catch (IOException | InterruptedException e) {
@@ -372,6 +378,9 @@ public class ExecNeActServiceImpl implements ExecNeActService {
 
     @Override
     public List<SyncFinal> getSync(Token token, ManagedElement managedElement, List<SdrDeviceGroupMoc> sdrDeviceGroupMocList) {
+        if (managedElement.getManagedElementType().equals(ManagedElementType.ITBBU)) {
+            return getSyncITBBU(token, managedElement);
+        }
         if (sdrDeviceGroupMocList == null) return null;
         if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
             String ldn = null;
@@ -382,9 +391,6 @@ public class ExecNeActServiceImpl implements ExecNeActService {
                 }
             }
             return getSyncSDR(token, managedElement, ldn);
-        }
-        if (managedElement.getManagedElementType().equals(ManagedElementType.ITBBU)) {
-            return getSyncITBBU(token, managedElement);
         }
         return null;
     }

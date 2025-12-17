@@ -26,6 +26,8 @@ public interface LocalCacheService {
     ConcurrentHashMap<String, CurrentMgnServiceImpl.CellInfo> umtsITBBUMap = new ConcurrentHashMap<>();
     ConcurrentHashMap<String, CurrentMgnServiceImpl.CellInfo> nbiotSDRMap = new ConcurrentHashMap<>();
     ConcurrentHashMap<String, CurrentMgnServiceImpl.CellInfo> nbiotITBBUMap = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, CurrentMgnServiceImpl.CellInfo> lteFDDSDRMap = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, CurrentMgnServiceImpl.CellInfo> lteFDDITBBUMap = new ConcurrentHashMap<>();
     ConcurrentHashMap<String, String> meByNEMap = new ConcurrentHashMap<>();
 
     Map<String, DomainStat> packetLostCache = Collections.synchronizedMap(new LinkedHashMap<>());

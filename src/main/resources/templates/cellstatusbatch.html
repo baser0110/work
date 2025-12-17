@@ -50,21 +50,26 @@
             const pass = document.getElementById("pass").value;
             const area1 = document.getElementById("umts").value.trim();
             const area2 = document.getElementById("gsm").value.trim();
-            const area3 = document.getElementById("nbiot").value.trim();
+            const area3 = document.getElementById("lteFDD").value.trim();
+            const area4 = document.getElementById("nbiot").value.trim();
             const opr1 = document.querySelector('input[name="operationUMTS"]:checked');
             const opr2 = document.querySelector('input[name="operationGSM"]:checked');
-            const opr3 = document.querySelector('input[name="operationNBIoT"]:checked');
-            if (opr1.value === '0' && opr2.value === '0' && opr3.value === '0') {
+            const opr3 = document.querySelector('input[name="operationLTEFDD"]:checked');
+            const opr4 = document.querySelector('input[name="operationNBIoT"]:checked');
+            if (opr1.value === '0' && opr2.value === '0' && opr3.value === '0' && opr4.value === '0') {
                 event.preventDefault();
                 alert('No any operation selected!')
                 return;
             }
-            if (area1 === "" && area2 === "" && area3 === "") {
+            if (area1 === "" && area2 === "" && area3 === "" && area4 === "") {
                 event.preventDefault();
                 alert('No data to execute!')
                 return;
             }
-            if ((area1 === "" || opr1.value === '0') && (area2 === "" || opr2.value === '0') && (area3 === "" || opr3.value === '0')) {
+            if ((area1 === "" || opr1.value === '0') &&
+                (area2 === "" || opr2.value === '0') &&
+                (area3 === "" || opr3.value === '0') &&
+                (area4 === "" || opr4.value === '0')) {
                 event.preventDefault();
                 alert('No pair data-operation found!')
                 return;
@@ -82,8 +87,9 @@
         check.addEventListener('click', function (event) {
             const area1 = document.getElementById("umts").value.trim();
             const area2 = document.getElementById("gsm").value.trim();
-            const area3 = document.getElementById("nbiot").value.trim();
-            if (area1 === "" && area2 === "" && area3 === "") {
+            const area3 = document.getElementById("lteFDD").value.trim();
+            const area4 = document.getElementById("nbiot").value.trim();
+            if (area1 === "" && area2 === "" && area3 === "" && area4 === "") {
                 event.preventDefault();
                 alert('No data to check!')
             }
@@ -207,6 +213,45 @@
             </table>
         </div>
     </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <table border="1" class="table table-striped table-sm table-bordered">
+                    <thead>
+                    <tr>
+                        <th class="pl-5">LTEFDD cells</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            <label for="lteFDD"></label><textarea id="lteFDD" name="lteFDD" rows="7" class="col-md-12"></textarea>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-4">
+                <table border="1" class="table table-striped table-sm table-bordered">
+                    <thead>
+                    <tr>
+                        <th class="pl-5">operation</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="pl-5">
+                            <div class="radio-container">
+                                <label><input type="radio" name="operationLTEFDD" value="0" checked> No Operation</label>
+                                <label><input type="radio" name="operationLTEFDD" value="1"> Block</label>
+                                <label><input type="radio" name="operationLTEFDD" value="4"> Unblock</label>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
     <div class="row">
         <div class="col-md-8">

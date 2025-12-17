@@ -20,9 +20,9 @@ public class BatchFileBuilder {
     private static final String UCLI_END = "%%";
     private static final String ACCEPT_OPERATION = "-y";
     private static final String UMTS_SMOOTH_BLOCK = "rem execute-batch-action --action smoothBlockULocalCell --sysSmBlkTotalTime 15 --molist ";
-    private static final String UMTS_AND_NBIOT_BLOCK = "rem execute-batch-block --molist ";
+    private static final String UMTS_AND_NBIOT_AND_LTEFDD_BLOCK = "rem execute-batch-block --molist ";
     private static final String UMTS_SMOOTH_UNBLOCK = "rem execute-batch-action --action smoothUnBlockULocalCell --sysSmUnBlkTotalTime 1 --molist ";
-    private static final String UMTS_AND_NBIOT_UNBLOCK = "rem execute-batch-unblock --molist ";
+    private static final String UMTS_AND_NBIOT_AND_LTEFDD_UNBLOCK = "rem execute-batch-unblock --molist ";
     private static final String GSM_UNB_BUILDER_START = "rem execute-rancli --cmd UNB CELL:MEID=";
     private static final String GSM_BLK_BUILDER_START = "rem execute-rancli --cmd BLK CELL:MEID=";
     private static final String GSM_BUILDER_MIDDLE_1 = ",SITEID=";
@@ -35,6 +35,7 @@ public class BatchFileBuilder {
     public static StringFileEntity buildAllData(ManagedElement managedElement,
                                                 List<CellStatus> UMTSData, Integer UMTSCellOperation,
                                                 List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
+                                                List<CellStatus> LTEFDDData, Integer LTEFDDCellOperation,
                                                 List<GCellStatus> GSMData, Integer GSMCellOperation) {
         String boundary = "Boundary-" + UUID.randomUUID();
 
@@ -45,6 +46,7 @@ public class BatchFileBuilder {
                 .append(UCLI_STARTER).append(LINE_BREAK)
                 .append(buildData(managedElement, UMTSData, UMTSCellOperation))
                 .append(buildData(managedElement, NBIoTData, NBIoTCellOperation))
+                .append(buildData(managedElement, LTEFDDData, LTEFDDCellOperation))
                 .append(buildGSMData(managedElement, GSMData, GSMCellOperation))
                 .append(UCLI_END).append(LINE_BREAK)
                 .append(DOUBLE_HYPHEN).append(boundary).append(DOUBLE_HYPHEN).append(LINE_BREAK);
@@ -70,7 +72,7 @@ public class BatchFileBuilder {
         else {
             switch (cellOperation) {
                 case 1: {
-                    result.append(UMTS_AND_NBIOT_BLOCK);
+                    result.append(UMTS_AND_NBIOT_AND_LTEFDD_BLOCK);
                     break;
                 }
                 case 2: {
@@ -78,7 +80,7 @@ public class BatchFileBuilder {
                     break;
                 }
                 case 4: {
-                    result.append(UMTS_AND_NBIOT_UNBLOCK);
+                    result.append(UMTS_AND_NBIOT_AND_LTEFDD_UNBLOCK);
                     break;
                 }
                 case 5: {

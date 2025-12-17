@@ -36,16 +36,18 @@ public class InfoGeneral {
         int g = 0;
         int u = 0;
         int n = 0;
+        int lf = 0;
         for (InfoPlat p: platInfoList) {
             g = g + p.getCapacity().get(0);
             u = u + p.getCapacity().get(1);
             n = n + p.getCapacity().get(2);
+            lf = lf + p.getCapacity().get(3);
         }
-        capacityList =  List.of(g,u,n);
+        capacityList =  List.of(g,u,n,lf);
     }
 
-    public void populateCellAmountList(int gsm, int umts, int nbiot) {
-        cellAmountList = List.of(gsm, umts, nbiot);
+    public void populateCellAmountList(int gsm, int umts, int nbiot, int ltefdd) {
+        cellAmountList = List.of(gsm, umts, nbiot, ltefdd);
     }
 
 }

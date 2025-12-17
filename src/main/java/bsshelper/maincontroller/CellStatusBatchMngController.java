@@ -24,10 +24,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Controller
@@ -43,12 +48,30 @@ public class CellStatusBatchMngController {
     private String updateTime = "";
 
     @PostConstruct
+    private void updateCellCacheDaily() {
+        setCellCache();
+        log.info(" >> updateCellCacheDaily is started");
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nextRun = now.withHour(6).withMinute(30).withSecond(0);
+        if (now.isAfter(nextRun)) {
+            nextRun = nextRun.plusDays(1);
+        }
+        long initialDelay = ChronoUnit.SECONDS.between(now, nextRun);
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(() -> {
+            setCellCache();
+            log.info(" >> new CellCache is set");
+        }, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
+    }
+
     public void setCellCache() {
         localCacheService.meByNEMap.putAll(currentMgnService.getCacheManagedElement(tokenService.getToken(), CurrentMgnServiceImpl.Type.BY_NE));
         localCacheService.umtsSDRMap.putAll(currentMgnService.getCacheSDRCellsUMTS(tokenService.getToken()));
         localCacheService.umtsITBBUMap.putAll(currentMgnService.getCacheITBBUCellsUMTS(tokenService.getToken()));
         localCacheService.nbiotSDRMap.putAll(currentMgnService.getCacheSDRCellsNBIOT(tokenService.getToken()));
         localCacheService.nbiotITBBUMap.putAll(currentMgnService.getCacheITBBUCellsNBIOT(tokenService.getToken()));
+        localCacheService.lteFDDSDRMap.putAll(currentMgnService.getCacheSDRCellsFDDLTE(tokenService.getToken()));
+        localCacheService.lteFDDITBBUMap.putAll(currentMgnService.getCacheITBBUCellsFDDLTE(tokenService.getToken()));
         localCacheService.gsmMRNCMap.putAll(currentMgnService.getCacheMRNCCellsGSM(tokenService.getToken()));
         updateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
     }
@@ -69,6 +92,8 @@ public class CellStatusBatchMngController {
         localCacheService.nbiotSDRMap.clear();
         localCacheService.nbiotITBBUMap.clear();
         localCacheService.gsmMRNCMap.clear();
+        localCacheService.lteFDDSDRMap.clear();
+        localCacheService.lteFDDITBBUMap.clear();
         setCellCache();
         model.addAttribute("updateTime", updateTime);
         model.addAttribute("title", "Cell Status Manager (Batch)");
@@ -79,6 +104,7 @@ public class CellStatusBatchMngController {
     public String executeBatch(String separator,
                                String umts, Integer operationUMTS,
                                String gsm, Integer operationGSM,
+                               String lteFDD, Integer operationLTEFDD,
                                String nbiot, Integer operationNBIoT,
                                Model model, HttpSession session, Authentication authentication) {
         String id = session.getId();
@@ -98,20 +124,23 @@ public class CellStatusBatchMngController {
 
         if ((operationUMTS == null || operationUMTS == 0)
                 && (operationNBIoT == null || operationNBIoT == 0)
+                && (operationLTEFDD == null || operationLTEFDD == 0)
                 && (operationGSM == null || operationGSM == 0)) {
             localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "No any operation selected!"));
             return "redirect:/helper/cellStatusBatch";
         }
-        if (umts.isEmpty() && gsm.isEmpty() && nbiot.isEmpty()) {
+        if (umts.isEmpty() && gsm.isEmpty() && nbiot.isEmpty() && lteFDD.isEmpty()) {
             localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "No any data exist to execute!"));
             return "redirect:/helper/cellStatusBatch";
         }
 
         List<String> umtsCells = Arrays.asList(umts.trim().split(separator));
         List<String> gsmCells = Arrays.asList(gsm.trim().split(separator));
+        List<String> lteFDDCells = Arrays.asList(lteFDD.trim().split(separator));
         List<String> nbiotCells = Arrays.asList(nbiot.trim().split(separator));
         List<String> umtsCommands = new ArrayList<>();
         List<String> gsmCommands = new ArrayList<>();
+        List<String> lteFDDCommands = new ArrayList<>();
         List<String> nbiotCommands = new ArrayList<>();
 
         for (String umtsCell : umtsCells) {
@@ -128,6 +157,15 @@ public class CellStatusBatchMngController {
             if (localCacheService.gsmMRNCMap.containsKey(gsmCell.trim().toUpperCase()))
                 gsmCommands.add(localCacheService.gsmMRNCMap.get(gsmCell.trim().toUpperCase()).getCommand());
         }
+        for (String lteFDDCell : lteFDDCells) {
+            if (localCacheService.lteFDDSDRMap.containsKey(lteFDDCell.trim().toUpperCase())) {
+                lteFDDCommands.add(localCacheService.lteFDDSDRMap.get(lteFDDCell.trim().toUpperCase()).getCommand());
+                continue;
+            }
+            if (localCacheService.lteFDDITBBUMap.containsKey(lteFDDCell.trim().toUpperCase())) {
+                lteFDDCommands.add(localCacheService.lteFDDITBBUMap.get(lteFDDCell.trim().toUpperCase()).getCommand());
+            }
+        }
         for (String nbiotCell : nbiotCells) {
             if (localCacheService.nbiotSDRMap.containsKey(nbiotCell.trim().toUpperCase())) {
                 nbiotCommands.add(localCacheService.nbiotSDRMap.get(nbiotCell.trim().toUpperCase()).getCommand());
@@ -138,12 +176,15 @@ public class CellStatusBatchMngController {
             }
         }
 
-        if (umtsCommands.isEmpty() && gsmCommands.isEmpty() && nbiotCommands.isEmpty()) {
+        if (umtsCommands.isEmpty() && gsmCommands.isEmpty() && nbiotCommands.isEmpty() && lteFDDCommands.isEmpty()) {
             localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "No any cell data in batch!"));
             return "redirect:/helper/cellStatusBatch";
         }
 
-        execResult = oneOperationWithResponse(umtsCommands, operationUMTS, nbiotCommands, operationNBIoT, gsmCommands, operationGSM);
+        execResult = oneOperationWithResponse(umtsCommands, operationUMTS,
+                lteFDDCommands, operationLTEFDD,
+                nbiotCommands, operationNBIoT,
+                gsmCommands, operationGSM);
         if (execResult.equals("SUCCEEDED")) {
             localCacheService.messageMap.put(id, new MessageEntity(Severity.SUCCESS, "Script execution result: " + execResult));
         } else {
@@ -151,6 +192,7 @@ public class CellStatusBatchMngController {
         }
 
         getLog(umtsCells, operationUMTS,
+                lteFDDCommands, operationLTEFDD,
                 nbiotCells, operationNBIoT,
                 gsmCells, operationGSM,
                 execResult, authentication);
@@ -160,9 +202,14 @@ public class CellStatusBatchMngController {
     }
 
     private String operate(List<String> UMTSData, Integer UMTSCellOperation,
+                           List<String> LTEFDDData, Integer LTEFDDCellOperation,
                            List<String> NBIoTData, Integer NBIoTCellOperation,
                            List<String> GSMData, Integer GSMCellOperation) {
-        StringFileEntity file = MultiBatchFileBuilder.buildAllData(UMTSData, UMTSCellOperation, NBIoTData, NBIoTCellOperation, GSMData, GSMCellOperation);
+        StringFileEntity file = MultiBatchFileBuilder.buildAllData(
+                UMTSData, UMTSCellOperation,
+                LTEFDDData, LTEFDDCellOperation,
+                NBIoTData, NBIoTCellOperation,
+                GSMData, GSMCellOperation);
         System.out.println(file.getFile());
         String path = executeUCLIBatchScriptService.uploadParamFile(file, tokenService.getToken());
 //        System.out.println(path);
@@ -170,11 +217,15 @@ public class CellStatusBatchMngController {
     }
 
     private String oneOperationWithResponse(List<String> UMTSData, Integer UMTSCellOperation,
+                                            List<String> LTEFDDData, Integer LTEFDDCellOperation,
                                             List<String> NBIoTData, Integer NBIoTCellOperation,
                                             List<String> GSMData, Integer GSMCellOperation) {
         int tryings = 10;
         int response = -1;
-        String execId = operate(UMTSData, UMTSCellOperation, NBIoTData, NBIoTCellOperation, GSMData, GSMCellOperation);
+        String execId = operate(UMTSData, UMTSCellOperation,
+                LTEFDDData, LTEFDDCellOperation,
+                NBIoTData, NBIoTCellOperation,
+                GSMData, GSMCellOperation);
         try {
             while ((response == -1 || response == 2) && tryings > 0) {
                 Thread.sleep(5000);
@@ -197,10 +248,12 @@ public class CellStatusBatchMngController {
     }
 
     private void getLog(List<String> umtsCells, Integer UMTSCellOperation,
+                        List<String> lteFDDCells, Integer LTEFDDCellOperation,
                         List<String> nbiotCells, Integer NBIoTCellOperation,
                         List<String> gsmCells, Integer GSMCellOperation,
                         String result, Authentication authentication) {
         StringBuilder umts = new StringBuilder();
+        StringBuilder lteFDD = new StringBuilder();
         StringBuilder nBIoT = new StringBuilder();
         StringBuilder gsm = new StringBuilder();
         for (String cell : umtsCells) {
@@ -215,6 +268,12 @@ public class CellStatusBatchMngController {
         if (gsm.toString().endsWith(", ")) {
             gsm = new StringBuilder(gsm.substring(0, gsm.length() - 2));
         }
+        for (String cell : lteFDDCells) {
+            lteFDD.append(cell).append(", ");
+        }
+        if (lteFDD.toString().endsWith(", ")) {
+            lteFDD = new StringBuilder(lteFDD.substring(0, lteFDD.length() - 2));
+        }
         for (String cell : nbiotCells) {
             nBIoT.append(cell).append(", ");
         }
@@ -227,9 +286,10 @@ public class CellStatusBatchMngController {
                 .append(" (")
                 .append(authentication.getDetails().toString())
                 .append(") change cell status in BATCH: ");
-        String l = String.format("UMTS: [%s] %s, GSM: [%s] %s, NBIoT: [%s] %s; result: %s",
+        String l = String.format("UMTS: [%s] %s, GSM: [%s] %s, LTEFDD: [%s] %s, NBIoT: [%s] %s; result: %s",
                 umts, getOperation(UMTSCellOperation),
                 gsm, getOperation(GSMCellOperation),
+                lteFDD, getOperation(LTEFDDCellOperation),
                 nBIoT, getOperation(NBIoTCellOperation),
                 result);
         log.append(l);

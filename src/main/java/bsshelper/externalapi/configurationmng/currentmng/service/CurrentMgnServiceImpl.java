@@ -491,6 +491,50 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
     }
 
     @Override
+    public List<EUtranCellFDDMocSimplified> getEUtranCellFDDMocSimplified(Token token, ManagedElement managedElement) {
+        String mocName = "EUtranCellFDD";
+        List<EUtranCellFDDMocSimplified> eUtranCellFDDMocSimplifiedList = null;
+        EUtranCellFDDMocSimplifiedTo eUtranCellFDDMocSimplifiedTo = null;
+        String json = simplifiedRawDataQuery(token, managedElement, mocName,
+                getSimplifyEUtranCellFDDMocByNeNameRequest(token, managedElement));
+        if (json != null) {
+            try {
+                eUtranCellFDDMocSimplifiedTo = new Gson().fromJson(json, EUtranCellFDDMocSimplifiedTo.class);
+            } catch (JsonSyntaxException e1) {
+                e1.printStackTrace();
+                log.error(" >> error in EUtranCellFDDMocSimplifiedTo parsing: {}", e1.toString());
+            }
+        }
+        if (eUtranCellFDDMocSimplifiedTo != null) {
+            eUtranCellFDDMocSimplifiedList = eUtranCellFDDMocSimplifiedTo.getResult().get(0).getMoData();
+        }
+        log.info(" >> eUtranCellFDDMocSimplifiedList: {}", eUtranCellFDDMocSimplifiedList);
+        return eUtranCellFDDMocSimplifiedList;
+    }
+
+    @Override
+    public List<ITBBUCUEUtranCellFDDLTEMocSimplified> getITBBUCUEUtranCellFDDLTEMocSimplified(Token token, ManagedElement managedElement) {
+        String mocName = "CUEUtranCellFDDLTE";
+        List<ITBBUCUEUtranCellFDDLTEMocSimplified> iTBBUCUEUtranCellFDDLTEMocSimplifiedList = null;
+        ITBBUCUEUtranCellFDDLTEMocSimplifiedTo iTBBUCUEUtranCellFDDLTEMocSimplifiedTo = null;
+        String json = simplifiedRawDataQuery(token, managedElement, mocName,
+                getSimplifyCUEUtranCellFDDLTEMocByNeNameRequest(token, managedElement));
+        if (json != null) {
+            try {
+                iTBBUCUEUtranCellFDDLTEMocSimplifiedTo = new Gson().fromJson(json, ITBBUCUEUtranCellFDDLTEMocSimplifiedTo.class);
+            } catch (JsonSyntaxException e1) {
+                e1.printStackTrace();
+                log.error(" >> error in ITBBUCUEUtranCellFDDLTEMocSimplifiedTo parsing: {}", e1.toString());
+            }
+        }
+        if (iTBBUCUEUtranCellFDDLTEMocSimplifiedTo != null) {
+            iTBBUCUEUtranCellFDDLTEMocSimplifiedList = iTBBUCUEUtranCellFDDLTEMocSimplifiedTo.getResult().get(0).getMoData();
+        }
+        log.info(" >> iTBBUCUEUtranCellFDDLTEMocSimplifiedList: {}", iTBBUCUEUtranCellFDDLTEMocSimplifiedList);
+        return iTBBUCUEUtranCellFDDLTEMocSimplifiedList;
+    }
+
+    @Override
     public List<EUtranCellNBIoTMocSimplified> getEUtranCellNBIoTMocSimplified(Token token, ManagedElement managedElement) {
         String mocName = "EUtranCellNBIoT";
         List<EUtranCellNBIoTMocSimplified> eUtranCellNBIoTMocSimplifiedList = null;
@@ -807,6 +851,84 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
     }
 
     @Override
+    public Map<String,CellInfo> getCacheSDRCellsFDDLTE(Token token) {
+        String mocName = "EUtranCellFDD";
+        Map<String,CellInfo> lteFDDSDRMap = new TreeMap<>();
+        List<EUtranCellFDDMocSimplifiedTo.EUtranCellFDDMocSimplifiedResultTo> iterateResultList = null;
+        EUtranCellFDDMocSimplifiedTo eUtranCellFDDMocSimplifiedTo = null;
+        List<EUtranCellFDDMocSimplified> eUtranCellFDDMocSimplifiedList = null;
+        String ne = null;
+        String json = simplifiedRawDataQuery(token, null, mocName,
+                getAllSimplifyEUtranCellFDDMocRequest(token));
+        if (json != null) {
+            try {
+                eUtranCellFDDMocSimplifiedTo = new Gson().fromJson(json, EUtranCellFDDMocSimplifiedTo.class);
+            } catch (JsonSyntaxException e1) {
+                e1.printStackTrace();
+                log.error(" >> error in EUtranCellFDDMocSimplifiedTo parsing: {}", e1.toString());
+            }
+        }
+        if (eUtranCellFDDMocSimplifiedTo != null) {
+            iterateResultList = eUtranCellFDDMocSimplifiedTo.getResult();
+            for (EUtranCellFDDMocSimplifiedTo.EUtranCellFDDMocSimplifiedResultTo site : iterateResultList) {
+                eUtranCellFDDMocSimplifiedList = site.getMoData();
+                ne = site.getNe();
+                for (EUtranCellFDDMocSimplified cell : eUtranCellFDDMocSimplifiedList) {
+                    StringBuilder query = new StringBuilder();
+                    query.append("ManagedElementType=")
+                            .append(ManagedElementType.SDR)
+                            .append(",")
+                            .append(ne)
+                            .append(",")
+                            .append(cell.getLdn());
+                    lteFDDSDRMap.put(cell.getUserLabel(),new CellInfo(query.toString(), ne));
+                }
+            }
+        }
+        log.info(" >> lteFDDSDRMap for cache: {}", lteFDDSDRMap.size());
+        return lteFDDSDRMap;
+    }
+
+    @Override
+    public Map<String,CellInfo> getCacheITBBUCellsFDDLTE(Token token) {
+        String mocName = "CUEUtranCellFDDLTE";
+        Map<String,CellInfo> lteFDDITBBUMap = new TreeMap<>();
+        List<ITBBUCUEUtranCellFDDLTEMocSimplifiedTo.ITBBUCUEUtranCellFDDLTEMocSimplifiedResultTo> iterateResultList = null;
+        ITBBUCUEUtranCellFDDLTEMocSimplifiedTo iTBBUCUEUtranCellFDDLTEMocSimplifiedTo = null;
+        List<ITBBUCUEUtranCellFDDLTEMocSimplified> iTBBUCUEUtranCellFDDLTEMocSimplifiedList = null;
+        String ne = null;
+        String json = simplifiedRawDataQuery(token, null, mocName,
+                getAllSimplifyCUEUtranCellFDDLTEMocRequest(token));
+        if (json != null) {
+            try {
+                iTBBUCUEUtranCellFDDLTEMocSimplifiedTo = new Gson().fromJson(json, ITBBUCUEUtranCellFDDLTEMocSimplifiedTo.class);
+            } catch (JsonSyntaxException e1) {
+                e1.printStackTrace();
+                log.error(" >> error in ITBBUCUEUtranCellFDDLTEMocSimplifiedTo parsing: {}", e1.toString());
+            }
+        }
+        if (iTBBUCUEUtranCellFDDLTEMocSimplifiedTo != null) {
+            iterateResultList = iTBBUCUEUtranCellFDDLTEMocSimplifiedTo.getResult();
+            for (ITBBUCUEUtranCellFDDLTEMocSimplifiedTo.ITBBUCUEUtranCellFDDLTEMocSimplifiedResultTo site : iterateResultList) {
+                iTBBUCUEUtranCellFDDLTEMocSimplifiedList = site.getMoData();
+                ne = site.getNe();
+                for (ITBBUCUEUtranCellFDDLTEMocSimplified cell : iTBBUCUEUtranCellFDDLTEMocSimplifiedList) {
+                    StringBuilder query = new StringBuilder();
+                    query.append("ManagedElementType=")
+                            .append(ManagedElementType.ITBBU)
+                            .append(",")
+                            .append(ne)
+                            .append(",")
+                            .append(cell.getLdn());
+                    lteFDDITBBUMap.put(cell.getUserLabel(),new CellInfo(query.toString(), ne));
+                }
+            }
+        }
+        log.info(" >> lteFDDITBBUMap for cache: {}", lteFDDITBBUMap.size());
+        return lteFDDITBBUMap;
+    }
+
+    @Override
     public Map<String,CellInfo> getCacheMRNCCellsGSM(Token token) {
         String mocName = "GGsmCell";
         Map<String,CellInfo> gsmMRNCMap = new TreeMap<>();
@@ -1089,6 +1211,40 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
                 .build();
     }
 
+    private HttpRequest getSimplifyEUtranCellFDDMocByNeNameRequest(Token token, ManagedElement managedElement) {
+        return HttpRequest.newBuilder()
+                .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(
+                        CurrentMngBodySettings.builder()
+                                .ManagedElementType(managedElement.getManagedElementType().toString())
+                                .neList(List.of(managedElement.getNe()))
+                                .mocList(List.of("EUtranCellFDD"))
+                                .attrFilter(List.of(new CurrentMngBodySettings.AttrFilter("EUtranCellFDD",
+                                        List.of("userLabel", "adminState", "operState"))))
+                                .build().getBodySettings()))
+                .uri(URI.create(GlobalUtil.GLOBAL_PATH + GlobalUtil.API_CURRENTAREA + GlobalUtil.CURRENTAREA_QUERY))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Content-Type", "application/json; charset=utf-8")
+                .header("accessToken", token.getAccessToken())
+                .build();
+    }
+
+    private HttpRequest getSimplifyCUEUtranCellFDDLTEMocByNeNameRequest(Token token, ManagedElement managedElement) {
+        return HttpRequest.newBuilder()
+                .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(
+                        CurrentMngBodySettings.builder()
+                                .ManagedElementType(managedElement.getManagedElementType().toString())
+                                .neList(List.of(managedElement.getNe()))
+                                .mocList(List.of("CUEUtranCellFDDLTE"))
+                                .attrFilter(List.of(new CurrentMngBodySettings.AttrFilter("CUEUtranCellFDDLTE",
+                                        List.of("userLabel", "adminState", "operState"))))
+                                .build().getBodySettings()))
+                .uri(URI.create(GlobalUtil.GLOBAL_PATH + GlobalUtil.API_CURRENTAREA + GlobalUtil.CURRENTAREA_QUERY))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Content-Type", "application/json; charset=utf-8")
+                .header("accessToken", token.getAccessToken())
+                .build();
+    }
+
     private HttpRequest getAllSimplifyITBBUULocalCellRequest(Token token) {
         return HttpRequest.newBuilder()
                 .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(
@@ -1144,6 +1300,38 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
                                 .ManagedElementType(ManagedElementType.ITBBU.toString())
                                 .mocList(List.of("CUEUtranCellNBIoT"))
                                 .attrFilter(List.of(new CurrentMngBodySettings.AttrFilter("CUEUtranCellNBIoT",
+                                        List.of("userLabel"))))
+                                .build().getBodySettings()))
+                .uri(URI.create(GlobalUtil.GLOBAL_PATH + GlobalUtil.API_CURRENTAREA + GlobalUtil.CURRENTAREA_QUERY))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Content-Type", "application/json; charset=utf-8")
+                .header("accessToken", token.getAccessToken())
+                .build();
+    }
+
+    private HttpRequest getAllSimplifyEUtranCellFDDMocRequest(Token token) {
+        return HttpRequest.newBuilder()
+                .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(
+                        CurrentMngBodySettings.builder()
+                                .ManagedElementType(ManagedElementType.SDR.toString())
+                                .mocList(List.of("EUtranCellFDD"))
+                                .attrFilter(List.of(new CurrentMngBodySettings.AttrFilter("EUtranCellFDD",
+                                        List.of("userLabel"))))
+                                .build().getBodySettings()))
+                .uri(URI.create(GlobalUtil.GLOBAL_PATH + GlobalUtil.API_CURRENTAREA + GlobalUtil.CURRENTAREA_QUERY))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Content-Type", "application/json; charset=utf-8")
+                .header("accessToken", token.getAccessToken())
+                .build();
+    }
+
+    private HttpRequest getAllSimplifyCUEUtranCellFDDLTEMocRequest(Token token) {
+        return HttpRequest.newBuilder()
+                .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(
+                        CurrentMngBodySettings.builder()
+                                .ManagedElementType(ManagedElementType.ITBBU.toString())
+                                .mocList(List.of("CUEUtranCellFDDLTE"))
+                                .attrFilter(List.of(new CurrentMngBodySettings.AttrFilter("CUEUtranCellFDDLTE",
                                         List.of("userLabel"))))
                                 .build().getBodySettings()))
                 .uri(URI.create(GlobalUtil.GLOBAL_PATH + GlobalUtil.API_CURRENTAREA + GlobalUtil.CURRENTAREA_QUERY))

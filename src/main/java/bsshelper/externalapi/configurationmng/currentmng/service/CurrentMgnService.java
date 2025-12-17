@@ -33,6 +33,8 @@ public interface CurrentMgnService {
     List<ULocalCellMocSimplified> getULocalCellMocSimplified(Token token, ManagedElement managedElement);
     List<UCellMocSimplified> getUCellMocSimplified(Token token, ManagedElement managedElement);
     List<ITBBUULocalCellMocSimplified> getITBBUULocalCellMocSimplified(Token token, ManagedElement managedElement);
+    List<EUtranCellFDDMocSimplified> getEUtranCellFDDMocSimplified(Token token, ManagedElement managedElement);
+    List<ITBBUCUEUtranCellFDDLTEMocSimplified> getITBBUCUEUtranCellFDDLTEMocSimplified(Token token, ManagedElement managedElement);
     List<EUtranCellNBIoTMocSimplified> getEUtranCellNBIoTMocSimplified(Token token, ManagedElement managedElement);
     List<ITBBUCUEUtranCellNBIoTMocSimplified> getITBBUCUEUtranCellNBIoTMocSimplified(Token token, ManagedElement managedElement);
     List<GGsmCellMocSimplified> getGGsmCellMocSimplified(Token token, ManagedElement managedElement);
@@ -44,6 +46,8 @@ public interface CurrentMgnService {
     Map<String,CurrentMgnServiceImpl.CellInfo> getCacheITBBUCellsUMTS(Token token);
     Map<String,CurrentMgnServiceImpl.CellInfo> getCacheSDRCellsNBIOT(Token token);
     Map<String,CurrentMgnServiceImpl.CellInfo> getCacheITBBUCellsNBIOT(Token token);
-    Map<String, CurrentMgnServiceImpl.CellInfo> getCacheMRNCCellsGSM(Token token);
+    Map<String,CurrentMgnServiceImpl.CellInfo> getCacheSDRCellsFDDLTE(Token token);
+    Map<String,CurrentMgnServiceImpl.CellInfo> getCacheITBBUCellsFDDLTE(Token token);
+    Map<String,CurrentMgnServiceImpl.CellInfo> getCacheMRNCCellsGSM(Token token);
     Map<String,String> getCacheManagedElement(Token token, CurrentMgnServiceImpl.Type type);
 }

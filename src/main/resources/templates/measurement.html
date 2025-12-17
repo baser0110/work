@@ -208,13 +208,14 @@
                             </tr>
                             </tbody>
                         </table>
-                        <table th:object="${repoGeneral}" id="Capacity-table" border="1" class="table table-striped table-sm table-bordered col-md-7">
+                        <table th:object="${repoGeneral}" id="Capacity-table" border="1" class="table table-striped table-sm table-bordered col-md-9">
                             <thead>
                             <tr>
                                 <th class="pl-5">BP Resources</th>
                                 <th class="pl-5">GSM</th>
                                 <th class="pl-5">UMTS</th>
                                 <th class="pl-5">NBIoT</th>
+                                <th class="pl-5">LTEFDD</th>
                             </tr>
                             </thead>
                             <tbody th:if="${!repoGeneral.getPlatInfoList().isEmpty()}">
@@ -223,12 +224,14 @@
                                 <td class="pl-5" th:text="${repoGeneral.getCellAmountList().get(0)}"></td>
                                 <td class="pl-5" th:text="${repoGeneral.getCellAmountList().get(1)}"></td>
                                 <td class="pl-5" th:text="${repoGeneral.getCellAmountList().get(2)}"></td>
+                                <td class="pl-5" th:text="${repoGeneral.getCellAmountList().get(3)}"></td>
                             </tr>
                             <tr>
                                 <td class="pl-5" th:text="Total"></td>
                                 <td class="pl-5" th:text="${repoGeneral.getCapacityList().get(0)}"></td>
                                 <td class="pl-5" th:text="${repoGeneral.getCapacityList().get(1)}"></td>
                                 <td class="pl-5" th:text="${repoGeneral.getCapacityList().get(2)}"></td>
+                                <td class="pl-5" th:text="${repoGeneral.getCapacityList().get(3)}"></td>
                             </tr>
                             </tbody>
                         </table>

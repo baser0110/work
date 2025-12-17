@@ -15,6 +15,7 @@ import bsshelper.externalapi.openscriptexecengine.service.ExecuteUCLIBatchScript
 import bsshelper.externalapi.openscriptexecengine.util.BatchFileBuilder;
 import bsshelper.externalapi.openscriptexecengine.util.ExecuteStatus;
 import bsshelper.externalapi.openscriptexecengine.util.StringFileEntity;
+import bsshelper.externalapi.openscriptexecengine.wrapper.EUtranCellFDDStatusListWrapper;
 import bsshelper.externalapi.openscriptexecengine.wrapper.EUtranCellNBIoTStatusListWrapper;
 import bsshelper.externalapi.openscriptexecengine.wrapper.GCellStatusListWrapper;
 import bsshelper.externalapi.openscriptexecengine.wrapper.ULocalCellStatusListWrapper;
@@ -83,9 +84,11 @@ public class CellStatusMngController {
 //        System.out.println(currentMgnService.rawDataQuery(tokenService.getToken(),managedElement,"EUtranCellNBIoT"));
         ULocalCellStatusListWrapper uLocalCellMocListWrapper = null;
         EUtranCellNBIoTStatusListWrapper eUtranCellNBIoTMocListWrapper = null;
+        EUtranCellFDDStatusListWrapper eUtranCellFDDMocListWrapper = null;
         Map<Integer, UCellMocSimplified> uCellMap = new TreeMap<>();
         List<ULocalCellMocSimplified> uLocalCellList = null;
         List<ITBBUULocalCellMocSimplified> iTBBUULocalCellList = null;
+
 
 //        if (managedElement == null) {
 //            localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "userLabel '" + userLabel + "' couldn't be found"));
@@ -100,6 +103,8 @@ public class CellStatusMngController {
             uLocalCellMocListWrapper = new ULocalCellStatusListWrapper(ULocalCellStatusMapper.toULocalCellStatusEntity(uLocalCellList, uCellMap));
             eUtranCellNBIoTMocListWrapper = new EUtranCellNBIoTStatusListWrapper(EUtranCellNBIoTStatusMapper.
                     toEUtranCellNBIoTStatusEntity(currentMgnService.getEUtranCellNBIoTMocSimplified(tokenService.getToken(), managedElement)));
+            eUtranCellFDDMocListWrapper = new EUtranCellFDDStatusListWrapper(EUtranCellFDDStatusMapper.
+                    toEUtranCellFDDStatusEntity(currentMgnService.getEUtranCellFDDMocSimplified(tokenService.getToken(), managedElement)));
         } else {
             uCellMap = UCellMocSimplified.toMap(currentMgnService.getUCellMocSimplified(tokenService.getToken(), managedElement));
             iTBBUULocalCellList = currentMgnService.getITBBUULocalCellMocSimplified(tokenService.getToken(), managedElement);
@@ -107,13 +112,14 @@ public class CellStatusMngController {
                     toULocalCellStatusEntity(iTBBUULocalCellList, uCellMap));
             eUtranCellNBIoTMocListWrapper = new EUtranCellNBIoTStatusListWrapper(ITBBUCUEUtranCellNBIoTStatusMapper.
                     toEUtranCellNBIoTStatusEntity(currentMgnService.getITBBUCUEUtranCellNBIoTMocSimplified(tokenService.getToken(), managedElement)));
+            eUtranCellFDDMocListWrapper = new EUtranCellFDDStatusListWrapper(ITBBUCUEUtranCellFDDLTEStatusMapper.
+                    toEUtranCellFDDStatusEntity(currentMgnService.getITBBUCUEUtranCellFDDLTEMocSimplified(tokenService.getToken(), managedElement)));
         }
         GCellStatusListWrapper gCellStatusListWrapper = new GCellStatusListWrapper(
                 GCellStatusMapper.toGCellStatusEntity(
                         currentMgnService.getGGsmCellMocSimplified(
                                 tokenService.getToken(), managedElement), activeAlarmService.getHasAlarmSetByMEonBSC(
                                         tokenService.getToken(), managedElement)));
-
 
 //        System.out.println(uLocalCellMocListWrapper);
 //        System.out.println(gCellStatusListWrapper);
@@ -135,6 +141,7 @@ public class CellStatusMngController {
         model.addAttribute("managedElement", managedElement);
         model.addAttribute("repoUMTS", uLocalCellMocListWrapper);
         model.addAttribute("repoNBIoT", eUtranCellNBIoTMocListWrapper);
+        model.addAttribute("repoLTEFDD", eUtranCellFDDMocListWrapper);
         model.addAttribute("repoGSM", gCellStatusListWrapper);
         model.addAttribute("title", "Cell Status Manager (Single NE)");
         model.addAttribute("comments", Comments.values());
@@ -145,6 +152,7 @@ public class CellStatusMngController {
     @PostMapping("/cellStatus/changeStatus")
     public String cellChangeStatus(@ModelAttribute("repoUMTS") ULocalCellStatusListWrapper repoUMTS, Integer operationUMTS,
                                    @ModelAttribute("repoNBIoT") EUtranCellNBIoTStatusListWrapper repoNBIoT, Integer operationNBIoT,
+                                   @ModelAttribute("repoLTEFDD") EUtranCellFDDStatusListWrapper repoLTEFDD, Integer operationLTEFDD,
                                    @ModelAttribute("repoGSM") GCellStatusListWrapper repoGSM, Integer operationGSM,
                                    @ModelAttribute("userLabel") String userLabel,
                                    @ModelAttribute("comment") String comment,
@@ -154,13 +162,15 @@ public class CellStatusMngController {
         String execResult = null;
         if ((operationUMTS == null || operationUMTS == 0)
                 && (operationNBIoT == null || operationNBIoT == 0)
-                && (operationGSM == null || operationGSM == 0)) {
+                && (operationGSM == null || operationGSM == 0)
+                && (operationLTEFDD == null || operationLTEFDD == 0)) {
             localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "No any operation selected!"));
             return "redirect:/helper/cellStatus/" + userLabel;
         }
         if ((repoUMTS.getDataUMTS() == null || !repoUMTS.isAnySelected())
                 && (repoNBIoT.getDataNBIOT() == null || !repoNBIoT.isAnySelected())
-                && (repoGSM.getDataGSM() == null || !repoGSM.isAnySelected())) {
+                && (repoGSM.getDataGSM() == null || !repoGSM.isAnySelected())
+                && (repoLTEFDD.getDataLTEFDD() == null || !repoLTEFDD.isAnySelected())) {
             localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "No any data selected!"));
             return "redirect:/helper/cellStatus/" + userLabel;
         }
@@ -169,6 +179,7 @@ public class CellStatusMngController {
             execResult = oneOperationWithResponse(localCacheService.managedElementMap.get(userLabel),
                     repoUMTS.getExtensionData(), operationUMTS,
                     repoNBIoT.getExtensionData(), operationNBIoT,
+                    repoLTEFDD.getExtensionData(), operationLTEFDD,
                     repoGSM.getDataGSM(), operationGSM, comment);
             if (execResult.equals("SUCCEEDED")) {
                 localCacheService.messageMap.put(id, new MessageEntity(Severity.SUCCESS, "Script execution result: " + execResult));
@@ -179,6 +190,7 @@ public class CellStatusMngController {
             getLog(localCacheService.managedElementMap.get(userLabel),
                     repoUMTS.getExtensionData(), operationUMTS,
                     repoNBIoT.getExtensionData(), operationNBIoT,
+                    repoLTEFDD.getExtensionData(), operationLTEFDD,
                     repoGSM.getDataGSM(), operationGSM,
                     execResult, authentication);
         }
@@ -189,16 +201,19 @@ public class CellStatusMngController {
     private String operate(ManagedElement managedElement,
                            List<CellStatus> UMTSData, Integer UMTSCellOperation,
                            List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
+                           List<CellStatus> LTEFDDData, Integer LTEFDDCellOperation,
                            List<GCellStatus> GSMData, Integer GSMCellOperation,
                            String comment) {
         StringFileEntity file = BatchFileBuilder.buildAllData(managedElement,
                 UMTSData, UMTSCellOperation,
                 NBIoTData, NBIoTCellOperation,
+                LTEFDDData, LTEFDDCellOperation,
                 GSMData, GSMCellOperation);
         if (!comment.isBlank())
             setCommentForAlarmsScheduler(managedElement,
                 UMTSData,UMTSCellOperation,
                 NBIoTData,NBIoTCellOperation,
+                LTEFDDData,LTEFDDCellOperation,
                 GSMData,GSMCellOperation,
                 comment);
 
@@ -212,10 +227,17 @@ public class CellStatusMngController {
     private String oneOperationWithResponse(ManagedElement managedElement,
                                             List<CellStatus> UMTSData, Integer UMTSCellOperation,
                                             List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
-                                            List<GCellStatus> GSMData, Integer GSMCellOperation, String comment) {
+                                            List<CellStatus> LTEFDDData, Integer LTEFDDCellOperation,
+                                            List<GCellStatus> GSMData, Integer GSMCellOperation,
+                                            String comment) {
         int tryings = 10;
         int response = -1;
-        String execId = operate(managedElement, UMTSData, UMTSCellOperation, NBIoTData, NBIoTCellOperation, GSMData, GSMCellOperation, comment);
+        String execId = operate(managedElement,
+                UMTSData, UMTSCellOperation,
+                NBIoTData, NBIoTCellOperation,
+                LTEFDDData,LTEFDDCellOperation,
+                GSMData, GSMCellOperation,
+                comment);
         try {
             while ((response == -1 || response == 2) && tryings > 0) {
                 Thread.sleep(5000);
@@ -238,12 +260,14 @@ public class CellStatusMngController {
     }
 
     private void getLog(ManagedElement managedElement,
-                          List<CellStatus> UMTSData, Integer UMTSCellOperation,
-                          List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
-                          List<GCellStatus> GSMData, Integer GSMCellOperation,
-                          String result, Authentication authentication) {
+                        List<CellStatus> UMTSData, Integer UMTSCellOperation,
+                        List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
+                        List<CellStatus> LTEFDDData, Integer LTEFDDCellOperation,
+                        List<GCellStatus> GSMData, Integer GSMCellOperation,
+                        String result, Authentication authentication) {
         StringBuilder umts = new StringBuilder();
         StringBuilder nBIoT = new StringBuilder();
+        StringBuilder lteFDD = new StringBuilder();
         StringBuilder gsm = new StringBuilder();
         if (UMTSData != null && !UMTSData.isEmpty()) {
             for (CellStatus cellStatus : UMTSData) {
@@ -265,6 +289,16 @@ public class CellStatusMngController {
                 gsm = new StringBuilder(gsm.substring(0, gsm.length() - 2));
             }
         }
+        if (LTEFDDData != null && !LTEFDDData.isEmpty()) {
+            for (CellStatus cellStatus : LTEFDDData) {
+                if (cellStatus.isSelected()) {
+                    lteFDD.append(cellStatus.getUserLabel()).append(", ");
+                }
+            }
+            if (lteFDD.toString().endsWith(", ")) {
+                lteFDD = new StringBuilder(lteFDD.substring(0, lteFDD.length() - 2));
+            }
+        }
         if (NBIoTData != null && !NBIoTData.isEmpty()) {
             for (CellStatus cellStatus : NBIoTData) {
                 if (cellStatus.isSelected()) {
@@ -283,9 +317,10 @@ public class CellStatusMngController {
                 .append(") change cell status of ")
                 .append(managedElement.getUserLabel())
                 .append(": ");
-        String l = String.format("UMTS: [%s] %s, GSM: [%s] %s, NBIoT: [%s] %s; result: %s",
+        String l = String.format("UMTS: [%s] %s, GSM: [%s] %s, LTEFDD: [%s] %s, NBIoT: [%s] %s; result: %s",
                 umts, getOperation(UMTSCellOperation),
                 gsm, getOperation(GSMCellOperation),
+                lteFDD, getOperation(LTEFDDCellOperation),
                 nBIoT, getOperation(NBIoTCellOperation),
                 result);
         log.append(l);
@@ -308,6 +343,7 @@ public class CellStatusMngController {
     private void setCommentForAlarmsScheduler(ManagedElement managedElement,
                                               List<CellStatus> UMTSData, Integer UMTSCellOperation,
                                               List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
+                                              List<CellStatus> LTEFDDData, Integer LTEFDDCellOperation,
                                               List<GCellStatus> GSMData, Integer GSMCellOperation,
                                               String comment) {
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -316,6 +352,7 @@ public class CellStatusMngController {
                 setCommentForAlarms(managedElement,
                         UMTSData, UMTSCellOperation,
                         NBIoTData, NBIoTCellOperation,
+                        LTEFDDData, LTEFDDCellOperation,
                         GSMData, GSMCellOperation,
                         comment);
             } catch (Exception e) {
@@ -327,9 +364,11 @@ public class CellStatusMngController {
     private void setCommentForAlarms(ManagedElement managedElement,
                                      List<CellStatus> UMTSData, Integer UMTSCellOperation,
                                      List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
+                                     List<CellStatus> LTEFDDData, Integer LTEFDDCellOperation,
                                      List<GCellStatus> GSMData, Integer GSMCellOperation,
                                      String comment) {
         Set<String> expectedNBIoTCells = new HashSet<>();
+        Set<String> expectedLTEFDDCells = new HashSet<>();
         Set<String> expectedGSMCells = new HashSet<>();
         Set<String> expectedUMTSCells = new HashSet<>();
         List<String> ids = new ArrayList<>();
@@ -344,6 +383,21 @@ public class CellStatusMngController {
                 if (site != null && !site.isEmpty()) {
                     for (AlarmEntity alm : site) {
                         if (expectedNBIoTCells.contains(alm.getRan_fm_alarm_object_name().getDisplayname()))
+                            ids.add(alm.getId());
+                    }
+                }
+            }
+        }
+        if (LTEFDDCellOperation != null && LTEFDDCellOperation == 1) {
+            for (CellStatus cell : LTEFDDData) {
+                if (cell.isSelected()) expectedLTEFDDCells.add(cell.getUserLabel());
+            }
+            if (!expectedLTEFDDCells.isEmpty()) {
+                List<AlarmEntity> site = activeAlarmService.alarmDataExport(tokenService.getToken(),
+                        activeAlarmService.getActiveAlarmBySDRSite(tokenService.getToken(), managedElement), managedElement);
+                if (site != null && !site.isEmpty()) {
+                    for (AlarmEntity alm : site) {
+                        if (expectedLTEFDDCells.contains(alm.getRan_fm_alarm_object_name().getDisplayname()))
                             ids.add(alm.getId());
                     }
                 }

@@ -1,7 +1,5 @@
 package bsshelper.externalapi.openscriptexecengine.util;
 
-import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -15,15 +13,17 @@ public class MultiBatchFileBuilder {
     private static final String UCLI_END = "%%";
     private static final String ACCEPT_OPERATION = "-y";
     private static final String UMTS_SMOOTH_BLOCK = "rem execute-batch-action --action smoothBlockULocalCell --sysSmBlkTotalTime 15 --molist ";
-    private static final String UMTS_AND_NBIOT_BLOCK = "rem execute-batch-block --molist ";
+    private static final String UMTS_AND_NBIOT_AND_LTEFDD_BLOCK = "rem execute-batch-block --molist ";
     private static final String UMTS_SMOOTH_UNBLOCK = "rem execute-batch-action --action smoothUnBlockULocalCell --sysSmUnBlkTotalTime 1 --molist ";
-    private static final String UMTS_AND_NBIOT_UNBLOCK = "rem execute-batch-unblock --molist ";
+    private static final String UMTS_AND_NBIOT_AND_LTEFDD_UNBLOCK = "rem execute-batch-unblock --molist ";
     private static final String GSM_UNB_BUILDER_START = "rem execute-rancli --cmd UNB ";
     private static final String GSM_BLK_BUILDER_START = "rem execute-rancli --cmd BLK ";
     private static final String GSM_BLK_BUILDER_END = ",BLOCKTYPE=HANDOVE_AND_BLOCK,DURATION=40;";
 
 
+
     public static StringFileEntity buildAllData(List<String> UMTSData, Integer UMTSCellOperation,
+                                                List<String> LTEFDDData, Integer LTEFDDCellOperation,
                                                 List<String> NBIoTData, Integer NBIoTCellOperation,
                                                 List<String> GSMData, Integer GSMCellOperation) {
         String boundary = "Boundary-" + UUID.randomUUID();
@@ -34,6 +34,7 @@ public class MultiBatchFileBuilder {
                 .append(FILE_CONTENT_TYPE).append(LINE_BREAK).append(LINE_BREAK)
                 .append(UCLI_STARTER).append(LINE_BREAK)
                 .append(buildData(UMTSData, UMTSCellOperation))
+                .append(buildData(LTEFDDData, LTEFDDCellOperation))
                 .append(buildData(NBIoTData, NBIoTCellOperation))
                 .append(buildGSMData(GSMData, GSMCellOperation))
                 .append(UCLI_END).append(LINE_BREAK)
@@ -55,7 +56,7 @@ public class MultiBatchFileBuilder {
         if (!bodySDR.isEmpty()) {
             switch (cellOperation) {
                 case 1: {
-                    result.append(UMTS_AND_NBIOT_BLOCK);
+                    result.append(UMTS_AND_NBIOT_AND_LTEFDD_BLOCK);
                     break;
                 }
                 case 2: {
@@ -63,7 +64,7 @@ public class MultiBatchFileBuilder {
                     break;
                 }
                 case 4: {
-                    result.append(UMTS_AND_NBIOT_UNBLOCK);
+                    result.append(UMTS_AND_NBIOT_AND_LTEFDD_UNBLOCK);
                     break;
                 }
                 case 5: {
@@ -76,11 +77,11 @@ public class MultiBatchFileBuilder {
         if (!bodyITBBU.isEmpty()) {
             switch (cellOperation) {
                 case 1, 2: {
-                    result.append(UMTS_AND_NBIOT_BLOCK);
+                    result.append(UMTS_AND_NBIOT_AND_LTEFDD_BLOCK);
                     break;
                 }
                 case 4, 5: {
-                    result.append(UMTS_AND_NBIOT_UNBLOCK);
+                    result.append(UMTS_AND_NBIOT_AND_LTEFDD_UNBLOCK);
                     break;
                 }
             }

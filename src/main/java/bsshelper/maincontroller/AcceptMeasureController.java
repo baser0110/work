@@ -6,6 +6,7 @@ import bsshelper.externalapi.configurationmng.currentmng.entity.mrnc.GGsmCellMoc
 import bsshelper.externalapi.configurationmng.currentmng.entity.mrnc.UUtranCellFDDMocSimplified;
 import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.*;
 import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnService;
+import bsshelper.externalapi.configurationmng.currentmng.to.itbbu.ITBBUCUEUtranCellFDDLTEMocSimplifiedTo;
 import bsshelper.externalapi.configurationmng.nemoactserv.entity.OpticInfoFinal;
 import bsshelper.externalapi.configurationmng.nemoactserv.entity.VSWRTestFinal;
 import bsshelper.externalapi.configurationmng.nemoactserv.mapper.FiberTableITBBUMapper;
@@ -216,11 +217,13 @@ public class AcceptMeasureController {
 
         List<SDRGTrxMoc> gsmSDR = currentMgnService.getSDRGTrxMoc(tokenService.getToken(),managedElement);
         List<EUtranCellNBIoTMocSimplified> nbiotSDR = currentMgnService.getEUtranCellNBIoTMocSimplified(tokenService.getToken(),managedElement);
+        List<EUtranCellFDDMocSimplified> lteFDDSDR = currentMgnService.getEUtranCellFDDMocSimplified(tokenService.getToken(),managedElement);
 
         infoGeneral.populateCapacityList(infoGeneral.getPlatInfoList());
         infoGeneral.populateCellAmountList((gsmSDR == null || gsmSDR.isEmpty()) ? 0 : gsmSDR.size(),
                 (umtsSDR == null || umtsSDR.isEmpty()) ? 0 : umtsSDR.size(),
-                (nbiotSDR == null || nbiotSDR.isEmpty()) ? 0 : nbiotSDR.size());
+                (nbiotSDR == null || nbiotSDR.isEmpty()) ? 0 : nbiotSDR.size(),
+                (lteFDDSDR == null || lteFDDSDR.isEmpty()) ? 0 : lteFDDSDR.size());
         return infoGeneral;
     }
 
@@ -232,11 +235,13 @@ public class AcceptMeasureController {
 
         List<ITBBUGTrxMoc> gsmITBBU = currentMgnService.getITBBUGTrxMoc(tokenService.getToken(),managedElement);
         List<ITBBUCUEUtranCellNBIoTMocSimplified> nbiotITBBU = currentMgnService.getITBBUCUEUtranCellNBIoTMocSimplified(tokenService.getToken(),managedElement);
+        List<ITBBUCUEUtranCellFDDLTEMocSimplified> lteFDDITBBU = currentMgnService.getITBBUCUEUtranCellFDDLTEMocSimplified(tokenService.getToken(),managedElement);
 
         infoGeneral.populateCapacityList(infoGeneral.getPlatInfoList());
         infoGeneral.populateCellAmountList((gsmITBBU == null || gsmITBBU.isEmpty()) ? 0 : gsmITBBU.size(),
                 (umtsITBBU == null || umtsITBBU.isEmpty()) ? 0 : umtsITBBU.size(),
-                (nbiotITBBU == null || nbiotITBBU.isEmpty()) ? 0 : nbiotITBBU.size());
+                (nbiotITBBU == null || nbiotITBBU.isEmpty()) ? 0 : nbiotITBBU.size(),
+                (lteFDDITBBU == null || lteFDDITBBU.isEmpty()) ? 0 : lteFDDITBBU.size());
         return infoGeneral;
     }
 
