@@ -8,6 +8,7 @@ import bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.ITBBUULoca
 import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.UCellMocSimplified;
 import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.ULocalCellMocSimplified;
 import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnService;
+import bsshelper.externalapi.configurationmng.nemoactserv.service.ExecNeActService;
 import bsshelper.externalapi.openscriptexecengine.entity.CellStatus;
 import bsshelper.externalapi.openscriptexecengine.entity.GCellStatus;
 import bsshelper.externalapi.openscriptexecengine.mapper.*;
@@ -19,6 +20,8 @@ import bsshelper.externalapi.openscriptexecengine.wrapper.EUtranCellFDDStatusLis
 import bsshelper.externalapi.openscriptexecengine.wrapper.EUtranCellNBIoTStatusListWrapper;
 import bsshelper.externalapi.openscriptexecengine.wrapper.GCellStatusListWrapper;
 import bsshelper.externalapi.openscriptexecengine.wrapper.ULocalCellStatusListWrapper;
+import bsshelper.externalapi.perfmng.to.QueryTypeTo;
+import bsshelper.externalapi.perfmng.wrapper.QueryTypeToWrapper;
 import bsshelper.globalutil.ManagedElementType;
 import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.entity.MessageEntity;
@@ -53,6 +56,7 @@ public class CellStatusMngController {
     private static final Logger operationLog = LoggerUtil.getOperationLogger();
     private final ActiveAlarmService activeAlarmService;
     private final SearchCacheService searchCacheService;
+    private final ExecNeActService execNeActService;
 
     @GetMapping("/cellStatus")
     public String cellStatus(Model model, HttpSession session) {
@@ -180,7 +184,7 @@ public class CellStatusMngController {
                     repoUMTS.getExtensionData(), operationUMTS,
                     repoNBIoT.getExtensionData(), operationNBIoT,
                     repoLTEFDD.getExtensionData(), operationLTEFDD,
-                    repoGSM.getDataGSM(), operationGSM, comment);
+                    repoGSM.getDataGSM(), operationGSM, comment + " (" + authentication.getName() + ")");
             if (execResult.equals("SUCCEEDED")) {
                 localCacheService.messageMap.put(id, new MessageEntity(Severity.SUCCESS, "Script execution result: " + execResult));
             } else {
@@ -194,6 +198,33 @@ public class CellStatusMngController {
                     repoGSM.getDataGSM(), operationGSM,
                     execResult, authentication);
         }
+
+        return "redirect:/helper/cellStatus/" + userLabel;
+    }
+
+    @PostMapping("/cellStatus/reset")
+    public String reset(@ModelAttribute("userLabel") String userLabel,
+                        Model model, HttpSession session, Authentication authentication) {
+        String id = session.getId();
+        ManagedElement managedElement = null;
+        String responce = "";
+
+        System.out.println(userLabel);
+
+        if (localCacheService.managedElementMap.containsKey(userLabel.trim().toUpperCase())) {
+            managedElement = localCacheService.managedElementMap.get(userLabel.trim().toUpperCase());
+        } else {
+            managedElement = currentMgnService.getManagedElementByNeName(tokenService.getToken(), userLabel);
+        }
+
+        if (managedElement != null) {
+            responce = execNeActService.resetNEQuery(tokenService.getToken(), managedElement);
+            getLogForReset(managedElement, responce, authentication);
+        }
+
+        System.out.println(responce);
+
+        localCacheService.messageMap.put(id, computeResultMessageForReset(responce));
 
         return "redirect:/helper/cellStatus/" + userLabel;
     }
@@ -440,4 +471,30 @@ public class CellStatusMngController {
         }
     }
 
+    private MessageEntity computeResultMessageForReset(String response) {
+        if (response.isEmpty() || response.equals("Unprocessed response.")) {
+            return new MessageEntity(Severity.INFO, response);
+        }
+        if (response.equals("The NE has been reset successfully.")) {
+            return new MessageEntity(Severity.SUCCESS, response);
+        } else {
+            return new MessageEntity(Severity.ERROR, response);
+        }
+    }
+
+    private void getLogForReset(ManagedElement managedElement,
+                        String response, Authentication authentication) {
+        StringBuilder log = new StringBuilder();
+        log.append("User: ")
+                .append(authentication.getName())
+                .append(" (")
+                .append(authentication.getDetails().toString())
+                .append(") reset NE: ")
+                .append(managedElement.getUserLabel())
+                .append(". ")
+                .append("result: ")
+                .append(response);
+
+        operationLog.warn(log.toString());
+    }
 }

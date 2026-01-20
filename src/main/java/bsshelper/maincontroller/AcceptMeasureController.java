@@ -6,7 +6,6 @@ import bsshelper.externalapi.configurationmng.currentmng.entity.mrnc.GGsmCellMoc
 import bsshelper.externalapi.configurationmng.currentmng.entity.mrnc.UUtranCellFDDMocSimplified;
 import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.*;
 import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnService;
-import bsshelper.externalapi.configurationmng.currentmng.to.itbbu.ITBBUCUEUtranCellFDDLTEMocSimplifiedTo;
 import bsshelper.externalapi.configurationmng.nemoactserv.entity.OpticInfoFinal;
 import bsshelper.externalapi.configurationmng.nemoactserv.entity.VSWRTestFinal;
 import bsshelper.externalapi.configurationmng.nemoactserv.mapper.FiberTableITBBUMapper;
@@ -16,7 +15,6 @@ import bsshelper.externalapi.configurationmng.nemoactserv.wrapper.FiberTableWrap
 import bsshelper.externalapi.configurationmng.nemoactserv.wrapper.VSWRListWrapper;
 import bsshelper.externalapi.inventorymng.mapper.InventoryEntityMapper;
 import bsshelper.externalapi.inventorymng.service.InventoryMngService;
-import bsshelper.externalapi.inventorymng.util.InventoryMngBodySettings;
 import bsshelper.externalapi.perfmng.entity.InfoCellUMTS;
 import bsshelper.externalapi.perfmng.entity.InfoGeneral;
 import bsshelper.externalapi.perfmng.mapper.*;
@@ -28,18 +26,18 @@ import bsshelper.externalapi.perfmng.wrapper.*;
 import bsshelper.globalutil.ManagedElementType;
 import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.entity.MessageEntity;
+import bsshelper.globalutil.logger.LoggerUtil;
 import bsshelper.localservice.localcache.LocalCacheService;
 import bsshelper.localservice.searchcache.SearchCacheService;
 import bsshelper.localservice.token.TokenService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -54,6 +52,53 @@ public class AcceptMeasureController {
     private final ExecNeActService execNeActService;
     private final SearchCacheService searchCacheService;
     private final InventoryMngService inventoryMngService;
+    private static final Logger operationLog = LoggerUtil.getOperationLogger();
+
+    @PostMapping("/acceptanceMeasurement/reset")
+    public String reset(@ModelAttribute("ldn") String ldn,
+                        @ModelAttribute("userLabel") String userLabel,
+                        @ModelAttribute("position") String position,
+                        @ModelAttribute("configuration") String configuration,
+                        Model model, HttpSession session, Authentication authentication) {
+        String id = session.getId();
+        ManagedElement managedElement = null;
+        String responce = "";
+
+        System.out.println(ldn);
+        System.out.println(userLabel);
+
+        if (localCacheService.managedElementMap.containsKey(userLabel.trim().toUpperCase())) {
+            managedElement = localCacheService.managedElementMap.get(userLabel.trim().toUpperCase());
+        } else {
+            managedElement = currentMgnService.getManagedElementByNeName(tokenService.getToken(), userLabel);
+        }
+        if (!ldn.isEmpty()) {
+            if (configuration.contains("VSW") || configuration.contains("CCC")) {
+                responce = execNeActService.resetNEQuery(tokenService.getToken(), managedElement);
+                getLogForReset(managedElement, responce, "reset NE: ", authentication);
+            } else
+                if (configuration.contains("PM") || configuration.contains("FCE")) {
+                    responce = execNeActService.resetBoardQuery(tokenService.getToken(), managedElement, ldn);
+                    getLogForReset(managedElement, responce, "reset board " + getNameAndPosition(position, configuration) + " NE: ", authentication);
+                } else {
+                    responce = execNeActService.powerOffResetBoardQuery(tokenService.getToken(), managedElement, ldn);
+                    getLogForReset(managedElement, responce, "power off reset board " + getNameAndPosition(position, configuration) + " NE: ", authentication);
+                }
+        }
+
+        System.out.println(responce);
+
+        localCacheService.messageMap.put(id, computeResultMessageForReset(responce, position, configuration));
+
+        setMessage(id, model);
+
+        model.addAttribute("managedElement", managedElement);
+        model.addAttribute("isSelected", new ArrayList<>(List.of(false,false,false,false,false,false)));
+        model.addAttribute("title", "Acceptance Measurement");
+        model.addAttribute("repoQueryType", new QueryTypeToWrapper(QueryTypeTo.getDefaultQueryTypeSelectedList()));
+        model.addAttribute("searchCache", searchCacheService.getList());
+        return "measurement";
+    }
 
     @GetMapping("/acceptanceMeasurement")
     public String cellStatus(Model model, HttpSession session) {
@@ -426,5 +471,36 @@ public class AcceptMeasureController {
         } else model.addAttribute("message", null);
     }
 
+    private MessageEntity computeResultMessageForReset(String response, String position, String configuration) {
+        if (response.isEmpty() || response.equals("Unprocessed response.")) {
+            return new MessageEntity(Severity.INFO, response + " " + getNameAndPosition(position, configuration));
+        }
+        if (response.equals("The board has been reset successfully.") || response.equals("The NE has been reset successfully.")) {
+            return new MessageEntity(Severity.SUCCESS, response + " " + getNameAndPosition(position, configuration));
+        } else {
+            return new MessageEntity(Severity.ERROR, response + " " + getNameAndPosition(position, configuration));
+        }
+    }
 
+    private void getLogForReset(ManagedElement managedElement,
+                                String response, String resetType, Authentication authentication) {
+        StringBuilder log = new StringBuilder();
+        log.append("User: ")
+                .append(authentication.getName())
+                .append(" (")
+                .append(authentication.getDetails().toString())
+                .append(") ")
+                .append(resetType)
+                .append(managedElement.getUserLabel())
+                .append(". ")
+                .append("result: ")
+                .append(response);
+
+        operationLog.warn(log.toString());
+    }
+
+    private String getNameAndPosition(String position, String configuration) {
+        String[] names = configuration.split(" ");
+        return position.contains("Slot") ? names[0] + " (" + position + ")" : "RU" + " (" + position + ")";
+    }
 }

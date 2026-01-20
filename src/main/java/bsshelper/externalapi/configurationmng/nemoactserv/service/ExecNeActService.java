@@ -16,6 +16,13 @@ public interface ExecNeActService {
     List<OpticInfoFinal> opticInfoFinalDataQuery(Token token, ManagedElement managedElement, List<SdrDeviceGroupMoc> sdrDeviceGroupMocList);
     List<VSWRTestFinal> vswrTestFinalDataQuery(Token token, ManagedElement managedElement, List<SdrDeviceGroupMoc> sdrDeviceGroupMocList);
     String ITBBUDataQuery(Token token, ManagedElement managedElement, String ldn, String query, String description);
+
+    String powerOffResetBoardQuery(Token token, ManagedElement managedElement, String ldn);
+
+    String resetBoardQuery(Token token, ManagedElement managedElement, String ldn);
+
+    String resetNEQuery(Token token, ManagedElement managedElement);
+
     List<OpticInfoFinal> opticInfoFinalITBBUDataQuery(Token token, ManagedElement managedElement, List<ReplaceableUnitMoc> replaceableUnitMocList);
     List<VSWRTestFinal> vswrTestFinalITBBUDataQuery(Token token, ManagedElement managedElement, List<ReplaceableUnitMoc> replaceableUnitMocList);
     List<SyncFinal> getSync(Token token, ManagedElement managedElement, List<SdrDeviceGroupMoc> sdrDeviceGroupMocList);

@@ -17,6 +17,7 @@ public class InfoGeneral {
     @RequiredArgsConstructor
     public static class InfoPlat{
         private final String position;
+        private final String ldn;
         private final String conf;
         private final String inv;
         private final List<Integer> capacity;

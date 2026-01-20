@@ -36,6 +36,11 @@ public class GlobalUtil {
     public static final String EXEC_NE_SERV_QUERY_SYNCE_ITBBU ="/moaction/querySyncEInformation";
     public static final String EXEC_NE_SERV_QUERY_1588_ITBBU ="/moaction/query1588ClockInformation";
     public static final String EXEC_NE_SERV_QUERY_GNSS_ITBBU ="/moaction/queryInnerGNSSInformation";
+    public static final String EXEC_NE_SERV_RESET_SDR_AND_ITBBU = "/moaction/resetBoard";
+    public static final String EXEC_NE_SERV_RESET_POWER_OFF_SDR = "/moaction/resetPowerOffBoard";
+    public static final String EXEC_NE_SERV_RESET_POWER_OFF_ITBBU = "/moaction/powerOffResetBoard";
+    public static final String EXEC_NE_SERV_RESET_NE_SDR = "/moaction/resetNE";
+    public static final String EXEC_NE_SERV_RESET_NE_ITBBU = "/moaction/resetSystem";
 
     public static final String API_EXPRT_ACTIVE_ALARM = "/api/fm-active/v2/activealarms/openapi/export";
     public static final String API_COMMENT_ALARM = "/api/fm-active/v2/activealarms/openapi/comment";

@@ -51,12 +51,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/helper/cellStatus/**").hasAnyAuthority("CELL_STAT_MNG_SINGLE_VIEW", "CELL_STAT_MNG_SINGLE_FULL")
                         .requestMatchers("/helper/cellStatus/cellStatusDetails").hasAnyAuthority("CELL_STAT_MNG_SINGLE_VIEW", "CELL_STAT_MNG_SINGLE_FULL")
                         .requestMatchers("/helper/cellStatus/**").hasAnyAuthority("CELL_STAT_MNG_SINGLE_FULL")
-                        .requestMatchers("/helper/cellStatusBatch/**").hasAnyAuthority("CELL_STAT_MNG_BATCH_VIEW", "CELL_STAT_MNG_BATCH_FULL")
-                        .requestMatchers("/helper/acceptanceMeasurement/**").hasAnyAuthority("ACCEPT_MEASUREMENT_VIEW", "ACCEPT_MEASUREMENT_FULL")
+                        .requestMatchers("/helper/cellStatusBatch/**").hasAnyAuthority("CELL_STAT_MNG_BATCH_FULL")
+                        .requestMatchers(HttpMethod.GET,"/helper/acceptanceMeasurement/**").hasAnyAuthority("ACCEPT_MEASUREMENT_VIEW", "ACCEPT_MEASUREMENT_FULL")
+                        .requestMatchers("/helper/acceptanceMeasurement/**").hasAnyAuthority("ACCEPT_MEASUREMENT_FULL")
                         .requestMatchers("/helper/packetLossStat/**").hasAnyAuthority("PACKET_LOSS_INSPECTOR_VIEW", "PACKET_LOSS_INSPECTOR_FULL")
                         .requestMatchers("/helper/appAccessMng", "/helper/appAccessMng/logs").hasAnyAuthority("USER_MNG_VIEW", "USER_MNG_FULL")
                         .requestMatchers("/helper/appAccessMng/**").hasAnyAuthority("USER_MNG_FULL")
-                        .requestMatchers("/helper/vasily-tools").hasAnyAuthority("VASILY_TOOLS_VIEW", "VASILY_TOOLS_FULL")
+                        .requestMatchers("/helper/vasily-tools").hasAnyAuthority("VASILY_TOOLS_FULL")
                 )
                 .formLogin(form -> form
                         .loginPage("/helper/login")
@@ -82,7 +83,7 @@ public class SecurityConfig {
 //                        )
                 .sessionManagement(session ->
                     session
-                            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                            .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                             .sessionFixation(SessionManagementConfigurer.SessionFixationConfigurer::newSession)
                             .sessionConcurrency(concurrency -> concurrency
                                 .maximumSessions(10) // Allow only one session per user

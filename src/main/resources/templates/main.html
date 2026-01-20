@@ -23,7 +23,7 @@
         <br/>
         <a id="csmsn" class="btn btn-primary text-center width-250px" th:href="@{/helper/cellStatus}">Cell Status Manager (Single NE)</a>
     </form>
-    <form sec:authorize="!hasAuthority('CELL_STAT_MNG_BATCH_NO')">
+    <form sec:authorize="hasAuthority('CELL_STAT_MNG_BATCH_FULL')">
         <br/>
         <a id="csmb" class="btn btn-primary text-center width-250px" th:href="@{/helper/cellStatusBatch}">Cell Status Manager (Batch)</a>
     </form>
@@ -35,7 +35,7 @@
         <br/>
         <a id="pli" class="btn btn-primary text-center width-250px" th:href="@{/helper/packetLossStat}">Packet Loss Inspector</a>
     </form>
-    <form sec:authorize="!hasAuthority('VASILY_TOOLS_NO')">
+    <form sec:authorize="hasAuthority('VASILY_TOOLS_FULL')">
         <br/>
         <a id="vvt" class="btn btn-warning text-center width-250px" target="_blank" th:href="@{/helper/vasily-tools}">Vasily Vorohobko Tool</a>
     </form>

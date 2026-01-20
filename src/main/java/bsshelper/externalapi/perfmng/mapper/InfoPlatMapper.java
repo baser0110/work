@@ -22,7 +22,7 @@ public class InfoPlatMapper {
             default -> conf = conf + capasityToString(capacity);
         }
 
-        return new InfoGeneral.InfoPlat(position, conf, (inv != null) ? inv : "", capacity);
+        return new InfoGeneral.InfoPlat(position, device.getLdn(), conf, (inv != null) ? inv : "", capacity);
     }
 
      public static List<InfoGeneral.InfoPlat> toInfoPlatForSDR(List<SdrDeviceGroupMoc> deviceList, List<EthernetSwitchDeviceMoc> switchPortList, Map<String,String> inventoryMap) {
@@ -48,7 +48,7 @@ public class InfoPlatMapper {
          }
          if (!copyInventoryMap.isEmpty()) {
              for (String s : copyInventoryMap.keySet()) {
-                 result.add(new InfoGeneral.InfoPlat(s, "", copyInventoryMap.get(s), List.of(0, 0, 0, 0)));
+                 result.add(new InfoGeneral.InfoPlat(s, "", "", copyInventoryMap.get(s), List.of(0, 0, 0, 0)));
              }
          }
          result.sort(Comparator.comparing(InfoGeneral.InfoPlat::getPosition));
@@ -64,7 +64,7 @@ public class InfoPlatMapper {
 
         conf = conf + capasityToString(capacity);
 
-        return new InfoGeneral.InfoPlat(position, conf, (inv != null) ? inv : "", capacity);
+        return new InfoGeneral.InfoPlat(position, device.getLdn(), conf, (inv != null) ? inv : "", capacity);
     }
 
     public static List<InfoGeneral.InfoPlat> toInfoPlatForITBBU(List<ReplaceableUnitMoc> deviceList, Map<String,String> inventoryMap) {
@@ -86,7 +86,7 @@ public class InfoPlatMapper {
         }
         if (!copyInventoryMap.isEmpty()) {
             for (String s : copyInventoryMap.keySet()) {
-                result.add(new InfoGeneral.InfoPlat(s, "", copyInventoryMap.get(s), List.of(0, 0, 0, 0)));
+                result.add(new InfoGeneral.InfoPlat(s, "","", copyInventoryMap.get(s), List.of(0, 0, 0, 0)));
             }
         }
         result.sort(Comparator.comparing(InfoGeneral.InfoPlat::getPosition));

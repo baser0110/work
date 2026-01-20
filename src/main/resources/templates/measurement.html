@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 
 <head>
     <meta charset="ISO-8859-1">
@@ -81,6 +81,26 @@
                 }
             }
         }
+        document.addEventListener('DOMContentLoaded', function () {
+            const resetButtons = document.querySelectorAll('.reset-btn');
+            resetButtons.forEach(button => {
+                button.addEventListener('click', function (event) {
+                    const isConfirmed = confirm('Confirm operation! Board will be reset!')
+                    if (!isConfirmed) {
+                        event.preventDefault()
+                    }
+               });
+            });
+            const resetNeButtons = document.querySelectorAll('.reset-ne-btn');
+            resetNeButtons.forEach(button => {
+                button.addEventListener('click', function (event) {
+                    const isConfirmed = confirm('Confirm operation! NE will be reset!')
+                    if (!isConfirmed) {
+                        event.preventDefault()
+                    }
+               });
+            });
+        });
     </script>
 
     <script>
@@ -196,6 +216,7 @@
                             <thead>
                             <tr>
                                 <th class="pl-5">Position</th>
+                                <th sec:authorize="hasAuthority('CELL_STAT_MNG_SINGLE_FULL')"></th>
                                 <th class="pl-5">Configuration</th>
                                 <th class="pl-5">Inventory (SN)</th>
                             </tr>
@@ -203,6 +224,18 @@
                             <tbody th:if="${!repoGeneral.getPlatInfoList().isEmpty()}">
                             <tr th:each="object: *{platInfoList}">
                                 <td class="pl-5" th:text="${object.getPosition()}"></td>
+                                <td sec:authorize="hasAuthority('CELL_STAT_MNG_SINGLE_FULL')" class="value-col" style="text-align: center" th:if="${!object.getConf().isEmpty()}">
+                                    <form th:action="@{/helper/acceptanceMeasurement/reset}" method="post">
+                                        <button th:if="${!(object.getConf().equals('CCC') || object.getConf().contains('VSW'))}" id="reset" class="btn btn-primary btn-sm reset-btn" type="submit"
+                                                style="font-weight: bold; padding-top: 2px; padding-bottom: 2px">Reset</button>
+                                        <button th:if="${object.getConf().equals('CCC') || object.getConf().contains('VSW')}" id="reset-ne" class="btn btn-danger btn-sm reset-ne-btn" type="submit"
+                                                style="font-weight: bold; padding-top: 2px; padding-bottom: 2px">Reset NE</button>
+                                        <input type="hidden" name="ldn" th:value="${object.getLdn()}">
+                                        <input type="hidden" name="userLabel" th:value="${managedElement.getUserLabel()}">
+                                        <input type="hidden" name="position" th:value="${object.getPosition()}">
+                                        <input type="hidden" name="configuration" th:value="${object.getConf()}">
+                                    </form>
+                                </td>
                                 <td class="pl-5" th:text="${object.getConf()}"></td>
                                 <td class="pl-5" th:text="${object.getInv()}"></td>
                             </tr>

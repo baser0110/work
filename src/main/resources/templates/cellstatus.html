@@ -25,6 +25,15 @@
                 form.action = "/helper/cellStatus/" + inputValue;
             }
         }
+         document.addEventListener('DOMContentLoaded', function () {
+            const synchronize = document.getElementById('reset-NE');
+            synchronize.addEventListener('click', function (event) {
+                const isConfirmed = confirm('Confirm operation! NE will be reset!')
+                if (!isConfirmed) {
+                    event.preventDefault()
+                }
+            });
+        });
     </script>
 <!--    "${managedElement != null} ? ${managedElement.getUserLabel()} : ${sitename}"-->
     <div style="display: flex; gap: 5px;">
@@ -40,6 +49,12 @@
     <form th:if="${managedElement != null}" id="refresh" method="get"
           th:action="@{'/helper/cellStatus/' + ${managedElement.userLabel}}">
         <button type="submit" class="btn btn-secondary">Refresh</button>
+    </form>
+    <form th:if="${managedElement != null}" id="reset-NE"
+          sec:authorize="hasAuthority('CELL_STAT_MNG_SINGLE_FULL')"
+          action="#" th:action="@{/helper/cellStatus/reset}" method="post">
+        <input type="hidden" name="userLabel" th:value="${managedElement.userLabel}">
+        <button type="submit" class="btn btn-danger">Reset NE</button>
     </form>
     </div>
 

@@ -8,6 +8,7 @@ import bsshelper.externalapi.configurationmng.nemoactserv.entity.*;
 import bsshelper.externalapi.configurationmng.nemoactserv.to.*;
 import bsshelper.externalapi.configurationmng.nemoactserv.util.BoardDiagnosisBodySettings;
 import bsshelper.externalapi.configurationmng.nemoactserv.util.BoardDiagnosisITBBUBodySettings;
+import bsshelper.externalapi.configurationmng.nemoactserv.util.BoardPowerOffResetBodySettings;
 import bsshelper.externalapi.configurationmng.nemoactserv.util.DiagnosisAction;
 import bsshelper.globalutil.GlobalUtil;
 import bsshelper.globalutil.ManagedElementType;
@@ -148,6 +149,158 @@ public class ExecNeActServiceImpl implements ExecNeActService {
                         "/ManagedElementType/" + managedElement.getManagedElementType() +
                         "/SubNetwork/" + managedElement.getSubNetworkNum() +
                         "/ManagedElement/" + managedElement.getManagedElementNum() + GlobalUtil.EXEC_NE_SERV_BOARD_DIAGNOSIS))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Content-Type", "application/json; charset=utf-8")
+                .header("accessToken", token.getAccessToken())
+                .build();
+    }
+
+    @Override
+    public String powerOffResetBoardQuery(Token token, ManagedElement managedElement, String ldn) {
+        HttpResponse<String> httpResponse = null;
+        String response = null;
+        ErrorEntity error = null;
+        BoardPowerOffResetBodySettings bodySettings = BoardPowerOffResetBodySettings.builder().ldn(ldn).build();
+        try {
+            HttpRequest httpRequest = resetPowerOffRequest(token, bodySettings, managedElement);
+            httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            response = httpResponse.body();
+            if (response.contains("\"code\":0")) {
+                log.info(" >> {} for {} successfully reset", ldn, managedElement.getUserLabel());
+                response = "The board has been reset successfully.";
+            } else {
+                try {
+                    error = new Gson().fromJson(response, ErrorEntity.class);
+                } catch (JsonSyntaxException e2) {
+                    log.error(" >> error in ErrorEntity parsing: {}", e2.toString());
+                }
+                if (error != null) {
+                    log.error(" >> error {} code({})", error.getMessage(), error.getCode());
+                    response = error.getMessage();
+                } else {
+                    response = "Unprocessed response.";
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            log.error(" >> error in sending http request: {}", e.toString());
+            if (e instanceof ConnectException) throw new CustomNetworkConnectionException((e.toString()));
+        }
+        return response;
+    }
+
+    @Override
+    public String resetBoardQuery(Token token, ManagedElement managedElement, String ldn) {
+        HttpResponse<String> httpResponse = null;
+        String response = null;
+        ErrorEntity error = null;
+        BoardPowerOffResetBodySettings bodySettings = BoardPowerOffResetBodySettings.builder().ldn(ldn).build();
+        try {
+            HttpRequest httpRequest = resetRequest(token, bodySettings, managedElement);
+            httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            response = httpResponse.body();
+            if (response.contains("\"code\":0")) {
+                log.info(" >> {} for {} successfully reset", ldn, managedElement.getUserLabel());
+                response = "The board has been reset successfully.";
+            } else {
+                try {
+                    error = new Gson().fromJson(response, ErrorEntity.class);
+                } catch (JsonSyntaxException e2) {
+                    log.error(" >> error in ErrorEntity parsing: {}", e2.toString());
+                }
+                if (error != null) {
+                    log.error(" >> error {} code({})", error.getMessage(), error.getCode());
+                    response = error.getMessage();
+                } else {
+                    response = "Unprocessed response.";
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            log.error(" >> error in sending http request: {}", e.toString());
+            if (e instanceof ConnectException) throw new CustomNetworkConnectionException((e.toString()));
+        }
+        return response;
+    }
+
+    @Override
+    public String resetNEQuery(Token token, ManagedElement managedElement) {
+        HttpResponse<String> httpResponse = null;
+        String response = null;
+        ErrorEntity error = null;
+        try {
+            HttpRequest httpRequest = resetNERequest(token, managedElement);
+            httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            response = httpResponse.body();
+            if (response.contains("\"code\":0")) {
+                log.info(" >> {} successfully reset", managedElement.getUserLabel());
+                response = "The NE has been reset successfully.";
+            } else {
+                try {
+                    error = new Gson().fromJson(response, ErrorEntity.class);
+                } catch (JsonSyntaxException e2) {
+                    log.error(" >> error in ErrorEntity parsing: {}", e2.toString());
+                }
+                if (error != null) {
+                    log.error(" >> error {} code({})", error.getMessage(), error.getCode());
+                    response = error.getMessage();
+                } else {
+                    response = "Unprocessed response.";
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            log.error(" >> error in sending http request: {}", e.toString());
+            if (e instanceof ConnectException) throw new CustomNetworkConnectionException((e.toString()));
+        }
+        return response;
+    }
+
+    private HttpRequest resetPowerOffRequest(Token token, BoardPowerOffResetBodySettings bodySettings, ManagedElement managedElement) {
+        String action = "";
+        if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
+            action = GlobalUtil.EXEC_NE_SERV_RESET_POWER_OFF_SDR;
+        } else if (managedElement.getManagedElementType().equals(ManagedElementType.ITBBU)) {
+            action = GlobalUtil.EXEC_NE_SERV_RESET_POWER_OFF_ITBBU;
+        }
+        return HttpRequest.newBuilder()
+                .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(bodySettings.getBodySettings()))
+                .uri(URI.create(GlobalUtil.GLOBAL_PATH + GlobalUtil.API_EXEC_NE_SERV +
+                        "/ManagedElementType/" + managedElement.getManagedElementType() +
+                        "/SubNetwork/" + managedElement.getSubNetworkNum() +
+                        "/ManagedElement/" + managedElement.getManagedElementNum() + action))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Content-Type", "application/json; charset=utf-8")
+                .header("accessToken", token.getAccessToken())
+                .build();
+    }
+
+    private HttpRequest resetRequest(Token token, BoardPowerOffResetBodySettings bodySettings, ManagedElement managedElement) {
+        return HttpRequest.newBuilder()
+                .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(bodySettings.getBodySettings()))
+                .uri(URI.create(GlobalUtil.GLOBAL_PATH + GlobalUtil.API_EXEC_NE_SERV +
+                        "/ManagedElementType/" + managedElement.getManagedElementType() +
+                        "/SubNetwork/" + managedElement.getSubNetworkNum() +
+                        "/ManagedElement/" + managedElement.getManagedElementNum() + GlobalUtil.EXEC_NE_SERV_RESET_SDR_AND_ITBBU))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Content-Type", "application/json; charset=utf-8")
+                .header("accessToken", token.getAccessToken())
+                .build();
+    }
+
+    private HttpRequest resetNERequest(Token token, ManagedElement managedElement) {
+        String action = "";
+        String body = "";
+        if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
+            action = GlobalUtil.EXEC_NE_SERV_RESET_NE_SDR;
+            body = "{}";
+        } else if (managedElement.getManagedElementType().equals(ManagedElementType.ITBBU)) {
+            action = GlobalUtil.EXEC_NE_SERV_RESET_NE_ITBBU;
+            body = "{\"ldn\": \"Equipment=1\" }";
+        }
+        return HttpRequest.newBuilder()
+                .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(body))
+                .uri(URI.create(GlobalUtil.GLOBAL_PATH + GlobalUtil.API_EXEC_NE_SERV +
+                        "/ManagedElementType/" + managedElement.getManagedElementType() +
+                        "/SubNetwork/" + managedElement.getSubNetworkNum() +
+                        "/ManagedElement/" + managedElement.getManagedElementNum() + action))
                 .version(HttpClient.Version.HTTP_1_1)
                 .header("Content-Type", "application/json; charset=utf-8")
                 .header("accessToken", token.getAccessToken())
