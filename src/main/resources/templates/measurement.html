@@ -224,7 +224,7 @@
                             <tbody th:if="${!repoGeneral.getPlatInfoList().isEmpty()}">
                             <tr th:each="object: *{platInfoList}">
                                 <td class="pl-5" th:text="${object.getPosition()}"></td>
-                                <td sec:authorize="hasAuthority('CELL_STAT_MNG_SINGLE_FULL')" class="value-col" style="text-align: center" th:if="${!object.getConf().isEmpty()}">
+                                <td sec:authorize="hasAuthority('CELL_STAT_MNG_SINGLE_FULL')" class="value-col" style="text-align: center" th:if="${!object.getConf().isEmpty()}" th:else>
                                     <form th:action="@{/helper/acceptanceMeasurement/reset}" method="post">
                                         <button th:if="${!(object.getConf().equals('CCC') || object.getConf().contains('VSW'))}" id="reset" class="btn btn-primary btn-sm reset-btn" type="submit"
                                                 style="font-weight: bold; padding-top: 2px; padding-bottom: 2px">Reset</button>
@@ -235,6 +235,8 @@
                                         <input type="hidden" name="position" th:value="${object.getPosition()}">
                                         <input type="hidden" name="configuration" th:value="${object.getConf()}">
                                     </form>
+                                </td>
+                                <td sec:authorize="hasAuthority('CELL_STAT_MNG_SINGLE_FULL')" class="value-col" style="text-align: center" th:unless="${!object.getConf().isEmpty()}" th:text="${object.getLdn()}">
                                 </td>
                                 <td class="pl-5" th:text="${object.getConf()}"></td>
                                 <td class="pl-5" th:text="${object.getInv()}"></td>

@@ -180,11 +180,13 @@ public class CellStatusMngController {
         }
 //        if (operationUMTS == 3 || operationUMTS == 6) {}
         else {
+            String userName = "(" + authentication.getName() + ")";
             execResult = oneOperationWithResponse(localCacheService.managedElementMap.get(userLabel),
                     repoUMTS.getExtensionData(), operationUMTS,
                     repoNBIoT.getExtensionData(), operationNBIoT,
                     repoLTEFDD.getExtensionData(), operationLTEFDD,
-                    repoGSM.getDataGSM(), operationGSM, comment + " (" + authentication.getName() + ")");
+                    repoGSM.getDataGSM(), operationGSM,
+                    comment.isBlank() ? userName : comment + " " + userName);
             if (execResult.equals("SUCCEEDED")) {
                 localCacheService.messageMap.put(id, new MessageEntity(Severity.SUCCESS, "Script execution result: " + execResult));
             } else {

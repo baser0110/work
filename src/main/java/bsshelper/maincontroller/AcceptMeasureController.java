@@ -64,9 +64,6 @@ public class AcceptMeasureController {
         ManagedElement managedElement = null;
         String responce = "";
 
-        System.out.println(ldn);
-        System.out.println(userLabel);
-
         if (localCacheService.managedElementMap.containsKey(userLabel.trim().toUpperCase())) {
             managedElement = localCacheService.managedElementMap.get(userLabel.trim().toUpperCase());
         } else {
@@ -85,8 +82,6 @@ public class AcceptMeasureController {
                     getLogForReset(managedElement, responce, "power off reset board " + getNameAndPosition(position, configuration) + " NE: ", authentication);
                 }
         }
-
-        System.out.println(responce);
 
         localCacheService.messageMap.put(id, computeResultMessageForReset(responce, position, configuration));
 
