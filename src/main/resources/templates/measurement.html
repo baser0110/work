@@ -181,7 +181,7 @@
                         <option th:value="${query}"></option>
                     </th:block>
                 </datalist>
-                <button type="submit" class="btn btn-success">Search</button>
+                <button type="submit" class="btn btn-success" style="width: 90px;">Search</button>
             </div>
 
             <div class="col-md-8">
@@ -226,9 +226,9 @@
                                 <td class="pl-5" th:text="${object.getPosition()}"></td>
                                 <td sec:authorize="hasAuthority('CELL_STAT_MNG_SINGLE_FULL')" class="value-col" style="text-align: center" th:if="${!object.getConf().isEmpty()}" th:else>
                                     <form th:action="@{/helper/acceptanceMeasurement/reset}" method="post">
-                                        <button th:if="${!(object.getConf().equals('CCC') || object.getConf().contains('VSW'))}" id="reset" class="btn btn-primary btn-sm reset-btn" type="submit"
+                                        <button th:if="${!(object.getConf().equals('CCC') || object.getConf().contains('VSW') || object.getConf().contains('CCE1B'))}" id="reset" class="btn btn-primary btn-sm reset-btn" type="submit"
                                                 style="font-weight: bold; padding-top: 2px; padding-bottom: 2px">Reset</button>
-                                        <button th:if="${object.getConf().equals('CCC') || object.getConf().contains('VSW')}" id="reset-ne" class="btn btn-danger btn-sm reset-ne-btn" type="submit"
+                                        <button th:if="${object.getConf().equals('CCC') || object.getConf().contains('VSW') || object.getConf().contains('CCE1B')}" id="reset-ne" class="btn btn-danger btn-sm reset-ne-btn" type="submit"
                                                 style="font-weight: bold; padding-top: 2px; padding-bottom: 2px">Reset NE</button>
                                         <input type="hidden" name="ldn" th:value="${object.getLdn()}">
                                         <input type="hidden" name="userLabel" th:value="${managedElement.getUserLabel()}">

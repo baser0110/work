@@ -11,6 +11,7 @@ import bsshelper.externalapi.configurationmng.nemoactserv.entity.VSWRTestFinal;
 import bsshelper.externalapi.configurationmng.nemoactserv.mapper.FiberTableITBBUMapper;
 import bsshelper.externalapi.configurationmng.nemoactserv.mapper.FiberTableMapper;
 import bsshelper.externalapi.configurationmng.nemoactserv.service.ExecNeActService;
+import bsshelper.externalapi.configurationmng.nemoactserv.util.Action;
 import bsshelper.externalapi.configurationmng.nemoactserv.wrapper.FiberTableWrapper;
 import bsshelper.externalapi.configurationmng.nemoactserv.wrapper.VSWRListWrapper;
 import bsshelper.externalapi.inventorymng.mapper.InventoryEntityMapper;
@@ -70,15 +71,15 @@ public class AcceptMeasureController {
             managedElement = currentMgnService.getManagedElementByNeName(tokenService.getToken(), userLabel);
         }
         if (!ldn.isEmpty()) {
-            if (configuration.contains("VSW") || configuration.contains("CCC")) {
-                responce = execNeActService.resetNEQuery(tokenService.getToken(), managedElement);
+            if (configuration.contains("VSW") || configuration.contains("CCC") || configuration.contains("CCE1B")) {
+                responce = execNeActService.resetBoardOrNeQuery(tokenService.getToken(), managedElement, ldn, Action.RESET_NE);
                 getLogForReset(managedElement, responce, "reset NE: ", authentication);
             } else
                 if (configuration.contains("PM") || configuration.contains("FCE")) {
-                    responce = execNeActService.resetBoardQuery(tokenService.getToken(), managedElement, ldn);
+                    responce = execNeActService.resetBoardOrNeQuery(tokenService.getToken(), managedElement, ldn, Action.RESET);
                     getLogForReset(managedElement, responce, "reset board " + getNameAndPosition(position, configuration) + " NE: ", authentication);
                 } else {
-                    responce = execNeActService.powerOffResetBoardQuery(tokenService.getToken(), managedElement, ldn);
+                    responce = execNeActService.resetBoardOrNeQuery(tokenService.getToken(), managedElement, ldn, Action.POWER_OFF_RESET);
                     getLogForReset(managedElement, responce, "power off reset board " + getNameAndPosition(position, configuration) + " NE: ", authentication);
                 }
         }
@@ -470,7 +471,7 @@ public class AcceptMeasureController {
         if (response.isEmpty() || response.equals("Unprocessed response.")) {
             return new MessageEntity(Severity.INFO, response + " " + getNameAndPosition(position, configuration));
         }
-        if (response.equals("The board has been reset successfully.") || response.equals("The NE has been reset successfully.")) {
+        if (response.contains("successfully")) {
             return new MessageEntity(Severity.SUCCESS, response + " " + getNameAndPosition(position, configuration));
         } else {
             return new MessageEntity(Severity.ERROR, response + " " + getNameAndPosition(position, configuration));

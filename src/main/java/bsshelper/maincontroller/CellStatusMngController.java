@@ -8,8 +8,13 @@ import bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.ITBBUULoca
 import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.UCellMocSimplified;
 import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.ULocalCellMocSimplified;
 import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnService;
+import bsshelper.externalapi.configurationmng.nemoactserv.entity.PAStatus;
+import bsshelper.externalapi.configurationmng.nemoactserv.mapper.PAStatusMapper;
 import bsshelper.externalapi.configurationmng.nemoactserv.service.ExecNeActService;
+import bsshelper.externalapi.configurationmng.nemoactserv.util.Action;
+import bsshelper.externalapi.configurationmng.nemoactserv.wrapper.PAStatusWrapper;
 import bsshelper.externalapi.openscriptexecengine.entity.CellStatus;
+import bsshelper.externalapi.openscriptexecengine.entity.CellStatusDetails;
 import bsshelper.externalapi.openscriptexecengine.entity.GCellStatus;
 import bsshelper.externalapi.openscriptexecengine.mapper.*;
 import bsshelper.externalapi.openscriptexecengine.service.ExecuteUCLIBatchScriptService;
@@ -20,11 +25,10 @@ import bsshelper.externalapi.openscriptexecengine.wrapper.EUtranCellFDDStatusLis
 import bsshelper.externalapi.openscriptexecengine.wrapper.EUtranCellNBIoTStatusListWrapper;
 import bsshelper.externalapi.openscriptexecengine.wrapper.GCellStatusListWrapper;
 import bsshelper.externalapi.openscriptexecengine.wrapper.ULocalCellStatusListWrapper;
-import bsshelper.externalapi.perfmng.to.QueryTypeTo;
-import bsshelper.externalapi.perfmng.wrapper.QueryTypeToWrapper;
 import bsshelper.globalutil.ManagedElementType;
 import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.entity.MessageEntity;
+import bsshelper.localservice.externalcustomdata.service.CustomDataService;
 import bsshelper.localservice.localcache.LocalCacheService;
 import bsshelper.localservice.searchcache.SearchCacheService;
 import bsshelper.localservice.token.TokenService;
@@ -39,10 +43,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @Slf4j
 @Controller
@@ -57,6 +58,7 @@ public class CellStatusMngController {
     private final ActiveAlarmService activeAlarmService;
     private final SearchCacheService searchCacheService;
     private final ExecNeActService execNeActService;
+    private final CustomDataService customDataService;
 
     @GetMapping("/cellStatus")
     public String cellStatus(Model model, HttpSession session) {
@@ -85,19 +87,19 @@ public class CellStatusMngController {
             return "redirect:/helper/cellStatus";
         }
 
+        localCacheService.managedElementMap.put(managedElement.getUserLabel(), managedElement);
+        searchCacheService.add(managedElement.getUserLabel());
+
 //        System.out.println(currentMgnService.rawDataQuery(tokenService.getToken(),managedElement,"EUtranCellNBIoT"));
+
         ULocalCellStatusListWrapper uLocalCellMocListWrapper = null;
         EUtranCellNBIoTStatusListWrapper eUtranCellNBIoTMocListWrapper = null;
         EUtranCellFDDStatusListWrapper eUtranCellFDDMocListWrapper = null;
+        PAStatusWrapper paStatusWrapper = null;
         Map<Integer, UCellMocSimplified> uCellMap = new TreeMap<>();
         List<ULocalCellMocSimplified> uLocalCellList = null;
         List<ITBBUULocalCellMocSimplified> iTBBUULocalCellList = null;
-
-
-//        if (managedElement == null) {
-//            localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "userLabel '" + userLabel + "' couldn't be found"));
-//            return "redirect:/helper/cellStatus";
-//        }
+        List<CellStatusDetails> details = null;
 
 //        System.out.println(activeAlarmService.rawDataQuery(tokenService.getToken(),managedElement));
 
@@ -109,6 +111,8 @@ public class CellStatusMngController {
                     toEUtranCellNBIoTStatusEntity(currentMgnService.getEUtranCellNBIoTMocSimplified(tokenService.getToken(), managedElement)));
             eUtranCellFDDMocListWrapper = new EUtranCellFDDStatusListWrapper(EUtranCellFDDStatusMapper.
                     toEUtranCellFDDStatusEntity(currentMgnService.getEUtranCellFDDMocSimplified(tokenService.getToken(), managedElement)));
+            paStatusWrapper = new PAStatusWrapper(PAStatusMapper.
+                    toPAStatusSDR(currentMgnService.getTxChannelMoc(tokenService.getToken(), managedElement)));
         } else {
             uCellMap = UCellMocSimplified.toMap(currentMgnService.getUCellMocSimplified(tokenService.getToken(), managedElement));
             iTBBUULocalCellList = currentMgnService.getITBBUULocalCellMocSimplified(tokenService.getToken(), managedElement);
@@ -118,6 +122,8 @@ public class CellStatusMngController {
                     toEUtranCellNBIoTStatusEntity(currentMgnService.getITBBUCUEUtranCellNBIoTMocSimplified(tokenService.getToken(), managedElement)));
             eUtranCellFDDMocListWrapper = new EUtranCellFDDStatusListWrapper(ITBBUCUEUtranCellFDDLTEStatusMapper.
                     toEUtranCellFDDStatusEntity(currentMgnService.getITBBUCUEUtranCellFDDLTEMocSimplified(tokenService.getToken(), managedElement)));
+            paStatusWrapper = new PAStatusWrapper(PAStatusMapper.
+                    toPAStatusITBBU(currentMgnService.getITBBUTxChannelMoc(tokenService.getToken(), managedElement)));
         }
         GCellStatusListWrapper gCellStatusListWrapper = new GCellStatusListWrapper(
                 GCellStatusMapper.toGCellStatusEntity(
@@ -127,28 +133,26 @@ public class CellStatusMngController {
 
 //        System.out.println(uLocalCellMocListWrapper);
 //        System.out.println(gCellStatusListWrapper);
+
         if (uLocalCellList != null) {
-            localCacheService.cellStatusDetailsMap.put(userLabel.trim().toUpperCase(), CellStatusDetailsMapper.toULocalCellStatusEntitySDR(uLocalCellList, uCellMap));
+            details = CellStatusDetailsMapper.toULocalCellStatusEntitySDR(uLocalCellList, uCellMap);
         } else {
             if (iTBBUULocalCellList != null) {
-                localCacheService.cellStatusDetailsMap.put(userLabel.trim().toUpperCase(), CellStatusDetailsMapper.toULocalCellStatusEntityITBBU(iTBBUULocalCellList, uCellMap));
+                details = CellStatusDetailsMapper.toULocalCellStatusEntityITBBU(iTBBUULocalCellList, uCellMap);
             }
-        }
-        if (!localCacheService.managedElementMap.containsKey(managedElement.getUserLabel())) {
-            localCacheService.managedElementMap.put(managedElement.getUserLabel(), managedElement);
         }
 
 //        activeAlarmService.alarmDataExport(tokenService.getToken(), managedElement);
-
-        searchCacheService.add(managedElement.getUserLabel());
 
         model.addAttribute("managedElement", managedElement);
         model.addAttribute("repoUMTS", uLocalCellMocListWrapper);
         model.addAttribute("repoNBIoT", eUtranCellNBIoTMocListWrapper);
         model.addAttribute("repoLTEFDD", eUtranCellFDDMocListWrapper);
         model.addAttribute("repoGSM", gCellStatusListWrapper);
+        model.addAttribute("repoPA", paStatusWrapper);
+        model.addAttribute("details", details);
         model.addAttribute("title", "Cell Status Manager (Single NE)");
-        model.addAttribute("comments", Comments.values());
+        model.addAttribute("comments", new HashSet<>(customDataService.CommentsMap.values()));
         model.addAttribute("searchCache", searchCacheService.getList());
         return "cellstatus";
     }
@@ -193,12 +197,85 @@ public class CellStatusMngController {
                 localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "Script execution result: " + execResult));
             }
 
-            getLog(localCacheService.managedElementMap.get(userLabel),
+            getLogForCell(localCacheService.managedElementMap.get(userLabel),
                     repoUMTS.getExtensionData(), operationUMTS,
                     repoNBIoT.getExtensionData(), operationNBIoT,
                     repoLTEFDD.getExtensionData(), operationLTEFDD,
                     repoGSM.getDataGSM(), operationGSM,
                     execResult, authentication);
+        }
+
+        return "redirect:/helper/cellStatus/" + userLabel;
+    }
+
+    @PostMapping("/cellStatus/changeStatusPA")
+    public String cellChangeStatus(@ModelAttribute("repoPA") PAStatusWrapper repoPA, Integer operationPA,
+                                   @ModelAttribute("userLabel") String userLabel,
+                                   @ModelAttribute("comment") String comment,
+                                   Model model, HttpSession session, Authentication authentication) {
+        String id = session.getId();
+        setMessage(id, model);
+        StringBuilder execResult = new StringBuilder();
+        ManagedElement managedElement = localCacheService.managedElementMap.get(userLabel);
+        String userName = "(" + authentication.getName() + ")";
+        if (operationPA == null || operationPA == 0) {
+            localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "No any operation selected!"));
+            return "redirect:/helper/cellStatus/" + userLabel;
+        }
+        if (repoPA.getDataPA() == null || !repoPA.isAnySelected()) {
+            localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "No any data selected!"));
+            return "redirect:/helper/cellStatus/" + userLabel;
+        }
+        else {
+            if (operationPA == 1) {
+                boolean isSuccessOnce = false;
+                String result = "";
+                for (PAStatus pa : repoPA.getDataPA()) {
+                    if (pa.isSelected()) {
+                        result = execNeActService.paActionQuery(
+                                tokenService.getToken(),
+                                managedElement,
+                                pa.getLdn(),
+                                Action.PA_OFF);
+                        execResult
+                                .append(pa.getUserLabel())
+                                .append(" > ")
+                                .append(result)
+                                .append("\n");
+                    }
+                    if (!isSuccessOnce && result.contains("successfully")) {
+                        isSuccessOnce = true;
+                    }
+                }
+                if (isSuccessOnce) {
+                    setCommentForPAAlarmsScheduler(managedElement, repoPA.getDataPA(), comment.isBlank() ? userName : comment + " " + userName);
+                }
+            }
+            if (operationPA == 4) {
+                for (PAStatus pa : repoPA.getDataPA()) {
+                    if (pa.isSelected()) {
+                        execResult
+                                .append(pa.getUserLabel())
+                                .append(" > ")
+                                .append(execNeActService.paActionQuery(
+                                        tokenService.getToken(),
+                                        managedElement,
+                                        pa.getLdn(),
+                                        Action.PA_ON))
+                                .append("\n");
+                    }
+                }
+            }
+        }
+
+        if (!execResult.isEmpty()) {
+            execResult.setLength(execResult.length() - 1);
+            localCacheService.messageMap.put(id, new MessageEntity(Severity.INFO, execResult.toString()));
+            getLogForPA(
+                    managedElement,
+                    execResult.toString(),
+                    authentication,
+                    operationPA == 1 ? Action.PA_OFF : Action.PA_ON);
         }
 
         return "redirect:/helper/cellStatus/" + userLabel;
@@ -211,8 +288,6 @@ public class CellStatusMngController {
         ManagedElement managedElement = null;
         String responce = "";
 
-        System.out.println(userLabel);
-
         if (localCacheService.managedElementMap.containsKey(userLabel.trim().toUpperCase())) {
             managedElement = localCacheService.managedElementMap.get(userLabel.trim().toUpperCase());
         } else {
@@ -220,11 +295,9 @@ public class CellStatusMngController {
         }
 
         if (managedElement != null) {
-            responce = execNeActService.resetNEQuery(tokenService.getToken(), managedElement);
+            responce = execNeActService.resetBoardOrNeQuery(tokenService.getToken(), managedElement, null, Action.RESET_NE);
             getLogForReset(managedElement, responce, authentication);
         }
-
-        System.out.println(responce);
 
         localCacheService.messageMap.put(id, computeResultMessageForReset(responce));
 
@@ -243,7 +316,7 @@ public class CellStatusMngController {
                 LTEFDDData, LTEFDDCellOperation,
                 GSMData, GSMCellOperation);
         if (!comment.isBlank())
-            setCommentForAlarmsScheduler(managedElement,
+            setCommentForCellAlarmsScheduler(managedElement,
                 UMTSData,UMTSCellOperation,
                 NBIoTData,NBIoTCellOperation,
                 LTEFDDData,LTEFDDCellOperation,
@@ -292,12 +365,12 @@ public class CellStatusMngController {
         } else model.addAttribute("message", null);
     }
 
-    private void getLog(ManagedElement managedElement,
-                        List<CellStatus> UMTSData, Integer UMTSCellOperation,
-                        List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
-                        List<CellStatus> LTEFDDData, Integer LTEFDDCellOperation,
-                        List<GCellStatus> GSMData, Integer GSMCellOperation,
-                        String result, Authentication authentication) {
+    private void getLogForCell(ManagedElement managedElement,
+                               List<CellStatus> UMTSData, Integer UMTSCellOperation,
+                               List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
+                               List<CellStatus> LTEFDDData, Integer LTEFDDCellOperation,
+                               List<GCellStatus> GSMData, Integer GSMCellOperation,
+                               String result, Authentication authentication) {
         StringBuilder umts = new StringBuilder();
         StringBuilder nBIoT = new StringBuilder();
         StringBuilder lteFDD = new StringBuilder();
@@ -373,7 +446,7 @@ public class CellStatusMngController {
         };
     }
 
-    private void setCommentForAlarmsScheduler(ManagedElement managedElement,
+    private void setCommentForCellAlarmsScheduler(ManagedElement managedElement,
                                               List<CellStatus> UMTSData, Integer UMTSCellOperation,
                                               List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
                                               List<CellStatus> LTEFDDData, Integer LTEFDDCellOperation,
@@ -382,7 +455,8 @@ public class CellStatusMngController {
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.schedule( () -> {
             try {
-                setCommentForAlarms(managedElement,
+                setCommentForCellAlarms(
+                        managedElement,
                         UMTSData, UMTSCellOperation,
                         NBIoTData, NBIoTCellOperation,
                         LTEFDDData, LTEFDDCellOperation,
@@ -394,12 +468,12 @@ public class CellStatusMngController {
         }, 60, TimeUnit.SECONDS);
     }
 
-    private void setCommentForAlarms(ManagedElement managedElement,
-                                     List<CellStatus> UMTSData, Integer UMTSCellOperation,
-                                     List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
-                                     List<CellStatus> LTEFDDData, Integer LTEFDDCellOperation,
-                                     List<GCellStatus> GSMData, Integer GSMCellOperation,
-                                     String comment) {
+    private void setCommentForCellAlarms(ManagedElement managedElement,
+                                         List<CellStatus> UMTSData, Integer UMTSCellOperation,
+                                         List<CellStatus> NBIoTData, Integer NBIoTCellOperation,
+                                         List<CellStatus> LTEFDDData, Integer LTEFDDCellOperation,
+                                         List<GCellStatus> GSMData, Integer GSMCellOperation,
+                                         String comment) {
         Set<String> expectedNBIoTCells = new HashSet<>();
         Set<String> expectedLTEFDDCells = new HashSet<>();
         Set<String> expectedGSMCells = new HashSet<>();
@@ -445,7 +519,8 @@ public class CellStatusMngController {
                         activeAlarmService.getActiveAlarmByBSC(tokenService.getToken(), managedElement), managedElement);
                 if (bsc != null && !bsc.isEmpty()) {
                     for (AlarmEntity alm : bsc) {
-                        if (expectedGSMCells.contains(alm.getRan_fm_alarm_object_name().getDisplayname()))
+                        if (expectedGSMCells.contains(alm.getRan_fm_alarm_object_name().getDisplayname())
+                                && alm.getCodename().equals("Cell interruption alarm"))
                             ids.add(alm.getId());
                     }
                 }
@@ -460,7 +535,78 @@ public class CellStatusMngController {
                         activeAlarmService.getActiveAlarmByRNC(tokenService.getToken(), managedElement), managedElement);
                 if (rnc != null && !rnc.isEmpty()) {
                     for (AlarmEntity alm : rnc) {
-                        if (expectedUMTSCells.contains(alm.getRan_fm_alarm_object_name().getDisplayname()))
+                        if (expectedUMTSCells.contains(alm.getRan_fm_alarm_object_name().getDisplayname())
+                                && alm.getCodename().equals("Cell is out of service"))
+                            ids.add(alm.getId());
+                    }
+                }
+            }
+        }
+
+        if (!ids.isEmpty()) {
+            activeAlarmService.setAlarmComment(tokenService.getToken(),
+                    activeAlarmService.setAlarmCommentRequest(tokenService.getToken(), ids, comment), managedElement);
+        }
+    }
+
+    private void setCommentForPAAlarmsScheduler(ManagedElement managedElement,
+                                                List<PAStatus> PAData,
+                                                String comment) {
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.schedule( () -> {
+            try {
+                setCommentForPAAlarms(
+                        managedElement,
+                        PAData,
+                        comment);
+            } catch (Exception e) {
+                log.error(" >> error in alarmCommentProcess: {}", e.toString());
+            }
+        }, 60, TimeUnit.SECONDS);
+    }
+
+    private void setCommentForPAAlarms(ManagedElement managedElement,
+                                         List<PAStatus> PAData,
+                                         String comment) {
+        Set<String> expectedPA = new HashSet<>();
+        List<String> ids = new ArrayList<>();
+
+        if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
+            for (PAStatus pa : PAData) {
+                if (pa.isSelected()) expectedPA.add(pa.getUserLabel());
+            }
+        } else if (managedElement.getManagedElementType().equals(ManagedElementType.ITBBU)) {
+            for (PAStatus pa : PAData) {
+                if (pa.isSelected()) expectedPA.add(pa.getLdn());
+            }
+        }
+
+        if (!expectedPA.isEmpty() && managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
+            String ant = "";
+            String alarmUserLabel = "";
+            List<AlarmEntity> site = activeAlarmService.alarmDataExport(tokenService.getToken(),
+                    activeAlarmService.getActiveAlarmBySDRSite(tokenService.getToken(), managedElement), managedElement);
+            if (site != null && !site.isEmpty()) {
+                for (AlarmEntity alm : site) {
+                    if (alm.getAlarmcode().equals("198098440")) {
+                        int start = alm.getAdditionaltext().indexOf("PA-") + 3;
+                        int end = alm.getAdditionaltext().indexOf(";", start);
+                        ant = alm.getAdditionaltext().substring(start, end);
+                        alarmUserLabel = alm.getRan_fm_alarm_object_type().getDisplayname() + alm.getRan_fm_alarm_object_id().getDisplayname() + ":" + ant;
+                        if (expectedPA.contains(alarmUserLabel))
+                            ids.add(alm.getId());
+                    }
+                }
+            }
+        }
+
+        if (!expectedPA.isEmpty() && managedElement.getManagedElementType().equals(ManagedElementType.ITBBU)) {
+            List<AlarmEntity> site = activeAlarmService.alarmDataExport(tokenService.getToken(),
+                    activeAlarmService.getActiveAlarmBySDRSite(tokenService.getToken(), managedElement), managedElement);
+            if (site != null && !site.isEmpty()) {
+                for (AlarmEntity alm : site) {
+                    if (alm.getAlarmcode().equals("198098440")) {
+                        if (expectedPA.contains(alm.getPosition()))
                             ids.add(alm.getId());
                     }
                 }
@@ -477,7 +623,7 @@ public class CellStatusMngController {
         if (response.isEmpty() || response.equals("Unprocessed response.")) {
             return new MessageEntity(Severity.INFO, response);
         }
-        if (response.equals("The NE has been reset successfully.")) {
+        if (response.contains("successfully")) {
             return new MessageEntity(Severity.SUCCESS, response);
         } else {
             return new MessageEntity(Severity.ERROR, response);
@@ -497,6 +643,20 @@ public class CellStatusMngController {
                 .append("result: ")
                 .append(response);
 
+        operationLog.warn(log.toString());
+    }
+
+    private void getLogForPA(ManagedElement managedElement,
+                                String response, Authentication authentication, Action action) {
+        StringBuilder log = new StringBuilder();
+        log.append("User: ")
+                .append(authentication.getName())
+                .append(" (")
+                .append(authentication.getDetails().toString())
+                .append(") " + managedElement.getUserLabel() + ": ")
+                .append(action)
+                .append(" result: ")
+                .append(response.replaceAll("\n"," "));
         operationLog.warn(log.toString());
     }
 }

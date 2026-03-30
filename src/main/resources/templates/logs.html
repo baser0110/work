@@ -59,7 +59,7 @@
         <tr th:each="log : ${logs}" class="log-entry">
             <!-- Display timestamp and message from LogEntry object -->
             <td th:text="${log.timestamp}"></td>  <!-- Timestamp part -->
-            <td class="log-message" th:text="${log.message}"></td>  <!-- Message part -->
+            <td class="log-message" th:text="${log.message}" style="white-space: pre-wrap;"></td>  <!-- Message part -->
         </tr>
         </tbody>
     </table>

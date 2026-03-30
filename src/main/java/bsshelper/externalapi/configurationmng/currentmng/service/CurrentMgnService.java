@@ -41,6 +41,8 @@ public interface CurrentMgnService {
     List<GTrxMocSimplified> getGTrxMocSimplified(Token token, ManagedElement managedElement, List<GGsmCellMocSimplified> cells);
     List<UUtranCellFDDMocSimplified> getUUtranCellFDDMocSimplified(Token token, ManagedElement managedElement);
     List<UIubLinkMocSimplified> getUIubLinkMocSimplified(Token token, ManagedElement managedElement);
+    List<TxChannelMoc> getTxChannelMoc(Token token, ManagedElement managedElement);
+    List<ITBBUTxChannelMoc> getITBBUTxChannelMoc(Token token, ManagedElement managedElement);
 
     Map<String,CurrentMgnServiceImpl.CellInfo> getCacheSDRCellsUMTS(Token token);
     Map<String,CurrentMgnServiceImpl.CellInfo> getCacheITBBUCellsUMTS(Token token);

@@ -16,6 +16,7 @@ import bsshelper.externalapi.configurationmng.plannedserv.service.PlanServServic
 import bsshelper.globalutil.ManagedElementType;
 import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.entity.MessageEntity;
+import bsshelper.localservice.externalcustomdata.service.CustomDataService;
 import bsshelper.localservice.localcache.LocalCacheService;
 import bsshelper.localservice.searchcache.SearchCacheService;
 import bsshelper.localservice.token.TokenService;
@@ -29,6 +30,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 
 @Slf4j
@@ -86,10 +89,12 @@ public class DryContactController {
 
         searchCacheService.add(managedElement.getUserLabel());
 
+
         model.addAttribute("managedElement", managedElement);
         model.addAttribute("repo", mocDataWrapper);
         model.addAttribute("title", "External Alarms Manager");
         model.addAttribute("searchCache", searchCacheService.getList());
+        addAlarmUserLabelsToModel(model);
         return "drycontact";
     }
 
@@ -102,6 +107,7 @@ public class DryContactController {
         model.addAttribute("managedElement", localCacheService.managedElementMap.get(userLabel));
         model.addAttribute("repo", localCacheService.mocDataRepositoryMap.get(id + "_" + userLabel));
         model.addAttribute("title", "External Alarms Manager");
+        addAlarmUserLabelsToModel(model);
         return "drycontact";
     }
 
@@ -114,6 +120,7 @@ public class DryContactController {
         model.addAttribute("managedElement", localCacheService.managedElementMap.get(userLabel));
         model.addAttribute("repo", localCacheService.mocDataRepositoryMap.get(id + "_" + userLabel));
         model.addAttribute("title", "External Alarms Manager");
+        addAlarmUserLabelsToModel(model);
         return "drycontact";
     }
 
@@ -228,6 +235,12 @@ public class DryContactController {
                     "Modify & Adding data: " + resultAM.getMessage());
         }
         return null;
+    }
+
+    private void addAlarmUserLabelsToModel(Model model) {
+        Set<String> alarmUserLabelsSet =  new TreeSet<>(CustomDataService.alarmUserLabelToAlarmUserLabelMap.keySet());
+        alarmUserLabelsSet.add("-");
+        model.addAttribute("alarmUserLabels", alarmUserLabelsSet);
     }
 
     private void getLog(String userLabel, Authentication authentication,

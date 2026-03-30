@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="ISO-8859-1">
+    <title>Application Access Manager</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+          crossorigin="anonymous">
+</head>
+
+<style>
+    .btn-fixed-width {
+        width: 250px;
+    }
+</style>
+
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+<main>
+    <div class="container my-2 content">
+        <form sec:authorize="hasAuthority('USER_MNG_FULL')" th:action="@{/helper/appAccessMng/dataMng/ClearMeCache}" method="post">
+            <br/>
+            <button type="submit" id="customData" class="btn btn-fixed-width btn-danger text-center">
+                Clear ME Cache
+            </button>
+        </form>
+        <form sec:authorize="hasAuthority('USER_MNG_FULL')" th:action="@{/helper/appAccessMng/dataMng/updateMECustomLink}" method="post">
+            <br/>
+            <button type="submit" id="MECustomLink" class="btn btn-fixed-width btn-danger text-center">
+                Update MECustomLink
+            </button>
+        </form>
+        <form sec:authorize="hasAuthority('USER_MNG_FULL')" th:action="@{/helper/appAccessMng/dataMng/updateAlarmUserLabel}" method="post">
+            <br/>
+            <button type="submit" id="alarmUserLabel" class="btn btn-fixed-width btn-danger text-center">
+                Update AlarmUserLabel
+            </button>
+        </form>
+        <form sec:authorize="hasAuthority('USER_MNG_FULL')" th:action="@{/helper/appAccessMng/dataMng/updateComments}" method="post">
+            <br/>
+            <button type="submit" id="Comments" class="btn btn-fixed-width btn-danger text-center">
+                Update Comments
+            </button>
+        </form>
+
+        <br/>
+        <div th:if="${message != null && message.getSeverity().toString.equals('SUCCESS')}"
+             th:text="${message.getMessage()}" class="alert alert-success" role="alert" id="alert-success">
+        </div>
+        <div th:if="${message != null && message.getSeverity().toString.equals('ERROR')}"
+             th:text="${message.getMessage()}" class="alert alert-danger" role="alert" id="alert-danger">
+        </div>
+        <div th:if="${message != null && message.getSeverity().toString.equals('INFO')}"
+             th:text="${message.getMessage()}" class="alert alert-info" role="alert" id="alert-info">
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

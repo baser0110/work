@@ -6,6 +6,7 @@ import bsshelper.externalapi.configurationmng.plannedserv.to.DryContactDeviceMoc
 import bsshelper.externalapi.configurationmng.plannedserv.util.Operation;
 import bsshelper.externalapi.configurationmng.plannedserv.util.drycontactenums.AlmStatus;
 import bsshelper.externalapi.configurationmng.plannedserv.util.drycontactenums.AlmUserLabel;
+import bsshelper.localservice.externalcustomdata.service.CustomDataService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -32,7 +33,7 @@ public class DryContactDeviceMocDataWrapper implements MocDataWrapper {
                 Operation.A.toString(),
                 32,
                 15,
-                AlmUserLabel.AC_MAINS_FAILURE.toString(),
+                "-",
                 AlmStatus.OPEN.toString());
         data.add(newData);
     }
@@ -41,7 +42,7 @@ public class DryContactDeviceMocDataWrapper implements MocDataWrapper {
         List<MocData> result = new ArrayList<>();
         if (data != null) {
             data.forEach((entry) -> {
-                if (entry.getMoOp().equals(Operation.D.toString()))
+                if (entry.getMoOp().equals(Operation.D.toString()) && !entry.getUserLabel().equals("-"))
                     result.add(DryContactDeviceMocDataMapper.toDryContactDeviceMocData(entry));
             });
         }
@@ -52,7 +53,7 @@ public class DryContactDeviceMocDataWrapper implements MocDataWrapper {
         List<MocData> result = new ArrayList<>();
         if (data != null) {
             data.forEach((entry) -> {
-                if (entry.getMoOp().equals(Operation.A.toString()) || entry.getMoOp().equals(Operation.M.toString()))
+                if ((entry.getMoOp().equals(Operation.A.toString()) || entry.getMoOp().equals(Operation.M.toString())) && !entry.getUserLabel().equals("-"))
                     result.add(DryContactDeviceMocDataMapper.toDryContactDeviceMocData(entry));
             });
         }

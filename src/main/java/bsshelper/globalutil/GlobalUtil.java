@@ -41,6 +41,10 @@ public class GlobalUtil {
     public static final String EXEC_NE_SERV_RESET_POWER_OFF_ITBBU = "/moaction/powerOffResetBoard";
     public static final String EXEC_NE_SERV_RESET_NE_SDR = "/moaction/resetNE";
     public static final String EXEC_NE_SERV_RESET_NE_ITBBU = "/moaction/resetSystem";
+    public static final String EXEC_NE_SERV_PA_OFF_SDR = "/moaction/operationPaOff";
+    public static final String EXEC_NE_SERV_PA_ON_SDR = "/moaction/operationPaOn";
+    public static final String EXEC_NE_SERV_PA_OFF_ITBBU = "/moaction/blockChannel";
+    public static final String EXEC_NE_SERV_PA_ON_ITBBU = "/moaction/unblockChannel";
 
     public static final String API_EXPRT_ACTIVE_ALARM = "/api/fm-active/v2/activealarms/openapi/export";
     public static final String API_COMMENT_ALARM = "/api/fm-active/v2/activealarms/openapi/comment";

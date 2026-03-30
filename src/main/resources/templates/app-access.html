@@ -23,7 +23,15 @@
     </form>
     <form sec:authorize="hasAuthority('USER_MNG_VIEW') || hasAuthority('USER_MNG_FULL')">
         <br/>
-        <a id="logs" class="btn btn-success text-center width-250px" th:href="@{/helper/appAccessMng/logs}">Logs</a>
+        <a id="logs" class="btn btn-success text-center " th:href="@{/helper/appAccessMng/logs}">Logs</a>
+    </form>
+    <form sec:authorize="hasAuthority('USER_MNG_FULL')">
+        <br/>
+        <a id="data" class="btn btn-success text-center width-250px" th:href="@{/helper/appAccessMng/dataMng}">Data Management</a>
+    </form>
+    <form sec:authorize="hasAuthority('USER_MNG_VIEW') || hasAuthority('USER_MNG_FULL')">
+        <br/>
+        <a id="restore" class="btn btn-success text-center width-250px" th:href="@{/helper/appAccessMng/restore}">Restoration</a>
     </form>
 </div>
 
@@ -43,6 +51,17 @@
         height: 40px;
         overflow: auto;
     }
+    #data {
+        width: 200px;
+        height: 40px;
+        overflow: auto;
+    }
+    #restore {
+        width: 200px;
+        height: 40px;
+        overflow: auto;
+    }
+
 </style>
 </main>
 <footer th:replace="~{fragments/footer :: footer}"></footer>

@@ -6,6 +6,7 @@ import bsshelper.externalapi.configurationmng.plannedserv.to.DryContactDeviceMoc
 import bsshelper.externalapi.configurationmng.plannedserv.util.Operation;
 import bsshelper.externalapi.configurationmng.plannedserv.util.drycontactenums.AlmStatus;
 import bsshelper.externalapi.configurationmng.plannedserv.util.drycontactenums.AlmUserLabel;
+import bsshelper.localservice.externalcustomdata.service.CustomDataService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,8 @@ public class DryContactDeviceMocDataMapper {
                 Operation.NO.toString(),
                 data.getMoId(),
                 data.getDryNo(),
-                AlmUserLabel.valueOfCode(data.getAlmNo()).toString(),
+//                AlmUserLabel.valueOfCode(data.getAlmNo()).toString(),
+                CustomDataService.alarmCodeToAlarmUserLabelMap.get(String.valueOf(data.getAlmNo())).getUserLabel(),
                 AlmStatus.valueOfAlmStatus(data.getAlmStatus()).toString());
     }
 
@@ -35,7 +37,8 @@ public class DryContactDeviceMocDataMapper {
                 Operation.valueOf(data.getMoOp()),
                 data.getMoId(),
                 data.getDryNo(),
-                AlmUserLabel.valueOf(data.getUserLabel()),
+//                AlmUserLabel.valueOf(data.getUserLabel()),
+                CustomDataService.alarmUserLabelToAlarmUserLabelMap.get(data.getUserLabel()),
                 AlmStatus.valueOf(data.getAlmStatus()));
     }
 

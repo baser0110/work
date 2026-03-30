@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="ISO-8859-1">
+    <title>External Alarms Manager</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+          crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+            integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js"
+            integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF"
+            crossorigin="anonymous"></script>
+</head>
+
+<script>
+
+    function activateLoader(btn) {
+        const form = btn.closest('form');
+
+        if (!form || !form.checkValidity()) {
+            return;
+        }
+
+        if (btn.disabled) return;
+
+        const loader = btn.querySelector('.spinner-border');
+        const btnText = btn.querySelector('.btn-text');
+
+        btn.style.width = btn.offsetWidth + 'px';
+
+        if (btnText) btnText.style.display = 'none';
+        if (loader) {
+            loader.classList.remove('d-none');
+            loader.style.display = 'inline-block';
+        }
+
+            btn.disabled = true;
+        }, 50);
+    }
+
+</script>
+
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+<main>
+
+    <div class="container my-2">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form th:action="@{/helper/appAccessMng/restore/restoreCommentsFromAlarmLog}" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="font-weight-bold">Selected NE (Export Selected Data): (.csv)</label>
+                        <div class="custom-file">
+                            <input type="file" name="csvFile" class="custom-file-input" id="csvFile" accept=".csv" required
+                                   onchange="this.nextElementSibling.innerText = (this.files.length > 0) ? this.files[0].name : '...'">
+                            <label class="custom-file-label" for="csvFile"> ... </label>
+                        </div>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label class="font-weight-bold">Active Alarms (Alarm Monitor > Export All > All Columns) of selected NE's: (.xlsx)</label>
+                        <div class="custom-file">
+                            <input type="file" name="excelFile" class="custom-file-input" id="excelFile" accept=".xlsx, .xls" required
+                                   onchange="this.nextElementSibling.innerText = (this.files.length > 0) ? this.files[0].name : '...'">
+                            <label class="custom-file-label" for="excelFile">...</label>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-right">
+                        <button type="submit" class="btn btn-primary px-5" onclick="activateLoader(this)">
+                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                            <span class="btn-text">Restore Comments</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <br/>
+        <div th:if="${message != null && message.getSeverity().toString.equals('SUCCESS')}"
+             th:text="${message.getMessage()}" class="alert alert-success" role="alert" id="alert-success"
+             style="white-space: pre-wrap;">
+        </div>
+        <div th:if="${message != null && message.getSeverity().toString.equals('ERROR')}"
+             th:text="${message.getMessage()}" class="alert alert-danger" role="alert" id="alert-danger"
+             style="white-space: pre-wrap;">
+        </div>
+        <div th:if="${message != null && message.getSeverity().toString.equals('INFO')}"
+             th:text="${message.getMessage()}" class="alert alert-info" role="alert" id="alert-info"
+             style="white-space: pre-wrap;">
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

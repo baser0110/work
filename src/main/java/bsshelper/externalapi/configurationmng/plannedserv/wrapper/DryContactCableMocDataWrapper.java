@@ -5,13 +5,11 @@ import bsshelper.externalapi.configurationmng.plannedserv.mapper.DryContactCable
 import bsshelper.externalapi.configurationmng.plannedserv.to.DryContactCableMocDataTo;
 import bsshelper.externalapi.configurationmng.plannedserv.util.Operation;
 import bsshelper.externalapi.configurationmng.plannedserv.util.drycontactenums.AlmStatus;
-import bsshelper.externalapi.configurationmng.plannedserv.util.drycontactenums.AlmUserLabel;
+import bsshelper.localservice.externalcustomdata.service.CustomDataService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Data
 @RequiredArgsConstructor
@@ -33,7 +31,7 @@ public class DryContactCableMocDataWrapper implements MocDataWrapper {
         DryContactCableMocDataTo newData = new DryContactCableMocDataTo(
                 Operation.A.toString(),
                 16,
-                AlmUserLabel.AC_MAINS_FAILURE.toString(),
+                "-",
                 AlmStatus.OPEN.toString());
         data.add(newData);
     }
@@ -42,7 +40,7 @@ public class DryContactCableMocDataWrapper implements MocDataWrapper {
         List<MocData> result = new ArrayList<>();
         if (data != null) {
             data.forEach((entry) -> {
-                if (entry.getMoOp().equals(Operation.D.toString()))
+                if (entry.getMoOp().equals(Operation.D.toString()) && !entry.getUserLabel().equals("-"))
                     result.add(DryContactCableMocDataMapper.toDryContactCableMocData(entry));
             });
         }
@@ -52,7 +50,7 @@ public class DryContactCableMocDataWrapper implements MocDataWrapper {
         List<MocData> result = new ArrayList<>();
         if (data != null) {
             data.forEach((entry) -> {
-                if (entry.getMoOp().equals(Operation.A.toString()) || entry.getMoOp().equals(Operation.M.toString()))
+                if ((entry.getMoOp().equals(Operation.A.toString()) || entry.getMoOp().equals(Operation.M.toString())) && !entry.getUserLabel().equals("-"))
                     result.add(DryContactCableMocDataMapper.toDryContactCableMocData(entry));
             });
         }

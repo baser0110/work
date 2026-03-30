@@ -6,6 +6,7 @@ import bsshelper.externalapi.configurationmng.plannedserv.to.DryContactCableMocD
 import bsshelper.externalapi.configurationmng.plannedserv.util.Operation;
 import bsshelper.externalapi.configurationmng.plannedserv.util.drycontactenums.AlmStatus;
 import bsshelper.externalapi.configurationmng.plannedserv.util.drycontactenums.AlmUserLabel;
+import bsshelper.localservice.externalcustomdata.service.CustomDataService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,8 @@ public class DryContactCableMocDataMapper {
         return new DryContactCableMocDataTo(
                 Operation.NO.toString(),
                 data.getMoId(),
-                AlmUserLabel.valueOfCode(data.getAlarmNameOfInput()).toString(),
+//                AlmUserLabel.valueOfCode(data.getAlarmNameOfInput()).toString(),
+                CustomDataService.alarmCodeToAlarmUserLabelMap.get(String.valueOf(data.getAlarmNameOfInput())).getUserLabel(),
                 AlmStatus.valueOfAlmStatus(data.getAlarmStatus()).toString());
     }
 
@@ -32,7 +34,8 @@ public class DryContactCableMocDataMapper {
         return new DryContactCableMocData(
                 Operation.valueOf(data.getMoOp()),
                 data.getMoId(),
-                AlmUserLabel.valueOf(data.getUserLabel()),
+//                AlmUserLabel.valueOf(data.getUserLabel()),
+                CustomDataService.alarmUserLabelToAlarmUserLabelMap.get(data.getUserLabel()),
                 AlmStatus.valueOf(data.getAlarmStatus()));
     }
 

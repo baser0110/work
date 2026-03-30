@@ -17,7 +17,7 @@ public interface LocalCacheService {
     ConcurrentHashMap<String, MocDataWrapper> mocDataRepositoryMap = new ConcurrentHashMap<>();
     ConcurrentHashMap<String, ManagedElement> managedElementMap = new ConcurrentHashMap<>();
     ConcurrentHashMap<String, MessageEntity> messageMap = new ConcurrentHashMap<>();
-    ConcurrentHashMap<String, HistoryRTWPWrapper> historyRTWPMap = new ConcurrentHashMap<>();
+//    ConcurrentHashMap<String, HistoryRTWPWrapper> historyRTWPMap = new ConcurrentHashMap<>();
     ConcurrentHashMap<String, List<CellStatusDetails>> cellStatusDetailsMap = new ConcurrentHashMap<>();
     ConcurrentHashMap<String, List<UUtranCellFDDMocSimplified>> UMTSCellMap = new ConcurrentHashMap<>();
 

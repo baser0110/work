@@ -27,12 +27,12 @@ public class InventoryEntityMapper {
         } else  if (inventoryEntityList.get(0).getNetype().equals(ManagedElementType.ITBBU.toString())) {
             for (InventoryEntity inv : inventoryEntityList) {
                 String position = inv.getUnitposition();
-                if (position.contains("subrack=1,slot=") && !position.contains(",grade=1")) {
+                if (position.contains("subrack=1,slot=") && !position.contains(",grade=")) {
                     result.put(position.replace("subrack=1,slot=", "Slot"),
                             inv.getVendorunittypename() + " (" + inv.getSerialnumber() + ")");
                     continue;
                 }
-                if (position.contains(",grade=1") && !position.contains(",aisgid=")) {
+                if (position.contains(",grade=") && !position.contains(",aisgid=")) {
                     result.put(inv.getMoid(), inv.getVendorunittypename() + " (" + inv.getSerialnumber() + ")");
                 }
             }

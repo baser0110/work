@@ -6,10 +6,7 @@ import bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.Replaceabl
 import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.SdrDeviceGroupMoc;
 import bsshelper.externalapi.configurationmng.nemoactserv.entity.*;
 import bsshelper.externalapi.configurationmng.nemoactserv.to.*;
-import bsshelper.externalapi.configurationmng.nemoactserv.util.BoardDiagnosisBodySettings;
-import bsshelper.externalapi.configurationmng.nemoactserv.util.BoardDiagnosisITBBUBodySettings;
-import bsshelper.externalapi.configurationmng.nemoactserv.util.BoardPowerOffResetBodySettings;
-import bsshelper.externalapi.configurationmng.nemoactserv.util.DiagnosisAction;
+import bsshelper.externalapi.configurationmng.nemoactserv.util.*;
 import bsshelper.globalutil.GlobalUtil;
 import bsshelper.globalutil.ManagedElementType;
 import bsshelper.globalutil.Verb;
@@ -156,18 +153,18 @@ public class ExecNeActServiceImpl implements ExecNeActService {
     }
 
     @Override
-    public String powerOffResetBoardQuery(Token token, ManagedElement managedElement, String ldn) {
+    public String paActionQuery(Token token, ManagedElement managedElement, String ldn, Action action) {
         HttpResponse<String> httpResponse = null;
         String response = null;
         ErrorEntity error = null;
-        BoardPowerOffResetBodySettings bodySettings = BoardPowerOffResetBodySettings.builder().ldn(ldn).build();
+        OneLDNBodySettings bodySettings = OneLDNBodySettings.builder().ldn(ldn).build();
         try {
-            HttpRequest httpRequest = resetPowerOffRequest(token, bodySettings, managedElement);
+            HttpRequest httpRequest = paOperationRequest(token, bodySettings, managedElement, action);
             httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
             response = httpResponse.body();
             if (response.contains("\"code\":0")) {
-                log.info(" >> {} for {} successfully reset", ldn, managedElement.getUserLabel());
-                response = "The board has been reset successfully.";
+                log.info(" >> {} for {} successfully " + action, ldn, managedElement.getUserLabel());
+                response = "The board has been " + action + " successfully.";
             } else {
                 try {
                     error = new Gson().fromJson(response, ErrorEntity.class);
@@ -189,18 +186,27 @@ public class ExecNeActServiceImpl implements ExecNeActService {
     }
 
     @Override
-    public String resetBoardQuery(Token token, ManagedElement managedElement, String ldn) {
+    public String resetBoardOrNeQuery(Token token, ManagedElement managedElement, String ldn, Action action) {
         HttpResponse<String> httpResponse = null;
+        HttpRequest httpRequest = null;
         String response = null;
         ErrorEntity error = null;
-        BoardPowerOffResetBodySettings bodySettings = BoardPowerOffResetBodySettings.builder().ldn(ldn).build();
+        OneLDNBodySettings bodySettings = OneLDNBodySettings.builder().ldn(ldn).build();
         try {
-            HttpRequest httpRequest = resetRequest(token, bodySettings, managedElement);
+            if (action.equals(Action.POWER_OFF_RESET)) {
+                httpRequest = resetPowerOffRequest(token, bodySettings, managedElement);
+            }
+            if (action.equals(Action.RESET_NE)) {
+                httpRequest = resetNERequest(token, managedElement);
+            }
+            if (action.equals(Action.RESET)) {
+                httpRequest = resetRequest(token, bodySettings, managedElement);
+            }
             httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
             response = httpResponse.body();
             if (response.contains("\"code\":0")) {
-                log.info(" >> {} for {} successfully reset", ldn, managedElement.getUserLabel());
-                response = "The board has been reset successfully.";
+                log.info(" >> {} for {} successfully " + action, ldn, managedElement.getUserLabel());
+                response = "The board has been " + action + " successfully.";
             } else {
                 try {
                     error = new Gson().fromJson(response, ErrorEntity.class);
@@ -221,39 +227,34 @@ public class ExecNeActServiceImpl implements ExecNeActService {
         return response;
     }
 
-    @Override
-    public String resetNEQuery(Token token, ManagedElement managedElement) {
-        HttpResponse<String> httpResponse = null;
-        String response = null;
-        ErrorEntity error = null;
-        try {
-            HttpRequest httpRequest = resetNERequest(token, managedElement);
-            httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
-            response = httpResponse.body();
-            if (response.contains("\"code\":0")) {
-                log.info(" >> {} successfully reset", managedElement.getUserLabel());
-                response = "The NE has been reset successfully.";
-            } else {
-                try {
-                    error = new Gson().fromJson(response, ErrorEntity.class);
-                } catch (JsonSyntaxException e2) {
-                    log.error(" >> error in ErrorEntity parsing: {}", e2.toString());
-                }
-                if (error != null) {
-                    log.error(" >> error {} code({})", error.getMessage(), error.getCode());
-                    response = error.getMessage();
-                } else {
-                    response = "Unprocessed response.";
-                }
+    private HttpRequest paOperationRequest(Token token, OneLDNBodySettings bodySettings, ManagedElement managedElement, Action action) {
+        String actionQuery = "";
+        if (action.equals(Action.PA_ON)) {
+            if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
+                actionQuery = GlobalUtil.EXEC_NE_SERV_PA_ON_SDR;
+            } else if (managedElement.getManagedElementType().equals(ManagedElementType.ITBBU)) {
+                actionQuery = GlobalUtil.EXEC_NE_SERV_PA_ON_ITBBU;
             }
-        } catch (IOException | InterruptedException e) {
-            log.error(" >> error in sending http request: {}", e.toString());
-            if (e instanceof ConnectException) throw new CustomNetworkConnectionException((e.toString()));
+        } else if (action.equals(Action.PA_OFF)) {
+            if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
+                actionQuery = GlobalUtil.EXEC_NE_SERV_PA_OFF_SDR;
+            } else if (managedElement.getManagedElementType().equals(ManagedElementType.ITBBU)) {
+                actionQuery = GlobalUtil.EXEC_NE_SERV_PA_OFF_ITBBU;
+            }
         }
-        return response;
+        return HttpRequest.newBuilder()
+                .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(bodySettings.getBodySettings()))
+                .uri(URI.create(GlobalUtil.GLOBAL_PATH + GlobalUtil.API_EXEC_NE_SERV +
+                        "/ManagedElementType/" + managedElement.getManagedElementType() +
+                        "/SubNetwork/" + managedElement.getSubNetworkNum() +
+                        "/ManagedElement/" + managedElement.getManagedElementNum() + actionQuery))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Content-Type", "application/json; charset=utf-8")
+                .header("accessToken", token.getAccessToken())
+                .build();
     }
 
-    private HttpRequest resetPowerOffRequest(Token token, BoardPowerOffResetBodySettings bodySettings, ManagedElement managedElement) {
+    private HttpRequest resetPowerOffRequest(Token token, OneLDNBodySettings bodySettings, ManagedElement managedElement) {
         String action = "";
         if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
             action = GlobalUtil.EXEC_NE_SERV_RESET_POWER_OFF_SDR;
@@ -272,7 +273,7 @@ public class ExecNeActServiceImpl implements ExecNeActService {
                 .build();
     }
 
-    private HttpRequest resetRequest(Token token, BoardPowerOffResetBodySettings bodySettings, ManagedElement managedElement) {
+    private HttpRequest resetRequest(Token token, OneLDNBodySettings bodySettings, ManagedElement managedElement) {
         return HttpRequest.newBuilder()
                 .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(bodySettings.getBodySettings()))
                 .uri(URI.create(GlobalUtil.GLOBAL_PATH + GlobalUtil.API_EXEC_NE_SERV +
@@ -356,7 +357,7 @@ public class ExecNeActServiceImpl implements ExecNeActService {
         HttpResponse<String> httpResponse = null;
         String response = null;
         ErrorEntity error = null;
-        BoardDiagnosisITBBUBodySettings bodySettings = BoardDiagnosisITBBUBodySettings.builder().ldn(ldn).build();
+        OneLDNBodySettings bodySettings = OneLDNBodySettings.builder().ldn(ldn).build();
         try {
             HttpRequest httpRequest = ITBBUDataRequest(token, bodySettings, managedElement, query);
             httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
@@ -381,7 +382,7 @@ public class ExecNeActServiceImpl implements ExecNeActService {
         return response;
     }
 
-    private HttpRequest ITBBUDataRequest(Token token, BoardDiagnosisITBBUBodySettings bodySettings, ManagedElement managedElement, String query) {
+    private HttpRequest ITBBUDataRequest(Token token, OneLDNBodySettings bodySettings, ManagedElement managedElement, String query) {
         return HttpRequest.newBuilder()
                 .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(bodySettings.getBodySettings()))
                 .uri(URI.create(GlobalUtil.GLOBAL_PATH + GlobalUtil.API_EXEC_NE_SERV +

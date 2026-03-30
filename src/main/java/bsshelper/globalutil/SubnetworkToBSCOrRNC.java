@@ -1,5 +1,7 @@
 package bsshelper.globalutil;
 
+import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
+import bsshelper.localservice.externalcustomdata.service.CustomDataService;
 import lombok.Getter;
 
 import java.util.HashSet;
@@ -20,7 +22,7 @@ public enum SubnetworkToBSCOrRNC {
     BR2 (433,103, 33, "BR"),
     PN2 (434,104, 34, "BR"),
     GM01 (201,100, 30, "TST"),
-    GM02 (438,114, 12, "TST"),
+    GM02 (438,100, 30, "TST"),
     GM1 (435,101, 35, "GM"),
     GM2 (431,101, 31, "GM"),
     KL1 (432,101, 32, "GM");
@@ -37,18 +39,26 @@ public enum SubnetworkToBSCOrRNC {
         this.region = region;
     }
 
-    public static int getBSCbySubnetwork(int subnetwork) {
+    public static int getBSCbySubnetwork(int subnetwork, ManagedElement managedElement) {
+        int bsc = 0;
         for (SubnetworkToBSCOrRNC s : SubnetworkToBSCOrRNC.values()) {
-            if (s.subnetwork == subnetwork) return s.bsc;
+            if (s.subnetwork == subnetwork) bsc = s.bsc;
         }
-        return 0;
+        if (CustomDataService.MECustomLinkMap.containsKey(managedElement.getUserLabel())) {
+            bsc = Integer.parseInt(CustomDataService.MECustomLinkMap.get(managedElement.getUserLabel()).getBSCID());
+        }
+        return bsc;
     }
 
-    public static int getRNCbySubnetwork(int subnetwork) {
+    public static int getRNCbySubnetwork(int subnetwork, ManagedElement managedElement) {
+        int rnc = 0;
         for (SubnetworkToBSCOrRNC s : SubnetworkToBSCOrRNC.values()) {
             if (s.subnetwork == subnetwork) return s.rnc;
         }
-        return 0;
+        if (CustomDataService.MECustomLinkMap.containsKey(managedElement.getUserLabel())) {
+            rnc = Integer.parseInt(CustomDataService.MECustomLinkMap.get(managedElement.getUserLabel()).getRNCID());
+        }
+        return rnc;
     }
 
     public static Set<String> getRNCSet() {

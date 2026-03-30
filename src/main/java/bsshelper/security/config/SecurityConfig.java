@@ -55,7 +55,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/helper/acceptanceMeasurement/**").hasAnyAuthority("ACCEPT_MEASUREMENT_VIEW", "ACCEPT_MEASUREMENT_FULL")
                         .requestMatchers("/helper/acceptanceMeasurement/**").hasAnyAuthority("ACCEPT_MEASUREMENT_FULL")
                         .requestMatchers("/helper/packetLossStat/**").hasAnyAuthority("PACKET_LOSS_INSPECTOR_VIEW", "PACKET_LOSS_INSPECTOR_FULL")
-                        .requestMatchers("/helper/appAccessMng", "/helper/appAccessMng/logs").hasAnyAuthority("USER_MNG_VIEW", "USER_MNG_FULL")
+                        .requestMatchers("/helper/appAccessMng", "/helper/appAccessMng/logs", "/helper/appAccessMng/restore/**").hasAnyAuthority("USER_MNG_VIEW", "USER_MNG_FULL")
                         .requestMatchers("/helper/appAccessMng/**").hasAnyAuthority("USER_MNG_FULL")
                         .requestMatchers("/helper/vasily-tools").hasAnyAuthority("VASILY_TOOLS_FULL")
                 )

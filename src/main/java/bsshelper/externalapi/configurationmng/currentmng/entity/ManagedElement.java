@@ -1,6 +1,7 @@
 package bsshelper.externalapi.configurationmng.currentmng.entity;
 
 import bsshelper.globalutil.ManagedElementType;
+import bsshelper.localservice.externalcustomdata.service.CustomDataService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +24,9 @@ public class ManagedElement {
 
     public String getBTSManagedElementNum() {
         int index = ne.lastIndexOf("=");
+        if (CustomDataService.MECustomLinkMap.containsKey(userLabel)) {
+            return CustomDataService.MECustomLinkMap.get(userLabel).getGSMID();
+        }
         if (ManagedElementType.equals(bsshelper.globalutil.ManagedElementType.SDR)) return ne.substring(index + 1);
         else {
             String result = ne.substring(index + 3);

@@ -4,6 +4,7 @@ import bsshelper.externalapi.configurationmng.plannedserv.util.Operation;
 import bsshelper.externalapi.configurationmng.plannedserv.util.drycontactenums.AlmStatus;
 import bsshelper.externalapi.configurationmng.plannedserv.util.drycontactenums.AlmUserLabel;
 import bsshelper.externalapi.configurationmng.plannedserv.util.drycontactenums.IsSelfDefineAlm;
+import bsshelper.localservice.externalcustomdata.entity.AlarmUserLabel;
 import lombok.Data;
 
 import static bsshelper.globalutil.GlobalUtil.DRY_CONTACT_LDN_SDR_SLOT13;
@@ -21,17 +22,31 @@ public class DryContactDeviceMocData implements MocData{
     private int almNo;
     private int isSelfDefineAlm;
 
+    //  by enum AlmUserLabel, old
 
-    public DryContactDeviceMocData(Operation moOp, int moId, int dryNo, AlmUserLabel almUserLabel, AlmStatus almStatus) {
+//    public DryContactDeviceMocData(Operation moOp, int moId, int dryNo, AlmUserLabel almUserLabel, AlmStatus almStatus) {
+//        this.moOp = moOp.getOperation();
+//        this.mocName = "DryContactDevice";
+//        this.moId = moId;
+//        this.ldn = DRY_CONTACT_LDN_SDR_SLOT13 + moId;
+//        this.dryNo = dryNo;
+//        this.userLabel = almUserLabel.getUserLabel();
+//        this.almStatus = almStatus.getCode();
+//
+//        this.almNo = almUserLabel.getCode();
+//        this.isSelfDefineAlm = IsSelfDefineAlm.YES.getCode();
+//    }
+
+    public DryContactDeviceMocData(Operation moOp, int moId, int dryNo, AlarmUserLabel alarmUserLabel, AlmStatus almStatus) {
         this.moOp = moOp.getOperation();
         this.mocName = "DryContactDevice";
         this.moId = moId;
         this.ldn = DRY_CONTACT_LDN_SDR_SLOT13 + moId;
         this.dryNo = dryNo;
-        this.userLabel = almUserLabel.getUserLabel();
+        this.userLabel = alarmUserLabel.getUserLabel();
         this.almStatus = almStatus.getCode();
 
-        this.almNo = almUserLabel.getCode();
+        this.almNo = alarmUserLabel.getCode();
         this.isSelfDefineAlm = IsSelfDefineAlm.YES.getCode();
     }
 

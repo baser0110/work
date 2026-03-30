@@ -3,6 +3,7 @@ package bsshelper.externalapi.configurationmng.plannedserv.entity;
 import bsshelper.externalapi.configurationmng.plannedserv.util.Operation;
 import bsshelper.externalapi.configurationmng.plannedserv.util.drycontactenums.AlmStatus;
 import bsshelper.externalapi.configurationmng.plannedserv.util.drycontactenums.AlmUserLabel;
+import bsshelper.localservice.externalcustomdata.entity.AlarmUserLabel;
 import lombok.Data;
 
 @Data
@@ -18,7 +19,22 @@ public class DryContactCableMocData implements MocData{
     private int alarmNameOfInput;
     private String mocName;
 
-    public DryContactCableMocData(Operation moOp, int moId, AlmUserLabel almUserLabel, AlmStatus alarmStatus) {
+    // by enum AlmUserLabel, old
+
+//    public DryContactCableMocData(Operation moOp, int moId, AlmUserLabel almUserLabel, AlmStatus alarmStatus) {
+//        this.moOp = moOp.getOperation();
+//        this.ldn = "Equipment=1,DryContactCable=" + moId;
+//        this.moId = moId;
+//        this.refDryContactPort = "Equipment=1,ReplaceableUnit=VEM_1_13,DryContactPort=EAM" + (moId % 4 == 0 ? moId/4 : moId/4 + 1);
+//        this.dryContactNo = moId % 4 == 0 ? 4 : moId % 4;
+//        this.dryContactType = 0;
+//        this.alarmStatus = alarmStatus.getCode();
+//        this.userLabel = almUserLabel.getUserLabel();
+//        this.alarmNameOfInput = almUserLabel.getCode();
+//        this.mocName = "DryContactCable";
+//    }
+
+    public DryContactCableMocData(Operation moOp, int moId, AlarmUserLabel alarmUserLabel, AlmStatus alarmStatus) {
         this.moOp = moOp.getOperation();
         this.ldn = "Equipment=1,DryContactCable=" + moId;
         this.moId = moId;
@@ -26,8 +42,8 @@ public class DryContactCableMocData implements MocData{
         this.dryContactNo = moId % 4 == 0 ? 4 : moId % 4;
         this.dryContactType = 0;
         this.alarmStatus = alarmStatus.getCode();
-        this.userLabel = almUserLabel.getUserLabel();
-        this.alarmNameOfInput = almUserLabel.getCode();
+        this.userLabel = alarmUserLabel.getUserLabel();
+        this.alarmNameOfInput = alarmUserLabel.getCode();
         this.mocName = "DryContactCable";
     }
 }

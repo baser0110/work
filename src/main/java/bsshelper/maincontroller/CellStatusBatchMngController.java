@@ -210,7 +210,7 @@ public class CellStatusBatchMngController {
                 LTEFDDData, LTEFDDCellOperation,
                 NBIoTData, NBIoTCellOperation,
                 GSMData, GSMCellOperation);
-        System.out.println(file.getFile());
+//        System.out.println(file.getFile());
         String path = executeUCLIBatchScriptService.uploadParamFile(file, tokenService.getToken());
 //        System.out.println(path);
         return executeUCLIBatchScriptService.executeBatch(path,tokenService.getToken());

@@ -23,6 +23,7 @@ import bsshelper.globalutil.SubnetworkToBSCOrRNC;
 import bsshelper.globalutil.Verb;
 import bsshelper.globalutil.entity.ErrorEntity;
 import bsshelper.exception.CustomNetworkConnectionException;
+import bsshelper.localservice.externalcustomdata.service.CustomDataService;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import lombok.Data;
@@ -41,6 +42,7 @@ import java.util.*;
 @Service
 @Slf4j
 public class CurrentMgnServiceImpl implements CurrentMgnService {
+
     @Override
     public String rawDataQuery(Token token, ManagedElement managedElement, String mocName) {
         HttpResponse<String> httpResponse = null;
@@ -129,14 +131,18 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
             httpRequest = getManagedElementByNeNameRequest(token, userLabel, ManagedElementType.SDR);
             httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
             String response = httpResponse.body();
+
 //            System.out.println(response);
+
             if (response.contains("\"code\":0") && !response.equals("{\"code\":0,\"message\":\"Success\",\"result\":[],\"failList\":[]}")) {
                 log.info(" >> managedElement with userLabel {} successfully found", userLabel);
             } else {
                 httpRequest = getManagedElementByNeNameRequest(token, userLabel, ManagedElementType.ITBBU);
                 httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
                 response = httpResponse.body();
+
 //                System.out.println(response);
+
                 if (response.contains("\"code\":0") && !response.equals("{\"code\":0,\"message\":\"Success\",\"result\":[],\"failList\":[]}")) {
                     log.info(" >> managedElement with userLabel {} successfully found", userLabel);
                 }
@@ -329,6 +335,24 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         }
         log.info(" >> ipLayerConfigList: {}", ipLayerConfigList);
         return ipLayerConfigList;
+    }
+
+    @Override
+    public List<TxChannelMoc> getTxChannelMoc(Token token, ManagedElement managedElement) {
+        String mocName = "TxChannel";
+        List<TxChannelMoc> txChannelList = null;
+        TxChannelMocTo txChannelMocTo = null;
+        String json = rawDataQuery(token, managedElement, mocName);
+        try {
+            txChannelMocTo = new Gson().fromJson(json, TxChannelMocTo.class);
+        } catch (JsonSyntaxException e1) {
+            log.error(" >> error in txChannelMocTo parsing: {}", e1.toString());
+        }
+        if (txChannelMocTo != null) {
+            txChannelList = txChannelMocTo.getResult().get(0).getMoData();
+        }
+        log.info(" >> txChannelList: {}", txChannelList);
+        return txChannelList;
     }
 
     @Override
@@ -690,6 +714,24 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         }
         log.info(" >> uIubLinkMocSimplifiedList: {}", uIubLinkMocSimplifiedList);
         return uIubLinkMocSimplifiedList;
+    }
+
+    @Override
+    public List<ITBBUTxChannelMoc> getITBBUTxChannelMoc(Token token, ManagedElement managedElement) {
+        String mocName = "TxChannel";
+        List<ITBBUTxChannelMoc> iTBBUTtxChannelList = null;
+        ITBBUTxChannelMocTo iTBBUTtxChannelMocTo = null;
+        String json = rawDataQuery(token, managedElement, mocName);
+        try {
+            iTBBUTtxChannelMocTo = new Gson().fromJson(json, ITBBUTxChannelMocTo.class);
+        } catch (JsonSyntaxException e1) {
+            log.error(" >> error in iTBBUTtxChannelMocTo parsing: {}", e1.toString());
+        }
+        if (iTBBUTtxChannelMocTo != null) {
+            iTBBUTtxChannelList = iTBBUTtxChannelMocTo.getResult().get(0).getMoData();
+        }
+        log.info(" >> iTBBUTtxChannelList: {}", iTBBUTtxChannelList);
+        return iTBBUTtxChannelList;
     }
 
     // GET ALL CELL CACHE
@@ -1081,7 +1123,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
                                 .ManagedElementType(type.toString())
                                 .mocList(List.of("ManagedElement"))
                                 .moFilter(List.of(new CurrentMngBodySettings.MoFilter("ManagedElement", "userLabel='" + userLabel.trim().toUpperCase() + "'")))
-                                .attrFilter(List.of(new CurrentMngBodySettings.AttrFilter("ManagedElement", List.of("userLabel"))))
+//                                .attrFilter(List.of(new CurrentMngBodySettings.AttrFilter("ManagedElement", List.of("userLabel"))))
                                 .build().getBodySettings()))
                 .uri(URI.create(GlobalUtil.GLOBAL_PATH + GlobalUtil.API_CURRENTAREA + GlobalUtil.CURRENTAREA_QUERY))
                 .version(HttpClient.Version.HTTP_1_1)
@@ -1412,7 +1454,8 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
 
     private String getGGsmCellFilter(ManagedElement managedElement) {
         String result = "";
-        String ldn = "ldn='" + "GBssFunction=" + SubnetworkToBSCOrRNC.getBSCbySubnetwork(managedElement.getSubNetworkNum()) +
+        String bsc = String.valueOf(SubnetworkToBSCOrRNC.getBSCbySubnetwork(managedElement.getSubNetworkNum(), managedElement));
+        String ldn = "ldn='" + "GBssFunction=" + bsc +
                 ",GBtsSiteManager=" + managedElement.getBTSManagedElementNum() + ",GGsmCell=";
         for (int i = 1; i < 10; i++) {
             result += ldn + i + "' or ";

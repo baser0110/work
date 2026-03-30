@@ -40,9 +40,9 @@ public class ExcelReaderService {
 
                     if (firstCell != null) {
                         try {
-                            if ("#".equals(firstCell.getStringCellValue().trim())) break;
+                            if ("#".equals(firstCell.getStringCellValue().trim())) continue;
                         } catch (Exception ignored) {}
-                    }
+                    } else break;
 
                     String siteName = row.getCell(1).getStringCellValue().toUpperCase();
                     String cluster = row.getCell(27).getStringCellValue().toUpperCase();

@@ -16,4 +16,5 @@ public interface ActiveAlarmService {
     HttpRequest getActiveAlarmBySDRSite(Token token, ManagedElement managedElement);
     Set<String> getHasAlarmSetByMEonBSC (Token token, ManagedElement managedElement);
     HttpRequest setAlarmCommentRequest(Token token, List<String> ids, String comment);
+    HttpRequest getActiveAlarmBySDRSiteList(Token token, List<String> ids);
 }

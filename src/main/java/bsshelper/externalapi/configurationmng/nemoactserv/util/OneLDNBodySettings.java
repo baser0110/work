@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import lombok.Builder;
 
 @Builder
-public class BoardPowerOffResetBodySettings {
+public class OneLDNBodySettings {
     private final String ldn;
 
     public String getBodySettings() {

@@ -58,8 +58,8 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
 
     @Override
     public Map<String, List<HistoryOfficeLink>> getOfficeLinkHistory(Token token, ManagedElement managedElement, int time, KPI kpi) {
-        String meRNC = String.valueOf(SubnetworkToBSCOrRNC.getRNCbySubnetwork(managedElement.getSubNetworkNum()));
-        String meBSC = String.valueOf(SubnetworkToBSCOrRNC.getBSCbySubnetwork(managedElement.getSubNetworkNum()));
+        String meRNC = String.valueOf(SubnetworkToBSCOrRNC.getRNCbySubnetwork(managedElement.getSubNetworkNum(), managedElement));
+        String meBSC = String.valueOf(SubnetworkToBSCOrRNC.getBSCbySubnetwork(managedElement.getSubNetworkNum(), managedElement));
         Map<String, List<HistoryOfficeLink>> result = new TreeMap<>();
         String jsonRNC = null;
         String jsonBSC = null;
@@ -167,8 +167,12 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
         if (time > 96) {
             List<String> secondResult = getRawHistoryCell(token,managedElement,96,0, kpi);
             List<String> firstResult = getRawHistoryCell(token,managedElement,time,96, kpi);
-            if (firstResult != null && secondResult != null) firstResult.addAll(secondResult);
-            if (firstResult != null) rawResult.addAll(firstResult);
+            if (firstResult != null && secondResult != null) {
+                firstResult.addAll(secondResult);
+                rawResult.addAll(firstResult);
+            }
+            if (firstResult != null && secondResult == null) rawResult.addAll(firstResult);
+            if (firstResult == null && secondResult != null) rawResult.addAll(secondResult);
         }
         switch (managedElement.getManagedElementType()) {
             case SDR -> result.addAll(HistorySDRForULocalCellMapper.toFinalEntity(rawResult));

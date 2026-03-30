@@ -256,9 +256,11 @@ public class HistoryChartController {
     private Map<String, List<HistoryForULocalCell>> allToChecked(Map<String, List<HistoryForULocalCell>> all,
                                                                  List<UUtranCellFDDMocSimplified> checkedCellList) {
         Map<String, List<HistoryForULocalCell>> result = new TreeMap<>();
-        for (UUtranCellFDDMocSimplified cell : checkedCellList) {
-            if (all.containsKey(cell.getUserLabel())) {
-                result.put(cell.getUserLabel(), all.get(cell.getUserLabel()));
+        if (all != null && !all.isEmpty()) {
+            for (UUtranCellFDDMocSimplified cell : checkedCellList) {
+                if (all.containsKey(cell.getUserLabel())) {
+                    result.put(cell.getUserLabel(), all.get(cell.getUserLabel()));
+                }
             }
         }
         return result;
@@ -268,14 +270,18 @@ public class HistoryChartController {
                                                                                 Map<String, List<HistoryForULocalCell>> all2,
                                                                                 List<UUtranCellFDDMocSimplified> checkedCellList) {
         Map<String, List<HistoryForULocalCell>> result = new TreeMap<>();
-        for (UUtranCellFDDMocSimplified cell : checkedCellList) {
-            if (all1.containsKey(cell.getUserLabel())) {
-                result.put(cell.getUserLabel() + ":1", all1.get(cell.getUserLabel()));
+        if (all1 != null && !all1.isEmpty()) {
+            for (UUtranCellFDDMocSimplified cell : checkedCellList) {
+                if (all1.containsKey(cell.getUserLabel())) {
+                    result.put(cell.getUserLabel() + ":1", all1.get(cell.getUserLabel()));
+                }
             }
         }
-        for (UUtranCellFDDMocSimplified cell : checkedCellList) {
-            if (all2.containsKey(cell.getUserLabel())) {
-                result.put(cell.getUserLabel() + ":2", all2.get(cell.getUserLabel()));
+        if (all2 != null && !all2.isEmpty()) {
+            for (UUtranCellFDDMocSimplified cell : checkedCellList) {
+                if (all2.containsKey(cell.getUserLabel())) {
+                    result.put(cell.getUserLabel() + ":2", all2.get(cell.getUserLabel()));
+                }
             }
         }
         return result;

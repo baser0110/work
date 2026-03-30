@@ -13,8 +13,10 @@ import bsshelper.globalutil.SubnetworkToBSCOrRNC;
 import bsshelper.globalutil.Verb;
 import bsshelper.globalutil.entity.ErrorEntity;
 import bsshelper.exception.CustomNetworkConnectionException;
+import bsshelper.localservice.externalcustomdata.service.CustomDataService;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +44,7 @@ public class ActiveAlarmServiceImpl implements ActiveAlarmService {
         try {
             httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofLines());
             response = httpResponse.body().toList().toString();
+            System.out.println(response);
 
             if (!response.contains("\"code\":")) {
                 response = "{\"data\":" + response + "}";
@@ -119,7 +122,7 @@ public class ActiveAlarmServiceImpl implements ActiveAlarmService {
 
     @Override
     public HttpRequest getActiveAlarmByBSC(Token token, ManagedElement managedElement) {
-        String bsc = String.valueOf(SubnetworkToBSCOrRNC.getBSCbySubnetwork(managedElement.getSubNetworkNum()));
+        String bsc = String.valueOf(SubnetworkToBSCOrRNC.getBSCbySubnetwork(managedElement.getSubNetworkNum(), managedElement));
         return HttpRequest.newBuilder()
                 .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(
                         ActiveAlarmBodySettings.builder()
@@ -135,7 +138,7 @@ public class ActiveAlarmServiceImpl implements ActiveAlarmService {
 
     @Override
     public HttpRequest getActiveAlarmByRNC(Token token, ManagedElement managedElement) {
-        String rnc = String.valueOf(SubnetworkToBSCOrRNC.getRNCbySubnetwork(managedElement.getSubNetworkNum()));
+        String rnc = String.valueOf(SubnetworkToBSCOrRNC.getRNCbySubnetwork(managedElement.getSubNetworkNum(), managedElement));
         return HttpRequest.newBuilder()
                 .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(
                         ActiveAlarmBodySettings.builder()
@@ -175,6 +178,20 @@ public class ActiveAlarmServiceImpl implements ActiveAlarmService {
                                 .commenttext(comment)
                                 .build().getBodySettings()))
                 .uri(URI.create(GlobalUtil.GLOBAL_PATH + GlobalUtil.API_COMMENT_ALARM))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Content-Type", "application/json; charset=utf-8")
+                .header("accessToken", token.getAccessToken())
+                .build();
+    }
+
+    @Override
+    public HttpRequest getActiveAlarmBySDRSiteList(Token token, List<String> ids) {
+        return HttpRequest.newBuilder()
+                .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(
+                        ActiveAlarmBodySettings.builder()
+                                .condition(new ActiveAlarmBodySettings.Condition(ids))
+                                .build().getBodySettings()))
+                .uri(URI.create(GlobalUtil.GLOBAL_PATH + GlobalUtil.API_EXPRT_ACTIVE_ALARM))
                 .version(HttpClient.Version.HTTP_1_1)
                 .header("Content-Type", "application/json; charset=utf-8")
                 .header("accessToken", token.getAccessToken())
