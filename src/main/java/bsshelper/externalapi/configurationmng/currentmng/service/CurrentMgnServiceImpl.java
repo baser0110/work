@@ -166,7 +166,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
             }
             if (managedElementMocTo != null) {
                 managedElement = ManagedElementMapper.toManagedElement(managedElementMocTo);
-                log.info(" >> managedElement: {}", managedElement);
+                log.info(" >> managedElement: {}", managedElement.getUserLabel());
             }
         } catch (IOException | InterruptedException e) {
             log.error(" >> error in sending http request: {}", e.toString());
@@ -189,7 +189,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (dryContactDeviceMocTo != null) {
             dryContactDeviceMocList = dryContactDeviceMocTo.getResult().get(0).getMoData();
         }
-        log.info(" >> dryContactDeviceMocList: {}", dryContactDeviceMocList);
+        log.info(" >> dryContactDeviceMocList: {}", dryContactDeviceMocList == null ? null : dryContactDeviceMocList.size());
         return dryContactDeviceMocList;
     }
 
@@ -207,7 +207,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (riCableMocTo != null) {
             riCableMocList = riCableMocTo.getResult().get(0).getMoData();
         }
-        log.info(" >> riCableMocList: {}", riCableMocList);
+        log.info(" >> riCableMocList: {}", riCableMocList == null ? null : riCableMocList.size());
         return riCableMocList;
     }
 
@@ -243,7 +243,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (ipMocTo != null) {
             ipMocList = ipMocTo.getResult().get(0).getMoData();
         }
-        log.info(" >> ipMocList: {}", ipMocList);
+        log.info(" >> ipMocList: {}", ipMocList == null ? null : ipMocList.size());
         return ipMocList;
     }
 
@@ -261,7 +261,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (fiberCableMocTo != null) {
             fiberCableMocList = fiberCableMocTo.getResult().get(0).getMoData();
         }
-        log.info(" >> fiberCableMocList: {}", fiberCableMocList);
+        log.info(" >> fiberCableMocList: {}", fiberCableMocList == null ? null : fiberCableMocList.size());
         return fiberCableMocList;
     }
 
@@ -279,7 +279,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (dryContactCableMocTo != null) {
             dryContactCableMocList = dryContactCableMocTo.getResult().get(0).getMoData();
         }
-        log.info(" >> dryContactCableMocList: {}", dryContactCableMocList);
+        log.info(" >> dryContactCableMocList: {}", dryContactCableMocList == null ? null : dryContactCableMocList.size());
         return dryContactCableMocList;
     }
 
@@ -297,7 +297,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (sdrDeviceGroupMocTo != null) {
             sdrDeviceGroupMocList = sdrDeviceGroupMocTo.getResult().get(0).getMoData();
         }
-        log.info(" >> sdrDeviceGroupMocList: {}", sdrDeviceGroupMocList);
+        log.info(" >> sdrDeviceGroupMocList: {}", sdrDeviceGroupMocList == null ? null : sdrDeviceGroupMocList.size());
         return sdrDeviceGroupMocList;
     }
 
@@ -315,7 +315,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (ethernetSwitchDeviceMocTo != null) {
             ethernetSwitchDeviceMocList = ethernetSwitchDeviceMocTo.getResult().get(0).getMoData();
         }
-        log.info(" >> ethernetSwitchDeviceMocList: {}", ethernetSwitchDeviceMocList);
+        log.info(" >> ethernetSwitchDeviceMocList: {}", ethernetSwitchDeviceMocList == null ? null : ethernetSwitchDeviceMocList.size());
         return ethernetSwitchDeviceMocList;
     }
 
@@ -333,7 +333,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (ipLayerConfigMocTo != null) {
             ipLayerConfigList = ipLayerConfigMocTo.getResult().get(0).getMoData();
         }
-        log.info(" >> ipLayerConfigList: {}", ipLayerConfigList);
+        log.info(" >> ipLayerConfigList: {}", ipLayerConfigList == null ? null : ipLayerConfigList.size());
         return ipLayerConfigList;
     }
 
@@ -351,7 +351,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (txChannelMocTo != null) {
             txChannelList = txChannelMocTo.getResult().get(0).getMoData();
         }
-        log.info(" >> txChannelList: {}", txChannelList);
+        log.info(" >> txChannelList: {}", txChannelList == null ? null : txChannelList.size());
         return txChannelList;
     }
 
@@ -372,7 +372,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (uLocalCellMocTo != null) {
             ULocalCellMocList = uLocalCellMocTo.getResult().get(0).getMoData();
         }
-        log.info(" >> uLocalCellMocList: {}", ULocalCellMocList);
+        log.info(" >> uLocalCellMocList: {}", ULocalCellMocList == null ? null : ULocalCellMocList.size());
         return ULocalCellMocList;
     }
 
@@ -393,7 +393,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (sDRGTrxMocTo != null) {
             sDRGTrxMocList = sDRGTrxMocTo.getResult().get(0).getMoData();
         }
-        log.info(" >> sDRGTrxMocList: {}", sDRGTrxMocList);
+        log.info(" >> sDRGTrxMocList: {}", sDRGTrxMocList == null ? null : sDRGTrxMocList.size());
         return sDRGTrxMocList;
     }
 
@@ -414,7 +414,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (iTBBUGTrxMocTo != null) {
             iTBBUTrxMocList = iTBBUGTrxMocTo.getResult().get(0).getMoData();
         }
-        log.info(" >> iTBBUTrxMocList: {}", iTBBUTrxMocList);
+        log.info(" >> iTBBUTrxMocList: {}", iTBBUTrxMocList == null ? null : iTBBUTrxMocList.size());
         return iTBBUTrxMocList;
     }
 
@@ -435,7 +435,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (iTBBUULocalCellMocTo != null) {
             iTBBUULocalCellMocList = iTBBUULocalCellMocTo.getResult().get(0).getMoData();
         }
-        log.info(" >> uLocalCellMocList: {}", iTBBUULocalCellMocList);
+        log.info(" >> uLocalCellMocList: {}", iTBBUULocalCellMocList == null ? null : iTBBUULocalCellMocList.size());
         return iTBBUULocalCellMocList;
     }
 
@@ -459,7 +459,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
             uLocalCellMocSimplifiedList = uLocalCellMocSimplifiedTo.getResult().get(0).getMoData();
 //            System.out.println(uLocalCellMocSimplifiedTo.getResult().size());
         }
-        log.info(" >> ULocalCellMocSimplifiedList: {}", uLocalCellMocSimplifiedList);
+        log.info(" >> ULocalCellMocSimplifiedList: {}", uLocalCellMocSimplifiedList == null ? null : uLocalCellMocSimplifiedList.size());
         return uLocalCellMocSimplifiedList;
     }
 
@@ -488,7 +488,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
             uCellMocSimplifiedList = uCellMocSimplifiedTo.getResult().get(0).getMoData();
 //            System.out.println(uLocalCellMocSimplifiedTo.getResult().size());
         }
-        log.info(" >> UCellMocSimplifiedList: {}", uCellMocSimplifiedList);
+        log.info(" >> UCellMocSimplifiedList: {}", uCellMocSimplifiedList == null ? null : uCellMocSimplifiedList.size());
         return uCellMocSimplifiedList;
     }
 
@@ -510,7 +510,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (iTBBUULocalCellMocSimplifiedTo != null) {
             iTBBUULocalCellMocSimplifiedList = iTBBUULocalCellMocSimplifiedTo.getResult().get(0).getMoData();
         }
-        log.info(" >> iTBBUULocalCellMocSimplifiedList: {}", iTBBUULocalCellMocSimplifiedList);
+        log.info(" >> iTBBUULocalCellMocSimplifiedList: {}", iTBBUULocalCellMocSimplifiedList == null ? null : iTBBUULocalCellMocSimplifiedList.size());
         return iTBBUULocalCellMocSimplifiedList;
     }
 
@@ -532,7 +532,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (eUtranCellFDDMocSimplifiedTo != null) {
             eUtranCellFDDMocSimplifiedList = eUtranCellFDDMocSimplifiedTo.getResult().get(0).getMoData();
         }
-        log.info(" >> eUtranCellFDDMocSimplifiedList: {}", eUtranCellFDDMocSimplifiedList);
+        log.info(" >> eUtranCellFDDMocSimplifiedList: {}", eUtranCellFDDMocSimplifiedList == null ? null : eUtranCellFDDMocSimplifiedList.size());
         return eUtranCellFDDMocSimplifiedList;
     }
 
@@ -554,7 +554,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (iTBBUCUEUtranCellFDDLTEMocSimplifiedTo != null) {
             iTBBUCUEUtranCellFDDLTEMocSimplifiedList = iTBBUCUEUtranCellFDDLTEMocSimplifiedTo.getResult().get(0).getMoData();
         }
-        log.info(" >> iTBBUCUEUtranCellFDDLTEMocSimplifiedList: {}", iTBBUCUEUtranCellFDDLTEMocSimplifiedList);
+        log.info(" >> iTBBUCUEUtranCellFDDLTEMocSimplifiedList: {}", iTBBUCUEUtranCellFDDLTEMocSimplifiedList == null ? null : iTBBUCUEUtranCellFDDLTEMocSimplifiedList.size());
         return iTBBUCUEUtranCellFDDLTEMocSimplifiedList;
     }
 
@@ -576,7 +576,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (eUtranCellNBIoTMocSimplifiedTo != null) {
             eUtranCellNBIoTMocSimplifiedList = eUtranCellNBIoTMocSimplifiedTo.getResult().get(0).getMoData();
         }
-        log.info(" >> eUtranCellNBIoTMocSimplifiedList: {}", eUtranCellNBIoTMocSimplifiedList);
+        log.info(" >> eUtranCellNBIoTMocSimplifiedList: {}", eUtranCellNBIoTMocSimplifiedList == null ? null : eUtranCellNBIoTMocSimplifiedList.size());
         return eUtranCellNBIoTMocSimplifiedList;
     }
 
@@ -598,7 +598,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (iTBBUCUEUtranCellNBIoTMocSimplifiedTo != null) {
             iTBBUCUEUtranCellNBIoTMocSimplifiedList = iTBBUCUEUtranCellNBIoTMocSimplifiedTo.getResult().get(0).getMoData();
         }
-        log.info(" >> iTBBUCUEUtranCellNBIoTMocSimplifiedList: {}", iTBBUCUEUtranCellNBIoTMocSimplifiedList);
+        log.info(" >> iTBBUCUEUtranCellNBIoTMocSimplifiedList: {}", iTBBUCUEUtranCellNBIoTMocSimplifiedList == null ? null : iTBBUCUEUtranCellNBIoTMocSimplifiedList.size());
         return iTBBUCUEUtranCellNBIoTMocSimplifiedList;
     }
 
@@ -629,7 +629,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
 //                gGsmCellMocSimplifiedList = null;
 //            }
         }
-        log.info(" >> gGsmCellMocSimplifiedList: {}", gGsmCellMocSimplifiedList);
+        log.info(" >> gGsmCellMocSimplifiedList: {}", gGsmCellMocSimplifiedList == null ? null : gGsmCellMocSimplifiedList.size());
 
         return gGsmCellMocSimplifiedList;
     }
@@ -658,7 +658,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
             gTrxMocSimplifiedList = gTrxMocSimplifiedTo.getResult().get(0).getMoData();
             gTrxMocSimplifiedList.sort(Comparator.comparing(GTrxMocSimplified::getUserLabel));
         }
-        log.info(" >> gTrxMocSimplifiedList: {}", gTrxMocSimplifiedList);
+        log.info(" >> gTrxMocSimplifiedList: {}", gTrxMocSimplifiedList == null ? null : gTrxMocSimplifiedList.size());
         return gTrxMocSimplifiedList;
     }
 
@@ -685,7 +685,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
             uUtranCellFDDMocSimplifiedList = uUtranCellFDDMocSimplifiedTo.getResult().get(0).getMoData();
             uUtranCellFDDMocSimplifiedList.sort(Comparator.comparing(UUtranCellFDDMocSimplified::getUserLabel));
         }
-        log.info(" >> uUtranCellFDDMocSimplifiedList: {}", uUtranCellFDDMocSimplifiedList);
+        log.info(" >> uUtranCellFDDMocSimplifiedList: {}", uUtranCellFDDMocSimplifiedList == null ? null : uUtranCellFDDMocSimplifiedList.size());
         return uUtranCellFDDMocSimplifiedList;
     }
 
@@ -712,7 +712,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
             uIubLinkMocSimplifiedList = uIubLinkMocSimplifiedTo.getResult().get(0).getMoData();
             if (uIubLinkMocSimplifiedTo.getResult().size() > 1) uIubLinkMocSimplifiedList.addAll(uIubLinkMocSimplifiedTo.getResult().get(1).getMoData());
         }
-        log.info(" >> uIubLinkMocSimplifiedList: {}", uIubLinkMocSimplifiedList);
+        log.info(" >> uIubLinkMocSimplifiedList: {}", uIubLinkMocSimplifiedList == null ? null : uIubLinkMocSimplifiedList.size());
         return uIubLinkMocSimplifiedList;
     }
 
@@ -730,7 +730,7 @@ public class CurrentMgnServiceImpl implements CurrentMgnService {
         if (iTBBUTtxChannelMocTo != null) {
             iTBBUTtxChannelList = iTBBUTtxChannelMocTo.getResult().get(0).getMoData();
         }
-        log.info(" >> iTBBUTtxChannelList: {}", iTBBUTtxChannelList);
+        log.info(" >> iTBBUTtxChannelList: {}", iTBBUTtxChannelList == null ? null : iTBBUTtxChannelList.size());
         return iTBBUTtxChannelList;
     }
 

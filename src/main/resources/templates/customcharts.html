@@ -381,13 +381,15 @@
     }
 
     // Process MAX_OPTIC_ERROR data
+    let absoluteMax_MAX_OPTIC_ERROR = 1;
     for (let seriesMAX_OPTIC_ERROR in chartMAX_OPTIC_ERRORData) {
         if (chartMAX_OPTIC_ERRORData.hasOwnProperty(seriesMAX_OPTIC_ERROR)) {
             let dataPointsMAX_OPTIC_ERROR = chartMAX_OPTIC_ERRORData[seriesMAX_OPTIC_ERROR].map(pointMAX_OPTIC_ERROR => {
-                return { x: new Date(pointMAX_OPTIC_ERROR.time), y: pointMAX_OPTIC_ERROR.value};
+                if (pointMAX_OPTIC_ERROR.value > absoluteMax_MAX_OPTIC_ERROR) absoluteMax_MAX_OPTIC_ERROR = pointMAX_OPTIC_ERROR.value;
+                return { x: new Date(pointMAX_OPTIC_ERROR.time), y: pointMAX_OPTIC_ERROR.value === 0 ? 0.1 : pointMAX_OPTIC_ERROR.value, realY: pointMAX_OPTIC_ERROR.value};
             });
             dataSeriesMAX_OPTIC_ERROR.push({
-                type: "line",
+                type: "column",
                 markerSize: 0,
                 name: seriesMAX_OPTIC_ERROR,
                 showInLegend: true,
@@ -970,6 +972,7 @@
             chartVSWR.render();
         }
 
+        let logMax_MAX_OPTIC_ERROR = Math.pow(10, Math.floor(Math.log10(absoluteMax_MAX_OPTIC_ERROR)) + 1);
         const MAX_OPTIC_ERRORChartContainer = document.getElementById("MAX_OPTIC_ERRORChartContainer");
         if (MAX_OPTIC_ERRORChartContainer) {
             const containerWidthMAX_OPTIC_ERROR = MAX_OPTIC_ERRORChartContainer.offsetWidth;
@@ -986,9 +989,21 @@
                 },
                 axisY: {
                     title: "number of ...",
+                    logarithmic: true,
+                    minimum: 0.99,
+                    maximum: absoluteMax_MAX_OPTIC_ERROR > 1 ? logMax_MAX_OPTIC_ERROR : 1000000000,
+                    labelFormatter: function(e) {return e.value > 0 ? e.value : "";}
                 },
                 toolTip: {
-                    shared: true
+                    shared: true,
+                    contentFormatter: function(e) {
+                        let content = "<strong>" + CanvasJS.formatDate(e.entries[0].dataPoint.x, "DD-MM HH:mm") + "</strong><br/>";
+                        e.entries.forEach(entry => {
+                            let val = entry.dataPoint.realY;
+                            content += "<span style='color:" + entry.dataSeries.color + "'>" + entry.dataSeries.name + "</span>: " + val + "<br/>";
+                        });
+                    return content;
+                    }
                 },
                 legend: {
                     cursor: "pointer",

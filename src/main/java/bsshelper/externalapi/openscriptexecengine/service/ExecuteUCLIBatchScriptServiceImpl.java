@@ -30,6 +30,7 @@ public class ExecuteUCLIBatchScriptServiceImpl implements ExecuteUCLIBatchScript
         String response = null;
         ExecuteSuccessResponse executeSuccessResponse = null;
         ErrorEntity error = null;
+        ScriptServiceErrorEntity scriptError = null;
         try {
             HttpRequest httpRequest = executeBatchRequest(filePath, token);
 //            HttpRequest httpRequest = uploadParamFile(token);
@@ -37,19 +38,22 @@ public class ExecuteUCLIBatchScriptServiceImpl implements ExecuteUCLIBatchScript
             httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
             response = httpResponse.body();
 //            System.out.println(response);
-            executeSuccessResponse = new Gson().fromJson(response, ExecuteSuccessResponse.class);
+
+                executeSuccessResponse = new Gson().fromJson(response, ExecuteSuccessResponse.class);
+
+                if (executeSuccessResponse.getPacketId() != 303) throw new JsonSyntaxException("Not success entity in response!");
+
         } catch (JsonSyntaxException e1) {
 //            e1.printStackTrace();
             log.error(" >> error in response executeBatch parsing: {}", e1.toString());
             try {
-                error = new Gson().fromJson(response, ErrorEntity.class);
+                scriptError = new Gson().fromJson(response, ScriptServiceErrorEntity.class);
             } catch (JsonSyntaxException e2) {
                 log.error(" >> error in ErrorEntity parsing: {}", e2.toString());
             }
-            if (error != null) {
-                log.error(" >> error {} code({})", error.getMessage(), error.getCode());
+            if (scriptError != null) {
+                log.error(" >> error {} code({})", scriptError.getMessage(), scriptError.getCode());
             }
-//            System.out.println(uLocalCellMocTo);
         } catch (IOException | InterruptedException e) {
             log.error(" >> error in sending http request: {}", e.toString());
             if (e instanceof ConnectException) throw new CustomNetworkConnectionException((e.toString()));
@@ -90,6 +94,7 @@ public class ExecuteUCLIBatchScriptServiceImpl implements ExecuteUCLIBatchScript
     }
 
     public int queryExecStatus(String execId, Token token) {
+        if (execId == null) return 0;
         HttpResponse<String> httpResponse = null;
         String response = null;
         QuerySuccessResponse querySuccessResponse = null;
@@ -196,5 +201,21 @@ public class ExecuteUCLIBatchScriptServiceImpl implements ExecuteUCLIBatchScript
         private long finishedDateTime;
         private int status;
         private String logLocation;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class ScriptServiceErrorEntity{
+        private String code;
+        private String message;
+
+        @Data
+        @AllArgsConstructor
+        static class ErrorData{
+            private String en;
+            private String zh;
+            private String openApiCode;
+
+        }
     }
 }

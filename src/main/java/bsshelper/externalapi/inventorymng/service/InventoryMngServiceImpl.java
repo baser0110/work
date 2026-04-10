@@ -58,7 +58,7 @@ public class InventoryMngServiceImpl implements InventoryMngService {
                 if (inventoryEntityTo != null) {
                     inventoryEntityList = inventoryEntityTo.getInventoryEntityList();
                 }
-                log.info(" >> inventoryEntityList: {}", inventoryEntityList);
+                log.info(" >> inventoryEntityList: {}", inventoryEntityList == null ? null : inventoryEntityList.size());
             }
         } catch(IOException | InterruptedException e){
             log.error(" >> error in sending http request: {}", e.toString());

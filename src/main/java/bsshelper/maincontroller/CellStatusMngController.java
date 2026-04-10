@@ -90,7 +90,7 @@ public class CellStatusMngController {
         localCacheService.managedElementMap.put(managedElement.getUserLabel(), managedElement);
         searchCacheService.add(managedElement.getUserLabel());
 
-//        System.out.println(currentMgnService.rawDataQuery(tokenService.getToken(),managedElement,"EUtranCellNBIoT"));
+//        System.out.println(currentMgnService.rawDataQuery(tokenService.getToken(),managedElement,"ManagedElement"));
 
         ULocalCellStatusListWrapper uLocalCellMocListWrapper = null;
         EUtranCellNBIoTStatusListWrapper eUtranCellNBIoTMocListWrapper = null;

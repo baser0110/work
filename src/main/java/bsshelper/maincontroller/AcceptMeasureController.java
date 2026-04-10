@@ -54,6 +54,7 @@ public class AcceptMeasureController {
     private final SearchCacheService searchCacheService;
     private final InventoryMngService inventoryMngService;
     private static final Logger operationLog = LoggerUtil.getOperationLogger();
+    private final String pageTitle = "Measurements & Info";
 
     @PostMapping("/acceptanceMeasurement/reset")
     public String reset(@ModelAttribute("ldn") String ldn,
@@ -90,7 +91,7 @@ public class AcceptMeasureController {
 
         model.addAttribute("managedElement", managedElement);
         model.addAttribute("isSelected", new ArrayList<>(List.of(false,false,false,false,false,false)));
-        model.addAttribute("title", "Acceptance Measurement");
+        model.addAttribute("title", pageTitle);
         model.addAttribute("repoQueryType", new QueryTypeToWrapper(QueryTypeTo.getDefaultQueryTypeSelectedList()));
         model.addAttribute("searchCache", searchCacheService.getList());
         return "measurement";
@@ -102,7 +103,7 @@ public class AcceptMeasureController {
         setMessage(id, model);
         model.addAttribute("managedElement", null);
         model.addAttribute("isSelected", new ArrayList<>(List.of(false,false,false,false,false,false)));
-        model.addAttribute("title", "Acceptance Measurement");
+        model.addAttribute("title", pageTitle);
         model.addAttribute("repoQueryType", new QueryTypeToWrapper(QueryTypeTo.getDefaultQueryTypeSelectedList()));
         model.addAttribute("searchCache", searchCacheService.getList());
         return "measurement";
@@ -244,7 +245,7 @@ public class AcceptMeasureController {
         model.addAttribute("managedElement", managedElement);
         model.addAttribute("isSelected", isSelected);
         model.addAttribute("acceptanceMeasurementId", id);
-        model.addAttribute("title", "Acceptance Measurement");
+        model.addAttribute("title", pageTitle);
         model.addAttribute("searchCache", searchCacheService.getList());
         return "measurement";
     }

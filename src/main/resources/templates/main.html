@@ -29,7 +29,7 @@
     </form>
     <form sec:authorize="!hasAuthority('ACCEPT_MEASUREMENT_NO')">
         <br/>
-        <a id="am" class="btn btn-primary text-center width-250px" th:href="@{/helper/acceptanceMeasurement}">Acceptance Measurement</a>
+        <a id="am" class="btn btn-primary text-center width-250px" th:href="@{/helper/acceptanceMeasurement}">Measurements & Info</a>
     </form>
     <form sec:authorize="!hasAuthority('PACKET_LOSS_INSPECTOR_NO')">
         <br/>

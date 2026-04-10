@@ -44,7 +44,7 @@ public class ActiveAlarmServiceImpl implements ActiveAlarmService {
         try {
             httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofLines());
             response = httpResponse.body().toList().toString();
-            System.out.println(response);
+//            System.out.println(response);
 
             if (!response.contains("\"code\":")) {
                 response = "{\"data\":" + response + "}";

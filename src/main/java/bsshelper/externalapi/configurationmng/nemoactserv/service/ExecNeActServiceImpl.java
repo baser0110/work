@@ -64,7 +64,7 @@ public class ExecNeActServiceImpl implements ExecNeActService {
                 }
             }
         }
-        log.info(" >> opticInfoFinalList: {}", result);
+        log.info(" >> opticInfoFinalList: {}", result.size());
         return result;
     }
 
@@ -94,7 +94,7 @@ public class ExecNeActServiceImpl implements ExecNeActService {
             }
         }
         result.sort(Comparator.comparing(VSWRTestFinal::getRuAntName));
-        log.info(" >> vSWRTestFinalList: {}", result);
+        log.info(" >> vSWRTestFinalList: {}", result.size());
         return result;
     }
 
@@ -110,7 +110,7 @@ public class ExecNeActServiceImpl implements ExecNeActService {
             httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
             response = httpResponse.body();
             if (response.contains("\"code\":0")) {
-                log.info(" >> {} {} for {} successfully found", ldn, action.getInfo(), managedElement.getUserLabel());
+                log.info(" >> {} {} for {} done", ldn, action.getInfo(), managedElement.getUserLabel());
             } else {
                 if (response.contains("Board communication link is interrupted.")) {
                     log.info(" >> {} {} for {} couldn't found, because of board communication link is interrupted", ldn, action.getInfo(), managedElement.getUserLabel());
@@ -332,7 +332,7 @@ public class ExecNeActServiceImpl implements ExecNeActService {
                         getOpticInfoITBBUList(token, managedElement, ldn)));
             }
         }
-        log.info(" >> opticInfoFinalList: {}", result);
+        log.info(" >> opticInfoFinalList: {}", result.size());
         return result;
     }
 
@@ -363,7 +363,7 @@ public class ExecNeActServiceImpl implements ExecNeActService {
             httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
             response = httpResponse.body();
             if (response.contains("\"code\":0")) {
-                log.info(" >> {} {} for {} successfully found", ldn, description, managedElement.getUserLabel());
+                log.info(" >> {} {} for {} done", ldn, description, managedElement.getUserLabel());
             } else {
                 try {
                     error = new Gson().fromJson(response, ErrorEntity.class);
@@ -582,7 +582,6 @@ public class ExecNeActServiceImpl implements ExecNeActService {
                 getClock1588InformationITBBU(token, managedElement),
                 getClockGNSSInformationITBBU(token, managedElement));
     }
-
 
     private Map<String, List<String>> getLdnMap(List<SdrDeviceGroupMoc> sdrDeviceGroupMocList) {
         Map<String, List<String>> map = new HashMap<>();
