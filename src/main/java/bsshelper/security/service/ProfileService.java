@@ -24,9 +24,9 @@ public class ProfileService {
     private final PasswordEncoder passwordEncoder;
 
     public List<Profile> getAllProfiles() {
-//        System.out.println(profileRepository.findAll());
         return profileRepository.findAll();
     }
+
     public Optional<Profile> findByName(String name) {return profileRepository.findByName(name);}
 
     @Transactional
@@ -70,6 +70,7 @@ public class ProfileService {
     public Optional<Profile> getProfileById(String id) {
         return profileRepository.findById(id);
     }
+
     @Transactional
     public Profile updateProfile(Profile profile) {
         Profile existingProfile = profileRepository.findById(profile.getId())
@@ -84,6 +85,7 @@ public class ProfileService {
         existingProfile.setUserMng(profile.getUserMng());
         return profileRepository.save(existingProfile);
     }
+
     @Transactional
     public void deleteProfile(String id) {
         profileRepository.deleteById(id);

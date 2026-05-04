@@ -97,7 +97,7 @@ public class BatchFileBuilder {
         if (requestData == null || cellOperation == 0 || requestData.isEmpty()) {
             return "";
         }
-        int numBSC = SubnetworkToBSCOrRNC.getBSCbySubnetwork(managedElement.getSubNetworkNum(), managedElement);
+        int numBSC = Integer.parseInt(managedElement.getBSC());
         StringBuilder result = new StringBuilder();
         switch (cellOperation) {
             case 1: {
@@ -121,7 +121,7 @@ public class BatchFileBuilder {
                 for (GCellStatus cell : requestData) {
                     if (cell.isSelected()) {
                         result.append(GSM_UNB_BUILDER_START)
-                                .append(SubnetworkToBSCOrRNC.getBSCbySubnetwork(managedElement.getSubNetworkNum(), managedElement))
+                                .append(numBSC)
                                 .append(GSM_BUILDER_MIDDLE_1)
                                 .append(managedElement.getBTSManagedElementNum())
                                 .append(GSM_BUILDER_MIDDLE_2)

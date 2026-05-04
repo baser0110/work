@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>VLANs</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+          crossorigin="anonymous">
+</head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+<main>
+    <div class="container">
+        <br>
+        <h2 th:text="${vlan.id == null ? 'Create New VLAN' : 'Edit VLAN'}"></h2>
+
+        <form th:action="@{${vlan.id == null ? '/helper/appAccessMng/dataMng/vlan/management/create' : '/helper/appAccessMng/dataMng/vlan/management/edit'}}" th:object="${vlan}" method="post">
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="form-group col-md-4">
+                <label for="vlan">VLAN</label>
+                <input type="text" id="vlan" name="vlan" class="form-control"
+                       th:field="*{vlan}" placeholder="Enter VLAN"
+                       th:readonly="${vlan.id != null}" required />
+            </div>
+
+            <div class="form-group col-md-4">
+                <label for="technology">Technology</label>
+                <input type="text" id="technology" name="technology" class="form-control"
+                       th:field="*{technology}" placeholder="Enter technology" required />
+            </div>
+
+            <div class="form-group col-md-4">
+                <button type="submit" class="btn btn-primary"
+                        th:text="${vlan.id == null ? 'Create' : 'Update'}"></button>
+                <a href="/helper/appAccessMng/dataMng/vlan" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+        <br>
+
+        <div th:if="${param['vlan-existed']}" class="alert alert-danger">VLAN already exists!</div>
+    </div>
+</main>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

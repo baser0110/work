@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.Getter;
 
 @Getter
-public enum KPI {
+public enum KPI implements KPIable{
 
     RTWP ("300840", "Average RTWP"),
     RRC_ATTEMPT ("300002", "Number of RRC connection establishment Attempt"),
@@ -37,5 +37,20 @@ public enum KPI {
     KPI(String code, String info) {
         this.code = code;
         this.info = info;
+    }
+
+    @Override
+    public String getMoType() {
+        return "";
+    }
+
+    @Override
+    public String getUnit() {
+        return "";
+    }
+
+    @Override
+    public String getFormat() {
+        return "";
     }
 }

@@ -17,7 +17,7 @@ public class EthernetSwitchDeviceMoc {
     private final String port;
     private final String ldn;
     private final String ingressRateSwitch;
-    private final String vlanMembership;
+//    private final String vlanMembership;
     private final String ingressBitRate;
     private final String ingressRateLimitMode;
 }

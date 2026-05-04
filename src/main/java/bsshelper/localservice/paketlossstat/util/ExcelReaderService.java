@@ -2,10 +2,7 @@ package bsshelper.localservice.paketlossstat.util;
 
 import bsshelper.localservice.paketlossstat.to.DomainTo;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +27,7 @@ public class ExcelReaderService {
                 if (sheet == null) continue;
 
                 String region = sheetName.toUpperCase();
+                int noDataFieldNum = 0;
 
                 Iterator<Row> rows = sheet.iterator();
                 if (rows.hasNext()) rows.next(); // skip header
@@ -37,6 +35,7 @@ public class ExcelReaderService {
                 while (rows.hasNext()) {
                     Row row = rows.next();
                     Cell firstCell = row.getCell(0);
+                    noDataFieldNum++;
 
                     if (firstCell != null) {
                         try {
@@ -44,9 +43,15 @@ public class ExcelReaderService {
                         } catch (Exception ignored) {}
                     } else break;
 
-                    String siteName = row.getCell(1).getStringCellValue().toUpperCase();
-                    String cluster = row.getCell(27).getStringCellValue().toUpperCase();
-                    String domain = row.getCell(28).getStringCellValue().toUpperCase();
+                    String siteName = row.getCell(1) != null ?
+                            getCellAlwaysUpperCaseString(row.getCell(1)) :
+                            "EMPTY_" + noDataFieldNum;
+                    String cluster = row.getCell(27) != null ?
+                            getCellAlwaysUpperCaseString(row.getCell(27)) :
+                            "EMPTY_" + noDataFieldNum;
+                    String domain = row.getCell(28) != null ?
+                            getCellAlwaysUpperCaseString(row.getCell(28)) :
+                            "EMPTY_" + noDataFieldNum;
 
                     domainTos.add(new DomainTo(region, siteName, cluster, domain));
                 }
@@ -57,6 +62,16 @@ public class ExcelReaderService {
         }
 
         return domainTos;
+    }
+
+    private String getCellAlwaysUpperCaseString(Cell cell) {
+        String value;
+        if (cell.getCellType() == CellType.NUMERIC) {
+            value = String.valueOf((long) cell.getNumericCellValue());
+        } else {
+            value = cell.getStringCellValue();
+        }
+        return value.toUpperCase();
     }
 }
 

@@ -5,7 +5,14 @@ import bsshelper.externalapi.alarmmng.activealarm.service.ActiveAlarmService;
 import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.entity.MessageEntity;
 import bsshelper.localservice.externalcustomdata.entity.AlarmLogEntity;
-import bsshelper.localservice.externalcustomdata.service.CustomDataService;
+import bsshelper.localservice.externalcustomdata.entity.AlarmUserLabel;
+import bsshelper.localservice.externalcustomdata.entity.Comment;
+import bsshelper.localservice.externalcustomdata.entity.MECustomLink;
+import bsshelper.localservice.externalcustomdata.entity.VLAN;
+import bsshelper.localservice.externalcustomdata.service.AlarmUserLabelService;
+import bsshelper.localservice.externalcustomdata.service.CommentService;
+import bsshelper.localservice.externalcustomdata.service.MECustomLinkService;
+import bsshelper.localservice.externalcustomdata.service.VLANService;
 import bsshelper.localservice.localcache.LocalCacheService;
 import bsshelper.localservice.token.TokenService;
 import bsshelper.security.config.PasswordConfig;
@@ -25,17 +32,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-
-import static bsshelper.localservice.localcache.LocalCacheService.managedElementMap;
 
 @Slf4j
 @Controller
@@ -44,12 +46,14 @@ import static bsshelper.localservice.localcache.LocalCacheService.managedElement
 public class AppAccessMngController {
     private final UserService userService;
     private final ProfileService profileService;
+    private final AlarmUserLabelService alarmUserLabelService;
     private final LocalCacheService localCacheService;
-    private final CustomDataService customDataService;
-
+//    private final CustomDataService customDataService;
+    private final MECustomLinkService meCustomLinkService;
     private final ActiveAlarmService activeAlarmService;
+    private final CommentService commentService;
+    private final VLANService vlanService;
     private final TokenService tokenService;
-//    private static final Logger operationLog = LoggerUtil.getOperationLogger();
 
     @GetMapping("/appAccessMng")
     public String getAccessMngMain(Model model) {
@@ -97,8 +101,6 @@ public class AppAccessMngController {
             return "redirect:/helper/appAccessMng/users/management/new?invalid-pass";
         }
         userService.createUser(user);
-//        operationLog.warn("User: {} \n({}) \ncreated a new user: {}",
-//                authentication.getName(), authentication.getDetails(), user.getUsername());
         return "redirect:/helper/appAccessMng/users";
     }
 
@@ -112,18 +114,16 @@ public class AppAccessMngController {
                 return "redirect:/helper/appAccessMng/users/management/" + user.getId() + "?invalid-pass";
             }
         } else userService.updateUser(user);
-//        operationLog.warn("User: {} ({}) edited user: {}",
-//                authentication.getName(), authentication.getDetails(), user.getUsername());
         return "redirect:/helper/appAccessMng/users";
     }
 
     @PostMapping("/appAccessMng/users/management/delete/{id}")
     public String deleteUser(@PathVariable String id, Authentication authentication) {
         userService.deleteUser(id);
-//        operationLog.warn("User: {} $$ ({}) $$ deleted user: {}",
-//                authentication.getName(), authentication.getDetails(), id);
         return "redirect:/helper/appAccessMng/users";
     }
+
+    // PROFILES
 
     @GetMapping("/appAccessMng/profiles")
     public String getAllProfiles(Model model) {
@@ -147,8 +147,6 @@ public class AppAccessMngController {
             return "redirect:/helper/appAccessMng/profiles/management/new?name-existed";
         }
         profileService.createProfile(profile);
-//        operationLog.warn("User: {} ({}) created a new profile: {}",
-//                authentication.getName(), authentication.getDetails(), profile.getName());
         return "redirect:/helper/appAccessMng/profiles";
     }
 
@@ -165,17 +163,206 @@ public class AppAccessMngController {
     @PostMapping("/appAccessMng/profiles/management/edit")
     public String updateProfile(@ModelAttribute Profile profile, Authentication authentication) {
         profileService.updateProfile(profile);
-//        operationLog.warn("User: {} ({}) edited profile: {}",
-//                authentication.getName(), authentication.getDetails(), profile.getName());
         return "redirect:/helper/appAccessMng/profiles";
     }
 
     @PostMapping("/appAccessMng/profiles/management/delete/{id}")
     public String deleteProfile(@PathVariable String id, Authentication authentication) {
         profileService.deleteProfile(id);
-//        operationLog.warn("User: {} ({}) delete profile: {}",
-//                authentication.getName(), authentication.getDetails(), id);
         return "redirect:/helper/appAccessMng/profiles";
+    }
+
+    // ALARM_USER_LABEL
+
+    @GetMapping("/appAccessMng/dataMng/alarmUserLabel")
+    public String getAllAlarmUserLabels(Model model) {
+        List<AlarmUserLabel> AlarmUserLabels = alarmUserLabelService.getAllAlarmUserLabel();
+        model.addAttribute("alarmUserLabels", AlarmUserLabels);
+        model.addAttribute("title", "AlarmUserLabel Manager");
+        return "alarm-user-label";
+    }
+
+    @GetMapping("/appAccessMng/dataMng/alarmUserLabel/management/new")
+    public String createAlarmUserLabelForm(Model model) {
+        model.addAttribute("alarmUserLabel", new AlarmUserLabel());
+        model.addAttribute("title", "AlarmUserLabel (New)");
+        return "alarm-user-label-management";
+    }
+
+    @PostMapping("/appAccessMng/dataMng/alarmUserLabel/management/create")
+    public String createAlarmUserLabel(@ModelAttribute AlarmUserLabel alarmUserLabel) {
+        Optional<AlarmUserLabel> dbCode = alarmUserLabelService.findByCode(alarmUserLabel.getCode());
+        if (dbCode.isPresent()) {
+            return "redirect:/helper/appAccessMng/dataMng/alarmUserLabel/management/new?code-existed";
+        }
+        alarmUserLabel.setUserLabel(alarmUserLabel.getUserLabel().toUpperCase());
+        alarmUserLabelService.createAlarmUserLabel(alarmUserLabel);
+        return "redirect:/helper/appAccessMng/dataMng/alarmUserLabel";
+    }
+
+    @GetMapping("/appAccessMng/dataMng/alarmUserLabel/management/{id}")
+    public String editAlarmUserLabelForm(@PathVariable String id, Model model) {
+        if (id != null && !id.isEmpty()) {
+            Optional<AlarmUserLabel> alarmUserLabel = alarmUserLabelService.getAlarmUserLabelById(id);
+            alarmUserLabel.ifPresent(value -> model.addAttribute("alarmUserLabel", value));
+            model.addAttribute("title", "AlarmUserLabel Manager (Edit)");
+        }
+        return "alarm-user-label-management";
+    }
+
+    @PostMapping("/appAccessMng/dataMng/alarmUserLabel/management/edit")
+    public String updateAlarmUserLabel(@ModelAttribute AlarmUserLabel alarmUserLabel) {
+        alarmUserLabel.setUserLabel(alarmUserLabel.getUserLabel().toUpperCase());
+        alarmUserLabelService.updateAlarmUserLabel(alarmUserLabel);
+        return "redirect:/helper/appAccessMng/dataMng/alarmUserLabel";
+    }
+
+    @PostMapping("/appAccessMng/dataMng/alarmUserLabel/management/delete/{id}")
+    public String deleteAlarmUserLabel(@PathVariable String id) {
+        alarmUserLabelService.deleteAlarmUserLabel(id);
+        return "redirect:/helper/appAccessMng/dataMng/alarmUserLabel";
+    }
+
+    // VLAN
+
+    @GetMapping("/appAccessMng/dataMng/vlan")
+    public String getAllVLANs(Model model) {
+        List<VLAN> vlans = vlanService.getAllVlan();
+        model.addAttribute("vlans", vlans);
+        model.addAttribute("title", "VLAN Manager");
+        return "vlan";
+    }
+
+    @GetMapping("/appAccessMng/dataMng/vlan/management/new")
+    public String createVLANForm(Model model) {
+        model.addAttribute("vlan", new VLAN());
+        model.addAttribute("title", "VLAN (New)");
+        return "vlan-management";
+    }
+
+    @PostMapping("/appAccessMng/dataMng/vlan/management/create")
+    public String createVLAN(@ModelAttribute VLAN vlan) {
+        Optional<VLAN> dbVlan = vlanService.findByVlan(vlan.getVlan());
+        if (dbVlan.isPresent()) {
+            return "redirect:/helper/appAccessMng/dataMng/vlan/management/new?vlan-existed";
+        }
+        vlanService.createVlan(vlan);
+        vlanService.populate();
+        return "redirect:/helper/appAccessMng/dataMng/vlan";
+    }
+
+    @GetMapping("/appAccessMng/dataMng/vlan/management/{id}")
+    public String editVLANForm(@PathVariable String id, Model model) {
+        if (id != null && !id.isEmpty()) {
+            Optional<VLAN> vlan = vlanService.getVlanById(id);
+            vlan.ifPresent(value -> model.addAttribute("vlan", value));
+            model.addAttribute("title", "VLAN (Edit)");
+        }
+        return "vlan-management";
+    }
+
+    @PostMapping("/appAccessMng/dataMng/vlan/management/edit")
+    public String updateVLAN(@ModelAttribute VLAN vlan) {
+        vlanService.updateVlan(vlan);
+        return "redirect:/helper/appAccessMng/dataMng/vlan";
+    }
+
+    @PostMapping("/appAccessMng/dataMng/vlan/management/delete/{id}")
+    public String deleteVLAN(@PathVariable String id) {
+        vlanService.deleteVlan(id);
+        return "redirect:/helper/appAccessMng/dataMng/vlan";
+    }
+
+    // ME_CUSTOM_LINK
+
+    @GetMapping("/appAccessMng/dataMng/meCustomLink")
+    public String getAllMECustomLinks(Model model) {
+        List<MECustomLink> MECustomLinks = meCustomLinkService.getAllMECustomLink();
+        model.addAttribute("meCustomLinks", MECustomLinks);
+        model.addAttribute("title", "MECustomLink Manager");
+        return "me-custom-link";
+    }
+
+    @GetMapping("/appAccessMng/dataMng/meCustomLink/management/new")
+    public String createMECustomLinkForm(Model model) {
+        model.addAttribute("meCustomLink", new MECustomLink());
+        model.addAttribute("title", "MECustomLink (New)");
+        return "me-custom-link-management";
+    }
+
+    @PostMapping("/appAccessMng/dataMng/meCustomLink/management/create")
+    public String createMECustomLink(@ModelAttribute MECustomLink meCustomLink) {
+        Optional<MECustomLink> dbMECustomLink = meCustomLinkService.findByUserLabel(meCustomLink.getUserLabel().toUpperCase());
+        if (dbMECustomLink.isPresent()) {
+            return "redirect:/helper/appAccessMng/dataMng/meCustomLink/management/new?userLabel-existed";
+        }
+        meCustomLinkService.createMECustomLink(meCustomLink);
+        return "redirect:/helper/appAccessMng/dataMng/meCustomLink";
+    }
+
+    @GetMapping("/appAccessMng/dataMng/meCustomLink/management/{id}")
+    public String editMECustomLinkForm(@PathVariable String id, Model model) {
+        if (id != null && !id.isEmpty()) {
+            Optional<MECustomLink> meCustomLink = meCustomLinkService.getMECustomLinkById(id);
+            meCustomLink.ifPresent(value -> model.addAttribute("meCustomLink", value));
+            model.addAttribute("title", "MECustomLink Manager (Edit)");
+        }
+        return "me-custom-link-management";
+    }
+
+    @PostMapping("/appAccessMng/dataMng/meCustomLink/management/edit")
+    public String updateMECustomLink(@ModelAttribute MECustomLink meCustomLink) {
+        meCustomLinkService.updateMECustomLink(meCustomLink);
+        return "redirect:/helper/appAccessMng/dataMng/meCustomLink";
+    }
+
+    @PostMapping("/appAccessMng/dataMng/meCustomLink/management/delete/{id}")
+    public String deleteMECustomLink(@PathVariable String id) {
+        meCustomLinkService.deleteMECustomLink(id);
+        return "redirect:/helper/appAccessMng/dataMng/meCustomLink";
+    }
+
+    // COMMENT
+
+    @GetMapping("/appAccessMng/dataMng/comment")
+    public String getAllComments(Model model) {
+        List<Comment> Comments = commentService.getAllComment();
+        model.addAttribute("comments", Comments);
+        model.addAttribute("title", "Comment Manager");
+        return "comment";
+    }
+
+    @GetMapping("/appAccessMng/dataMng/comment/management/new")
+    public String createCommentForm(Model model) {
+        model.addAttribute("comment", new Comment());
+        model.addAttribute("title", "Comment (New)");
+        return "comment-management";
+    }
+
+    @PostMapping("/appAccessMng/dataMng/comment/management/create")
+    public String createComment(@ModelAttribute Comment comment) {
+        Optional<Comment> dbComment = commentService.findByComment(comment.getComment());
+        if (dbComment.isPresent()) {
+            return "redirect:/helper/appAccessMng/dataMng/comment/management/new?comment-existed";
+        }
+        commentService.createComment(comment);
+        return "redirect:/helper/appAccessMng/dataMng/comment";
+    }
+
+    @GetMapping("/appAccessMng/dataMng/comment/management/{id}")
+    public String editCommentForm(@PathVariable String id, Model model) {
+        if (id != null && !id.isEmpty()) {
+            Optional<Comment> comment = commentService.getCommentById(id);
+            comment.ifPresent(value -> model.addAttribute("comment", value));
+            model.addAttribute("title", "Comment Manager (Edit)");
+        }
+        return "comment-management";
+    }
+
+    @PostMapping("/appAccessMng/dataMng/comment/management/delete/{id}")
+    public String deleteComment(@PathVariable String id) {
+        commentService.deleteComment(id);
+        return "redirect:/helper/appAccessMng/dataMng/comment";
     }
 
     // CUSTOM DATA MNG PART
@@ -197,57 +384,6 @@ public class AppAccessMngController {
             LocalCacheService.managedElementMap.clear();
             log.info(" >> managedElementMap cache has been cleared");
             log.info(" >> managedElementMap size " + LocalCacheService.managedElementMap.size());
-
-            message = new MessageEntity(Severity.SUCCESS, "Update successfully");
-        } catch (Exception e) {
-            message = new MessageEntity(Severity.ERROR, "Error in Updating process");
-        }
-
-        localCacheService.messageMap.put(id, message);
-
-        return "redirect:/helper/appAccessMng/dataMng";
-    }
-
-    @PostMapping("/appAccessMng/dataMng/updateMECustomLink")
-    public String updateMECustomLink(Authentication authentication, HttpSession session) {
-        String id = session.getId();
-        MessageEntity message;
-        try {
-            customDataService.populateMECustomLink();
-
-            message = new MessageEntity(Severity.SUCCESS, "Update successfully");
-        } catch (Exception e) {
-            message = new MessageEntity(Severity.ERROR, "Error in Updating process");
-        }
-
-        localCacheService.messageMap.put(id, message);
-
-        return "redirect:/helper/appAccessMng/dataMng";
-    }
-
-    @PostMapping("/appAccessMng/dataMng/updateAlarmUserLabel")
-    public String updateAlarmUserLabel(Authentication authentication, HttpSession session) {
-        String id = session.getId();
-        MessageEntity message;
-        try {
-            customDataService.populateAlarmUserLabel();
-
-            message = new MessageEntity(Severity.SUCCESS, "Update successfully");
-        } catch (Exception e) {
-            message = new MessageEntity(Severity.ERROR, "Error in Updating process");
-        }
-
-        localCacheService.messageMap.put(id, message);
-
-        return "redirect:/helper/appAccessMng/dataMng";
-    }
-
-    @PostMapping("/appAccessMng/dataMng/updateComments")
-    public String updateComments(Authentication authentication, HttpSession session) {
-        String id = session.getId();
-        MessageEntity message;
-        try {
-            customDataService.populateComments();
 
             message = new MessageEntity(Severity.SUCCESS, "Update successfully");
         } catch (Exception e) {

@@ -28,4 +28,21 @@ public class FiberTableWrapper {
     private List<List<String>> dataOpticLinkItbbu;
     private List<Integer> maxSize;
     private List<Integer> maxSizeItbbu;
+
+    public boolean isEmpty() {
+        return dataOpticDev1.isEmpty() &&
+                dataOpticDev2.isEmpty() &&
+                dataOpticDev3.isEmpty() &&
+                dataOpticDev4.isEmpty() &&
+                dataOpticDev5.isEmpty() &&
+                dataOpticDev6.isEmpty() &&
+                dataOpticLink.isEmpty() &&
+                dataOpticDevItbbu1_1.isEmpty() &&
+                dataOpticDevItbbu1_2.isEmpty() &&
+                dataOpticDevItbbu2_1.isEmpty() &&
+                dataOpticDevItbbu2_2.isEmpty() &&
+                dataOpticDevItbbu3_1.isEmpty() &&
+                dataOpticDevItbbu3_2.isEmpty() &&
+                dataOpticLinkItbbu.isEmpty();
+    }
 }

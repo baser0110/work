@@ -2,11 +2,15 @@ package bsshelper.maincontroller;
 
 import bsshelper.externalapi.auth.entity.Token;
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
-import bsshelper.externalapi.configurationmng.currentmng.entity.mrnc.UUtranCellFDDMocSimplified;
+import bsshelper.externalapi.configurationmng.currentmng.entity.mrnc.UUtranCellFDDMoc;
 import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnService;
 import bsshelper.externalapi.perfmng.entity.*;
 import bsshelper.externalapi.perfmng.service.HistoryQueryService;
+import bsshelper.externalapi.perfmng.util.ExternalKPI;
 import bsshelper.externalapi.perfmng.util.KPI;
+import bsshelper.externalapi.perfmng.util.KPIable;
+import bsshelper.externalapi.perfmng.wrapper.KPI_ULocalCellWrapper;
+import bsshelper.externalapi.perfmng.wrapper.KPI_UMTSCellWrapper;
 import bsshelper.globalutil.entity.MessageEntity;
 import bsshelper.localservice.localcache.LocalCacheService;
 import bsshelper.localservice.token.TokenService;
@@ -21,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.*;
+
+import static bsshelper.localservice.externalcustomdata.service.CustomDataService.externalKPIMap;
 
 @Slf4j
 @Controller
@@ -71,15 +77,17 @@ public class HistoryChartController {
                              @RequestParam(name = "checkedCustomCellsList", required = false) List<String> checkedCustomCellsList,
                              @RequestParam(name = "checkedKPIsList", required = false) Set<String> checkedKPIsList,
                              @RequestParam(name = "checkedKPIsNoCellList", required = false) Set<String> checkedKPIsNoCellList,
+                             @RequestParam(name = "kpiCodes", required = false) List<String> kpiCodes,
                              Model model, HttpSession session) {
+        System.out.println(kpiCodes);
         String id = session.getId();
         setMessage(id, model);
-        List<UUtranCellFDDMocSimplified> checkedCellList = new ArrayList<>();
+        List<UUtranCellFDDMoc> checkedCellList = new ArrayList<>();
         ManagedElement managedElement = localCacheService.managedElementMap.get(userLabel);
 
         if (checkedKPIsList != null) {
-            List<UUtranCellFDDMocSimplified> allCellList = localCacheService.UMTSCellMap.get(userLabel);
-            for (UUtranCellFDDMocSimplified cell : allCellList) {
+            List<UUtranCellFDDMoc> allCellList = localCacheService.UMTSCellMap.get(userLabel);
+            for (UUtranCellFDDMoc cell : allCellList) {
                 if (checkedCustomCellsList.contains(cell.getUserLabel())) {
                     checkedCellList.add(cell);
                 }
@@ -194,6 +202,43 @@ public class HistoryChartController {
             }
         }
 
+        List<KPI_ULocalCellWrapper> KPI_ULocalCellDataMap = new ArrayList<>();
+        List<KPI_UMTSCellWrapper> KPI_UMTSCellDataMap = new ArrayList<>();
+
+        if (kpiCodes != null && !kpiCodes.isEmpty()) {
+            Map<String, ExternalKPI> kpiMap = ExternalKPI.getTestMap(ExternalKPI.getTest());
+            for (String k: kpiCodes) {
+
+//                ExternalKPI kpi = externalKPIMap.get(k);
+                ExternalKPI kpi = kpiMap.get(k);
+
+                if (kpi.getMoType().equals("wm.LogicCell")) {
+                    KPI_ULocalCellDataMap.add(new KPI_ULocalCellWrapper(
+                            kpi,
+                            allToChecked(
+                                    HistoryForULocalCell.getChart(
+                                            historyQueryService.getHistoryCellWithIgnoreRestrictionOnStringCapacity(
+                                                    tokenService.getToken(),
+                                                    managedElement,
+                                                    getTime(time,granularity),
+                                                    granularity,
+                                                    kpi)), checkedCellList)));
+                    continue;
+                }
+                if (kpi.getMoType().equals("wm.UtranCell")) KPI_UMTSCellDataMap.add(new KPI_UMTSCellWrapper(
+                        kpi,
+                        HistoryForUMTSCell.getChart(
+                                uploadHistoryWithIgnoreRestrictionOnStringCapacityForUMTSCell(
+                                        tokenService.getToken(),
+                                        managedElement,
+                                        checkedCellList,
+                                        getTime(time,granularity),
+                                        granularity,
+                                        kpi))));
+            }
+
+        }
+
         model.addAttribute("chartRTWPData", checkedRTWPDataMap);
         model.addAttribute("chartRRCAttemptData", checkedRRCAttemptDataMap);
         model.addAttribute("chartRRCData", checkedRRCDataMap);
@@ -256,10 +301,10 @@ public class HistoryChartController {
     }
 
     private Map<String, List<HistoryForULocalCell>> allToChecked(Map<String, List<HistoryForULocalCell>> all,
-                                                                 List<UUtranCellFDDMocSimplified> checkedCellList) {
+                                                                 List<UUtranCellFDDMoc> checkedCellList) {
         Map<String, List<HistoryForULocalCell>> result = new TreeMap<>();
         if (all != null && !all.isEmpty()) {
-            for (UUtranCellFDDMocSimplified cell : checkedCellList) {
+            for (UUtranCellFDDMoc cell : checkedCellList) {
                 if (all.containsKey(cell.getUserLabel())) {
                     result.put(cell.getUserLabel(), all.get(cell.getUserLabel()));
                 }
@@ -270,17 +315,17 @@ public class HistoryChartController {
 
     private Map<String, List<HistoryForULocalCell>> allToCheckedForAntenna1and2(Map<String, List<HistoryForULocalCell>> all1,
                                                                                 Map<String, List<HistoryForULocalCell>> all2,
-                                                                                List<UUtranCellFDDMocSimplified> checkedCellList) {
+                                                                                List<UUtranCellFDDMoc> checkedCellList) {
         Map<String, List<HistoryForULocalCell>> result = new TreeMap<>();
         if (all1 != null && !all1.isEmpty()) {
-            for (UUtranCellFDDMocSimplified cell : checkedCellList) {
+            for (UUtranCellFDDMoc cell : checkedCellList) {
                 if (all1.containsKey(cell.getUserLabel())) {
                     result.put(cell.getUserLabel() + ":1", all1.get(cell.getUserLabel()));
                 }
             }
         }
         if (all2 != null && !all2.isEmpty()) {
-            for (UUtranCellFDDMocSimplified cell : checkedCellList) {
+            for (UUtranCellFDDMoc cell : checkedCellList) {
                 if (all2.containsKey(cell.getUserLabel())) {
                     result.put(cell.getUserLabel() + ":2", all2.get(cell.getUserLabel()));
                 }
@@ -317,7 +362,7 @@ public class HistoryChartController {
     }
 
     private List<? extends HistoryForUMTSCell> uploadHistoryWithIgnoreRestrictionOnStringCapacityForUMTSCell(
-            Token token, ManagedElement managedElement, List<UUtranCellFDDMocSimplified> checkedCellList, Integer time, Integer granularity, KPI kpi) {
+            Token token, ManagedElement managedElement, List<UUtranCellFDDMoc> checkedCellList, Integer time, Integer granularity, KPIable kpi) {
         int step = 25;
         int startIndex = 0;
         int residualSize = checkedCellList.size();
@@ -326,7 +371,7 @@ public class HistoryChartController {
             return historyQueryService.getUMTSCellHistory(token, managedElement, checkedCellList, time, granularity, kpi);
         }
         while (residualSize != 0) {
-            List<UUtranCellFDDMocSimplified> stepList = checkedCellList.subList(startIndex, residualSize > step ? startIndex + step : startIndex + residualSize);
+            List<UUtranCellFDDMoc> stepList = checkedCellList.subList(startIndex, residualSize > step ? startIndex + step : startIndex + residualSize);
             result.addAll(historyQueryService.getUMTSCellHistory(token, managedElement, stepList, time, granularity, kpi));
             startIndex = startIndex + step;
             residualSize = residualSize > step ? residualSize - step : 0;

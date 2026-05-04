@@ -8,7 +8,7 @@ import java.util.*;
 public class FiberTableMapper {
 
     public static Map<String, List<String>> getFiberTableMap(List<FiberCableMoc> fiberCableMocList, List<OpticInfoFinal> opticInfoFinalList) {
-        if (fiberCableMocList == null) { return null; }
+        if (fiberCableMocList == null || opticInfoFinalList == null) { return null; }
         Map<String, String> connectinMap = getConnectionMap(fiberCableMocList);
         Map<String, OpticInfoFinal> opticMap = getOpticMap(opticInfoFinalList);
         Map<String, List<String>> fiberTableMap = new TreeMap<>();
@@ -55,6 +55,7 @@ public class FiberTableMapper {
     }
 
     public static Map<String, List<String>> getLinkTableMap(List<OpticInfoFinal> opticInfoFinalList) {
+        if (opticInfoFinalList == null) { return null; }
         Map<String, OpticInfoFinal> opticMap = getOpticMap(opticInfoFinalList);
         Map<String, List<String>> linkTableMap = new TreeMap<>();
         for (Map.Entry<String, OpticInfoFinal> opt: opticMap.entrySet()) {

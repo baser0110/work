@@ -38,11 +38,7 @@ public class AuthServiceImpl implements AuthService {
 
         try {
             httpRequest = createUpdateRequest(token);
-//            System.out.println(httpRequest);
-//            System.out.println(httpRequest.headers());
-//            System.out.println(UserEntity.getUser());
             httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
-
         } catch (IOException | InterruptedException e) {
             log.error(" >> error in sending http request: {}", e.toString());
         }
@@ -56,7 +52,6 @@ public class AuthServiceImpl implements AuthService {
                 return false;
             }
         } else return false;
-//        System.out.println(httpResponse.body());
     }
 
     @Override
@@ -72,16 +67,11 @@ public class AuthServiceImpl implements AuthService {
 
         try {
             httpRequest = createGetRequest();
-//            System.out.println(httpRequest);
-//            System.out.println(httpRequest.headers());
-//            System.out.println(UserEntity.getUser());
             httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
-
         } catch (IOException | InterruptedException e) {
             log.error(" >> error in sending http request: {}", e.toString());
         }
 
-//        System.out.println(httpResponse.body());
         if (httpResponse != null) {
             String json = httpResponse.body();
 
@@ -99,7 +89,6 @@ public class AuthServiceImpl implements AuthService {
                 }
             }
         }
-//        System.out.println(tokenTo);
         return tokenTo;
     }
 

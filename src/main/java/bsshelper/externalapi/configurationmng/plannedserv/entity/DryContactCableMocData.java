@@ -43,7 +43,7 @@ public class DryContactCableMocData implements MocData{
         this.dryContactType = 0;
         this.alarmStatus = alarmStatus.getCode();
         this.userLabel = alarmUserLabel.getUserLabel();
-        this.alarmNameOfInput = alarmUserLabel.getCode();
+        this.alarmNameOfInput = Integer.parseInt(alarmUserLabel.getCode());
         this.mocName = "DryContactCable";
     }
 }

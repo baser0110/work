@@ -77,7 +77,7 @@ public class ExecNeActServiceImpl implements ExecNeActService {
         Map<String, List<String>> ldnMap = getLdnMap(sdrDeviceGroupMocList);
         List<String> ruLdnList = ldnMap.get("RU");
         List<VSWRTestFinal> result = new ArrayList<>();
-        if (ruLdnList == null || ruLdnList.isEmpty()) {return null;}
+        if (ruLdnList == null || ruLdnList.isEmpty()) {return result;}
         for (String ldn : ruLdnList) {
             json = diagnosisSDRDataQuery(token, managedElement, ldn, DiagnosisAction.RRU_VSWR_TEST);
             if (json != null) {
@@ -125,11 +125,11 @@ public class ExecNeActServiceImpl implements ExecNeActService {
                     log.error(" >> error {} code({})", error.getMessage(), error.getCode());
                 } else {
                     if (action.equals(DiagnosisAction.OPTICAL_ELECTRIC_INTERFACE_STATUS_TEST)) {
-                        System.out.println("!!!!!!!! NEW UNDEFINED ERROR BODY FOR OPTIC: " + response); //SOUT
+                        log.error(" >> !!!!!!!! NEW UNDEFINED ERROR BODY FOR OPTIC: " + response);
                         return response;
                     }
                 }
-                System.out.println("!!!!!!!! NEW UNDEFINED ERROR BODY: " + response); //SOUT
+                log.error(" >> !!!!!!!! NEW UNDEFINED ERROR BODY: " + response);
                 response = null;
             }
         } catch (IOException | InterruptedException e) {
@@ -539,7 +539,7 @@ public class ExecNeActServiceImpl implements ExecNeActService {
         if (managedElement.getManagedElementType().equals(ManagedElementType.SDR)) {
             String ldn = null;
             for (SdrDeviceGroupMoc dev : sdrDeviceGroupMocList) {
-                if (dev.getProductData_productName().equals("CCC")) {
+                if (dev.getProductData_productName().equals("CCC") || dev.getProductData_productName().equals("CCE1B")) {
                     ldn = dev.getLdn();
                     break;
                 }

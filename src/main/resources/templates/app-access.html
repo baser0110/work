@@ -15,54 +15,34 @@
 <div class="container my-2 content">
     <form sec:authorize="hasAuthority('USER_MNG_FULL')">
         <br/>
-        <a id="users" class="btn btn-success text-center width-250px" th:href="@{/helper/appAccessMng/users}">Users</a>
+        <a id="users" class="btn btn-success text-center btn-fixed-width" th:href="@{/helper/appAccessMng/users}">Users</a>
     </form>
     <form sec:authorize="hasAuthority('USER_MNG_FULL')">
         <br/>
-        <a id="profiles" class="btn btn-success text-center width-250px" th:href="@{/helper/appAccessMng/profiles}">Profiles</a>
+        <a id="profiles" class="btn btn-success text-center btn-fixed-width" th:href="@{/helper/appAccessMng/profiles}">Profiles</a>
     </form>
     <form sec:authorize="hasAuthority('USER_MNG_VIEW') || hasAuthority('USER_MNG_FULL')">
         <br/>
-        <a id="logs" class="btn btn-success text-center " th:href="@{/helper/appAccessMng/logs}">Logs</a>
+        <a id="logs" class="btn btn-success text-center btn-fixed-width" th:href="@{/helper/appAccessMng/logs}">Logs</a>
     </form>
     <form sec:authorize="hasAuthority('USER_MNG_FULL')">
         <br/>
-        <a id="data" class="btn btn-success text-center width-250px" th:href="@{/helper/appAccessMng/dataMng}">Data Management</a>
+        <a id="data" class="btn btn-success text-center btn-fixed-width" th:href="@{/helper/appAccessMng/dataMng}">Data Management</a>
     </form>
     <form sec:authorize="hasAuthority('USER_MNG_VIEW') || hasAuthority('USER_MNG_FULL')">
         <br/>
-        <a id="restore" class="btn btn-success text-center width-250px" th:href="@{/helper/appAccessMng/restore}">Restoration</a>
+        <a id="restore" class="btn btn-success text-center btn-fixed-width" th:href="@{/helper/appAccessMng/restore}">Restoration</a>
     </form>
 </div>
 
-<style>
-    #users {
-        width: 200px;
-        height: 40px;
-        overflow: auto;
-    }
-    #profiles {
-        width: 200px;
-        height: 40px;
-        overflow: auto;
-    }
-    #logs {
-        width: 200px;
-        height: 40px;
-        overflow: auto;
-    }
-    #data {
-        width: 200px;
-        height: 40px;
-        overflow: auto;
-    }
-    #restore {
-        width: 200px;
-        height: 40px;
-        overflow: auto;
-    }
+    <style>
+        .btn-fixed-width {
+            width: 250px;
+            height: 40px;
+            overflow: auto;
+        }
+    </style>
 
-</style>
 </main>
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>

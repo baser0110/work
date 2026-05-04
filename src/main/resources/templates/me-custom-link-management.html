@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>MECustomLink</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+          crossorigin="anonymous">
+</head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+<main>
+    <div class="container">
+        <br>
+        <h2 th:text="${meCustomLink.id == null ? 'Create New MECustomLink' : 'Edit MECustomLink'}"></h2>
+
+        <!-- Form submission tailored to alarmUserLabel endpoints -->
+        <form th:action="@{${meCustomLink.id == null ? '/helper/appAccessMng/dataMng/meCustomLink/management/create' : '/helper/appAccessMng/dataMng/meCustomLink/management/edit'}}" th:object="${meCustomLink}" method="post">
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="form-group col-md-4">
+                <label for="userLabel">UserLabel</label>
+                <input type="text" id="userLabel" name="userLabel" class="form-control"
+                       th:field="*{userLabel}" placeholder="Enter userLabel"
+                       th:readonly="${meCustomLink.id != null}" required />
+            </div>
+            <div class="form-group col-md-4">
+                <label for="BSCID">BSCID</label>
+                <input type="text" id="BSCID" name="BSCID" class="form-control"
+                       th:field="*{BSCID}" placeholder="Enter BSCID" required />
+            </div>
+            <div class="form-group col-md-4">
+                <label for="RNCID">RNCID</label>
+                <input type="text" id="RNCID" name="RNCID" class="form-control"
+                       th:field="*{RNCID}" placeholder="Enter RNCID" required />
+            </div>
+            <div class="form-group col-md-4">
+                <label for="GSMID">GSMID</label>
+                <input type="text" id="GSMID" name="GSMID" class="form-control"
+                       th:field="*{GSMID}" placeholder="Enter GSMID" required />
+            </div>
+            <div class="form-group col-md-4">
+                <label for="UMTSID">UMTSID</label>
+                <input type="text" id="UMTSID" name="UMTSID" class="form-control"
+                       th:field="*{UMTSID}" placeholder="Enter UMTSID" required />
+            </div>
+
+            <div class="form-group col-md-4">
+                <button type="submit" class="btn btn-primary"
+                        th:text="${meCustomLink.id == null ? 'Create' : 'Update'}"></button>
+                <a href="/helper/appAccessMng/dataMng/meCustomLink" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+        <br>
+
+        <!-- Error Notifications -->
+        <div th:if="${param['userLabel-existed']}" class="alert alert-danger">UserLabel already exists!</div>
+    </div>
+</main>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

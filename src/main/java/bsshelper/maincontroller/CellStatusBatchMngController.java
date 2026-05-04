@@ -2,6 +2,9 @@ package bsshelper.maincontroller;
 
 import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnService;
 import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnServiceImpl;
+import bsshelper.externalapi.configurationmng.currentmng.util.MocITBBU;
+import bsshelper.externalapi.configurationmng.currentmng.util.MocMRNC;
+import bsshelper.externalapi.configurationmng.currentmng.util.MocSDR;
 import bsshelper.externalapi.openscriptexecengine.service.ExecuteUCLIBatchScriptService;
 import bsshelper.externalapi.openscriptexecengine.util.ExecuteStatus;
 import bsshelper.externalapi.openscriptexecengine.util.MultiBatchFileBuilder;
@@ -65,14 +68,16 @@ public class CellStatusBatchMngController {
     }
 
     public void setCellCache() {
-        localCacheService.meByNEMap.putAll(currentMgnService.getCacheManagedElement(tokenService.getToken(), CurrentMgnServiceImpl.Type.BY_NE));
-        localCacheService.umtsSDRMap.putAll(currentMgnService.getCacheSDRCellsUMTS(tokenService.getToken()));
-        localCacheService.umtsITBBUMap.putAll(currentMgnService.getCacheITBBUCellsUMTS(tokenService.getToken()));
-        localCacheService.nbiotSDRMap.putAll(currentMgnService.getCacheSDRCellsNBIOT(tokenService.getToken()));
-        localCacheService.nbiotITBBUMap.putAll(currentMgnService.getCacheITBBUCellsNBIOT(tokenService.getToken()));
-        localCacheService.lteFDDSDRMap.putAll(currentMgnService.getCacheSDRCellsFDDLTE(tokenService.getToken()));
-        localCacheService.lteFDDITBBUMap.putAll(currentMgnService.getCacheITBBUCellsFDDLTE(tokenService.getToken()));
-        localCacheService.gsmMRNCMap.putAll(currentMgnService.getCacheMRNCCellsGSM(tokenService.getToken()));
+//        localCacheService.meByNEMap.putAll(currentMgnService.getCacheManagedElement(tokenService.getToken(), CurrentMgnServiceImpl.RequestType.BY_NE));
+        localCacheService.meByNEMap.putAll(currentMgnService.getCacheManagedElementForBatch(tokenService.getToken()));
+        localCacheService.umtsSDRMap.putAll(currentMgnService.getCacheCellsForBatch(tokenService.getToken(), MocSDR.U_LOCAL_CELL, "SDR_UMTS_CahcheForBatch"));
+        localCacheService.umtsITBBUMap.putAll(currentMgnService.getCacheCellsForBatch(tokenService.getToken(), MocITBBU.U_LOCAL_CELL, "ITBBU_UMTS_CahcheForBatch"));
+        localCacheService.nbiotSDRMap.putAll(currentMgnService.getCacheCellsForBatch(tokenService.getToken(), MocSDR.EUTRAN_CELL_NBIOT, "SDR_NBIOT_CahcheForBatch"));
+        localCacheService.nbiotITBBUMap.putAll(currentMgnService.getCacheCellsForBatch(tokenService.getToken(), MocITBBU.CU_EUTRAN_CELL_NBIOT, "ITBBU_NBIOT_CahcheForBatch"));
+        localCacheService.lteFDDSDRMap.putAll(currentMgnService.getCacheCellsForBatch(tokenService.getToken(), MocSDR.EUTRAN_CELL_FDD_LTE, "SDR_FDDLTE_CahcheForBatch"));
+        localCacheService.lteFDDITBBUMap.putAll(currentMgnService.getCacheCellsForBatch(tokenService.getToken(), MocITBBU.CU_EUTRAN_CELL_FDD_LTE, "ITBBU_FDDLTE_CahcheForBatch"));
+        localCacheService.gsmMRNCMap.putAll(currentMgnService.getCacheCellsForBatch(tokenService.getToken(), MocMRNC.G_GSM_CELL, "MRNC_GSM_CahcheForBatch"));
+
         updateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
     }
 
@@ -110,17 +115,6 @@ public class CellStatusBatchMngController {
         String id = session.getId();
         setMessage(id, model);
         String execResult = null;
-//        System.out.println(separator);
-//        System.out.println(umts);
-//        System.out.println(operationUMTS);
-//        System.out.println(gsm);
-//        System.out.println(operationGSM);
-//        System.out.println(nbiot);
-//        System.out.println(operationNBIoT);
-//        if (!pass.equals("room220")) {
-//            localCacheService.messageMap.put(id, new MessageEntity(Severity.ERROR, "Wrong pass!!!"));
-//            return "redirect:/helper/cellStatusBatch";
-//        }
 
         if ((operationUMTS == null || operationUMTS == 0)
                 && (operationNBIoT == null || operationNBIoT == 0)
@@ -192,7 +186,7 @@ public class CellStatusBatchMngController {
         }
 
         getLog(umtsCells, operationUMTS,
-                lteFDDCommands, operationLTEFDD,
+                lteFDDCells, operationLTEFDD,
                 nbiotCells, operationNBIoT,
                 gsmCells, operationGSM,
                 execResult, authentication);

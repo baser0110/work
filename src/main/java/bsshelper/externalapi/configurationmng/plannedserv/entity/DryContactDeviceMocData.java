@@ -46,7 +46,7 @@ public class DryContactDeviceMocData implements MocData{
         this.userLabel = alarmUserLabel.getUserLabel();
         this.almStatus = almStatus.getCode();
 
-        this.almNo = alarmUserLabel.getCode();
+        this.almNo = Integer.parseInt(alarmUserLabel.getCode());
         this.isSelfDefineAlm = IsSelfDefineAlm.YES.getCode();
     }
 

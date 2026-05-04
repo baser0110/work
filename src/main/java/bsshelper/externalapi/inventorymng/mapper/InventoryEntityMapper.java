@@ -9,7 +9,7 @@ import java.util.TreeMap;
 public class InventoryEntityMapper {
     static public TreeMap<String,String> getInventoryEntityMap(List<InventoryEntity> inventoryEntityList) {
         TreeMap<String,String> result = new TreeMap<>();
-        if (inventoryEntityList == null) return result;
+        if (inventoryEntityList == null || inventoryEntityList.isEmpty()) return result;
         if (inventoryEntityList.get(0).getNetype().equals(ManagedElementType.SDR.toString())) {
             for (InventoryEntity inv : inventoryEntityList) {
                 String position = inv.getUnitposition();

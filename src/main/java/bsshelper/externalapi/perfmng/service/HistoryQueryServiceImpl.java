@@ -2,14 +2,11 @@ package bsshelper.externalapi.perfmng.service;
 
 import bsshelper.externalapi.auth.entity.Token;
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
-import bsshelper.externalapi.configurationmng.currentmng.entity.mrnc.UUtranCellFDDMocSimplified;
+import bsshelper.externalapi.configurationmng.currentmng.entity.mrnc.UUtranCellFDDMoc;
 import bsshelper.externalapi.perfmng.entity.*;
 import bsshelper.externalapi.perfmng.mapper.*;
 import bsshelper.externalapi.perfmng.to.HistoryTo;
-import bsshelper.externalapi.perfmng.util.HistoryQueryBodySettings;
-import bsshelper.externalapi.perfmng.util.HistoryQueryErrorEntity;
-import bsshelper.externalapi.perfmng.util.KPI;
-import bsshelper.externalapi.perfmng.util.TimeToString;
+import bsshelper.externalapi.perfmng.util.*;
 import bsshelper.globalutil.GlobalUtil;
 import bsshelper.globalutil.SubnetworkToBSCOrRNC;
 import bsshelper.globalutil.Verb;
@@ -33,16 +30,20 @@ import java.util.*;
 public class HistoryQueryServiceImpl implements HistoryQueryService {
 
     @Override
-    public List<HistoryForUMTSCell> getUMTSCellHistory(Token token, ManagedElement managedElement, List<UUtranCellFDDMocSimplified> cells, int time, int granularity, KPI kpi) {
+    public List<HistoryForUMTSCell> getUMTSCellHistory(Token token, ManagedElement managedElement, List<UUtranCellFDDMoc> cells, int time, int granularity, KPIable kpi) {
         if (cells == null || cells.isEmpty()) { return null; }
         String me = cells.getFirst().getRncNum() + ", " + cells.getLast().getRncNum();
         List<String> cellsQuery = new ArrayList<>();
-        for (UUtranCellFDDMocSimplified c : cells) {
+        for (UUtranCellFDDMoc c : cells) {
             cellsQuery.add(String.valueOf(c.getMoId()));
         }
         String json = null;
         List<HistoryForUMTSCell> result = null;
-        HistoryQueryBodySettings bodySettings = getUMTSCellBodySettings(me, cellsQuery, time, granularity, kpi);
+        HistoryQueryBodySettings bodySettings;
+//        if (kpi.getMoType().contains("oglic")) {
+//            bodySettings = getLogicCellBodySettings(me, cellsQuery, time, granularity, kpi);
+//        } else
+            bodySettings = getUMTSCellBodySettings(me, cellsQuery, time, granularity, kpi);
         if (bodySettings != null) {
             json = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettings));
         }
@@ -58,12 +59,12 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
 
     @Override
     public Map<String, List<HistoryOfficeLink>> getOfficeLinkHistory(Token token, ManagedElement managedElement, int time, int granularity, KPI kpi) {
-        String meRNC = String.valueOf(SubnetworkToBSCOrRNC.getRNCbySubnetwork(managedElement.getSubNetworkNum(), managedElement));
-        String meBSC = String.valueOf(SubnetworkToBSCOrRNC.getBSCbySubnetwork(managedElement.getSubNetworkNum(), managedElement));
+        String meRNC = managedElement.getRNC();
+        String meBSC = managedElement.getBSC();
         Map<String, List<HistoryOfficeLink>> result = new TreeMap<>();
         String jsonRNC = null;
         String jsonBSC = null;
-        HistoryQueryBodySettings bodySettingsRNC = getPacketLossBodySettings(meRNC, List.of(managedElement.getBTSManagedElementNum()), time, kpi, granularity);
+        HistoryQueryBodySettings bodySettingsRNC = getPacketLossBodySettings(meRNC, List.of(managedElement.getRNCManagedElementNum()), time, kpi, granularity);
         jsonRNC = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettingsRNC));
         HistoryQueryBodySettings bodySettingsBSC = getPacketLossBodySettings(meBSC, List.of(managedElement.getBTSManagedElementNum()), time, kpi, granularity);
         jsonBSC = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettingsBSC));
@@ -135,7 +136,7 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
     }
 
     @Override
-    public List<HistoryVSWR> getHistoryVSWR(Token token, ManagedElement managedElement, int granularity, int time) {
+    public List<HistoryVSWR> getHistoryVSWR(Token token, ManagedElement managedElement, int time, int granularity) {
         String json = null;
         List<HistoryVSWR> result = null;
         HistoryQueryBodySettings bodySettings = getSDROrITBBUBodySettings(managedElement, time, granularity, KPI.VSWR);
@@ -157,7 +158,7 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
     }
 
     @Override
-    public List<HistoryForULocalCell> getHistoryCellWithIgnoreRestrictionOnStringCapacity (Token token, ManagedElement managedElement, int time, int granularity, KPI kpi) {
+    public List<HistoryForULocalCell> getHistoryCellWithIgnoreRestrictionOnStringCapacity (Token token, ManagedElement managedElement, int time, int granularity, KPIable kpi) {
         List<HistoryForULocalCell> result = new ArrayList<>();
         List<String> rawResult = new ArrayList<>();
         int middleTime = 96;
@@ -187,7 +188,7 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
     }
 
     private List<String> getRawHistoryCell(
-            Token token, ManagedElement managedElement, int startTime, int endTime, int granularity, KPI kpi) {
+            Token token, ManagedElement managedElement, int startTime, int endTime, int granularity, KPIable kpi) {
         String json = null;
         HistoryQueryBodySettings bodySettings = getSDROrITBBUBodySettingsWithTimeSelection(managedElement, startTime, endTime, granularity, kpi);
         if (bodySettings != null) {
@@ -324,7 +325,7 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
         } else return null;
     }
 
-    private HistoryQueryBodySettings getSDROrITBBUBodySettingsWithTimeSelection(ManagedElement managedElement, int startTime, int endTime, int granularity, KPI kpi) {
+    private HistoryQueryBodySettings getSDROrITBBUBodySettingsWithTimeSelection(ManagedElement managedElement, int startTime, int endTime, int granularity, KPIable kpi) {
         String type = managedElement.getManagedElementType().toString();
         if (type.equals("SDR") || type.equals("ITBBU")) {
             return   HistoryQueryBodySettings.builder()
@@ -339,7 +340,7 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
         } else return null;
     }
 
-    private HistoryQueryBodySettings getUMTSCellBodySettings(String me, List<String> cellsQuery, int time, int granularity, KPI kpi) {
+    private HistoryQueryBodySettings getUMTSCellBodySettings(String me, List<String> cellsQuery, int time, int granularity, KPIable kpi) {
         return   HistoryQueryBodySettings.builder()
                 .nfctid("MRNC")
                 .gr(granularity)
@@ -350,6 +351,20 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
                 .starttime(TimeToString.nHoursAgoTime(time))
                 .endtime(TimeToString.nowTime())
                 .filterlayer("WV4.UtranCell")
+                .build();
+    }
+
+    private HistoryQueryBodySettings getLogicCellBodySettings(String me, List<String> cellsQuery, int time, int granularity, KPIable kpi) {
+        return   HistoryQueryBodySettings.builder()
+                .nfctid("MRNC")
+                .gr(granularity)
+                .me(me)
+                .mois(cellsQuery)
+                .items(List.of(kpi.getCode()))
+                .showobjectname(true)
+                .starttime(TimeToString.nHoursAgoTime(time))
+                .endtime(TimeToString.nowTime())
+                .filterlayer("WV4.LogicCell")
                 .build();
     }
 
@@ -384,7 +399,7 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
                 .build();
     }
 
-    private HistoryTo getHistoryTo(String json, KPI kpi) {
+    private HistoryTo getHistoryTo(String json, KPIable kpi) {
         HistoryQueryErrorEntity error = null;
         HistoryTo historyTo = null;
         try {

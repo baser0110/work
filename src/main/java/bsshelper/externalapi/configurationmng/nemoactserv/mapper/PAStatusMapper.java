@@ -1,9 +1,7 @@
 package bsshelper.externalapi.configurationmng.nemoactserv.mapper;
 
-import bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.ITBBUTxChannelMoc;
-import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.TxChannelMoc;
+import bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.TxChannelMoc;
 import bsshelper.externalapi.configurationmng.nemoactserv.entity.PAStatus;
-import bsshelper.externalapi.openscriptexecengine.entity.ULocalCellStatus;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -11,7 +9,7 @@ import java.util.List;
 
 public class PAStatusMapper {
 
-    public static PAStatus toPAStatus(TxChannelMoc sdr) {
+    public static PAStatus toPAStatus(bsshelper.externalapi.configurationmng.currentmng.entity.sdr.TxChannelMoc sdr) {
         return PAStatus.builder()
                 .selected(false)
                 .userLabel(ldnToUserLabelForSDR(sdr.getLdn()))
@@ -20,7 +18,7 @@ public class PAStatusMapper {
                 .build();
     }
 
-    public static PAStatus toPAStatus(ITBBUTxChannelMoc itbbu) {
+    public static PAStatus toPAStatus(TxChannelMoc itbbu) {
         return PAStatus.builder()
                 .selected(false)
                 .userLabel(ldnToUserLabelForITBBU(itbbu.getLdn()))
@@ -29,10 +27,10 @@ public class PAStatusMapper {
                 .build();
     }
 
-    public static List<PAStatus> toPAStatusSDR(List<TxChannelMoc> sdrList) {
+    public static List<PAStatus> toPAStatusSDR(List<bsshelper.externalapi.configurationmng.currentmng.entity.sdr.TxChannelMoc> sdrList) {
         List<PAStatus> result = new ArrayList<>();
         if (sdrList != null) {
-            for (TxChannelMoc pa : sdrList) {
+            for (bsshelper.externalapi.configurationmng.currentmng.entity.sdr.TxChannelMoc pa : sdrList) {
                 result.add(toPAStatus(pa));
             }
             result.sort(Comparator.comparing(PAStatus::getUserLabel));
@@ -40,10 +38,10 @@ public class PAStatusMapper {
         return result;
     }
 
-    public static List<PAStatus> toPAStatusITBBU(List<ITBBUTxChannelMoc> itbbuList) {
+    public static List<PAStatus> toPAStatusITBBU(List<TxChannelMoc> itbbuList) {
         List<PAStatus> result = new ArrayList<>();
         if (itbbuList != null) {
-            for (ITBBUTxChannelMoc pa : itbbuList) {
+            for (TxChannelMoc pa : itbbuList) {
                 result.add(toPAStatus(pa));
             }
             result.sort(Comparator.comparing(PAStatus::getUserLabel));

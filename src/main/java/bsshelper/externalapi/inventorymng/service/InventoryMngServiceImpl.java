@@ -3,8 +3,6 @@ package bsshelper.externalapi.inventorymng.service;
 import bsshelper.exception.CustomNetworkConnectionException;
 import bsshelper.externalapi.auth.entity.Token;
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
-import bsshelper.externalapi.configurationmng.currentmng.to.itbbu.RiCableMocTo;
-import bsshelper.externalapi.configurationmng.currentmng.util.CurrentMngBodySettings;
 import bsshelper.externalapi.inventorymng.entity.InventoryEntity;
 import bsshelper.externalapi.inventorymng.to.InventoryEntityTo;
 import bsshelper.externalapi.inventorymng.util.InventoryMngBodySettings;

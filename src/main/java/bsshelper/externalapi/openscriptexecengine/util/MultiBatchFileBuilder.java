@@ -44,7 +44,7 @@ public class MultiBatchFileBuilder {
 
     private static String buildData(List<String> commandData, Integer cellOperation) {
         if (commandData == null || cellOperation == 0 || commandData.isEmpty()) {return "";}
-        System.out.println(commandData);
+//        System.out.println(commandData);
         StringBuilder result = new StringBuilder();
         StringBuilder bodyITBBU = new StringBuilder();
         StringBuilder bodySDR = new StringBuilder();
@@ -87,7 +87,7 @@ public class MultiBatchFileBuilder {
             }
             result.append(bodyITBBU).append(ACCEPT_OPERATION).append(LINE_BREAK);
         }
-        System.out.println(result);
+//        System.out.println(result);
         return result.toString();
     }
 

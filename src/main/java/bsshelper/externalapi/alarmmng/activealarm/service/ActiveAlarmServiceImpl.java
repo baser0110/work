@@ -79,30 +79,10 @@ public class ActiveAlarmServiceImpl implements ActiveAlarmService {
         try {
             httpResponse = HttpClient.newBuilder().build().send(httpRequest, HttpResponse.BodyHandlers.ofString());
             response = httpResponse.body();
-
-//            if (!response.contains("\"code\":")) {
-//                response = "{\"data\":" + response + "}";
-//                try {
-//                    alarmEntityTo = new Gson().fromJson(response, AlarmEntityTo.class);
-//                } catch (JsonSyntaxException e) {
-//                    log.error(" >> error in AlarmEntityTo parsing: {}", e.toString());
-//                }
-//            } else {
-//                try {
-//                    error = new Gson().fromJson(response, ErrorEntity.class);
-//                } catch (JsonSyntaxException e) {
-//                    log.error(" >> error in ErrorEntity parsing: {}", e.toString());
-//                }
-//                if (error != null) {
-//                    log.error(" >> error {} code({})", error.getMessage(), error.getCode());
-//                }
-//            }
         } catch (IOException | InterruptedException e) {
             log.error(" >> error in sending http request: {}", e.toString());
             if (e instanceof ConnectException) throw new CustomNetworkConnectionException((e.toString()));
         }
-//        if (alarmEntityTo != null) {
-//            return alarmEntityTo.getData();
     }
 
     @Override
@@ -122,7 +102,7 @@ public class ActiveAlarmServiceImpl implements ActiveAlarmService {
 
     @Override
     public HttpRequest getActiveAlarmByBSC(Token token, ManagedElement managedElement) {
-        String bsc = String.valueOf(SubnetworkToBSCOrRNC.getBSCbySubnetwork(managedElement.getSubNetworkNum(), managedElement));
+        String bsc = managedElement.getBSC();
         return HttpRequest.newBuilder()
                 .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(
                         ActiveAlarmBodySettings.builder()
@@ -138,7 +118,7 @@ public class ActiveAlarmServiceImpl implements ActiveAlarmService {
 
     @Override
     public HttpRequest getActiveAlarmByRNC(Token token, ManagedElement managedElement) {
-        String rnc = String.valueOf(SubnetworkToBSCOrRNC.getRNCbySubnetwork(managedElement.getSubNetworkNum(), managedElement));
+        String rnc = managedElement.getRNC();
         return HttpRequest.newBuilder()
                 .method(Verb.POST.toString(), HttpRequest.BodyPublishers.ofString(
                         ActiveAlarmBodySettings.builder()

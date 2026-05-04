@@ -4,6 +4,7 @@ import bsshelper.globalutil.logger.LoggerUtil;
 import bsshelper.security.config.PasswordConfig;
 import bsshelper.security.entity.User;
 import bsshelper.security.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -27,7 +28,8 @@ public class LoginPageController {
     private static final Logger operationLog = LoggerUtil.getOperationLogger();
 
     @GetMapping("/login")
-    public String login() {
+    public String login(Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {return "redirect:/helper";}
         return "login";
     }
 
@@ -35,7 +37,7 @@ public class LoginPageController {
     public String changePasswordPage(Model model) {
         model.addAttribute("user", new User());
         model.addAttribute("passInfo",
-                "The password must have lowercase & uppercase letters, digits; symbols like !?@#$%^&*() can be included optional and must be at least 8 characters long");
+                "The password must have lowercase & uppercase letters, digits; symbols like !?@#$%^&*_() can be included optional and must be at least 8 characters long");
         return "change-password";
     }
 

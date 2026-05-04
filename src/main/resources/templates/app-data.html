@@ -26,22 +26,28 @@
                 Clear ME Cache
             </button>
         </form>
-        <form sec:authorize="hasAuthority('USER_MNG_FULL')" th:action="@{/helper/appAccessMng/dataMng/updateMECustomLink}" method="post">
+        <form sec:authorize="hasAuthority('USER_MNG_FULL')" th:action="@{/helper/appAccessMng/dataMng/meCustomLink}" method="get">
             <br/>
-            <button type="submit" id="MECustomLink" class="btn btn-fixed-width btn-danger text-center">
-                Update MECustomLink
+            <button type="submit" id="MECustomLink" class="btn btn-fixed-width btn-success text-center">
+                MECustomLink
             </button>
         </form>
-        <form sec:authorize="hasAuthority('USER_MNG_FULL')" th:action="@{/helper/appAccessMng/dataMng/updateAlarmUserLabel}" method="post">
+        <form sec:authorize="hasAuthority('USER_MNG_FULL')" th:action="@{/helper/appAccessMng/dataMng/alarmUserLabel}" method="get">
             <br/>
-            <button type="submit" id="alarmUserLabel" class="btn btn-fixed-width btn-danger text-center">
-                Update AlarmUserLabel
+            <button type="submit" id="alarmUserLabel" class="btn btn-fixed-width btn-success text-center">
+                External Alarm
             </button>
         </form>
-        <form sec:authorize="hasAuthority('USER_MNG_FULL')" th:action="@{/helper/appAccessMng/dataMng/updateComments}" method="post">
+        <form sec:authorize="hasAuthority('USER_MNG_FULL')" th:action="@{/helper/appAccessMng/dataMng/vlan}" method="get">
             <br/>
-            <button type="submit" id="Comments" class="btn btn-fixed-width btn-danger text-center">
-                Update Comments
+            <button type="submit" id="VLAN" class="btn btn-fixed-width btn-success text-center">
+                VLAN
+            </button>
+        </form>
+        <form sec:authorize="hasAuthority('USER_MNG_FULL')" th:action="@{/helper/appAccessMng/dataMng/comment}" method="get">
+            <br/>
+            <button type="submit" id="Comments" class="btn btn-fixed-width btn-success text-center">
+                Comment
             </button>
         </form>
 

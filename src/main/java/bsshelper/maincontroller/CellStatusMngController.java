@@ -2,12 +2,14 @@ package bsshelper.maincontroller;
 
 import bsshelper.externalapi.alarmmng.activealarm.entity.AlarmEntity;
 import bsshelper.externalapi.alarmmng.activealarm.service.ActiveAlarmService;
-import bsshelper.externalapi.alarmmng.activealarm.util.Comments;
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
-import bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.ITBBUULocalCellMocSimplified;
-import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.UCellMocSimplified;
-import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.ULocalCellMocSimplified;
+import bsshelper.externalapi.configurationmng.currentmng.entity.UCellMoc;
+import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.ULocalCellMoc;
 import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnService;
+import bsshelper.externalapi.configurationmng.currentmng.util.CurrentMngBodySettingsFactory;
+import bsshelper.externalapi.configurationmng.currentmng.util.MocITBBU;
+import bsshelper.externalapi.configurationmng.currentmng.util.MocMRNC;
+import bsshelper.externalapi.configurationmng.currentmng.util.MocSDR;
 import bsshelper.externalapi.configurationmng.nemoactserv.entity.PAStatus;
 import bsshelper.externalapi.configurationmng.nemoactserv.mapper.PAStatusMapper;
 import bsshelper.externalapi.configurationmng.nemoactserv.service.ExecNeActService;
@@ -96,39 +98,85 @@ public class CellStatusMngController {
         EUtranCellNBIoTStatusListWrapper eUtranCellNBIoTMocListWrapper = null;
         EUtranCellFDDStatusListWrapper eUtranCellFDDMocListWrapper = null;
         PAStatusWrapper paStatusWrapper = null;
-        Map<Integer, UCellMocSimplified> uCellMap = new TreeMap<>();
-        List<ULocalCellMocSimplified> uLocalCellList = null;
-        List<ITBBUULocalCellMocSimplified> iTBBUULocalCellList = null;
+        Map<Integer, UCellMoc> uCellMap = new TreeMap<>();
+        List<ULocalCellMoc> uLocalCellList = null;
+        List<bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.ULocalCellMoc> iTBBUULocalCellList = null;
         List<CellStatusDetails> details = null;
 
 //        System.out.println(activeAlarmService.rawDataQuery(tokenService.getToken(),managedElement));
 
         if (managedElement.getManagedElementType() == ManagedElementType.SDR) {
-            uCellMap = UCellMocSimplified.toMap(currentMgnService.getUCellMocSimplified(tokenService.getToken(), managedElement));
-            uLocalCellList = currentMgnService.getULocalCellMocSimplified(tokenService.getToken(), managedElement);
-            uLocalCellMocListWrapper = new ULocalCellStatusListWrapper(ULocalCellStatusMapper.toULocalCellStatusEntity(uLocalCellList, uCellMap));
+            uCellMap = UCellMoc.toMap(currentMgnService.getMocList(
+                    tokenService.getToken(),
+                    managedElement.getUserLabel(),
+                    MocSDR.U_CELL,
+                    CurrentMngBodySettingsFactory.queryMocByNE(managedElement, MocSDR.U_CELL.getMocName())));
+            uLocalCellList = currentMgnService.getMocList(
+                    tokenService.getToken(),
+                    managedElement.getUserLabel(),
+                    MocSDR.U_LOCAL_CELL,
+                    CurrentMngBodySettingsFactory.queryMocByNE(managedElement, MocSDR.U_LOCAL_CELL.getMocName()));
+            uLocalCellMocListWrapper = new ULocalCellStatusListWrapper(ULocalCellStatusMapper.
+                    toULocalCellStatusEntity(uLocalCellList, uCellMap));
             eUtranCellNBIoTMocListWrapper = new EUtranCellNBIoTStatusListWrapper(EUtranCellNBIoTStatusMapper.
-                    toEUtranCellNBIoTStatusEntity(currentMgnService.getEUtranCellNBIoTMocSimplified(tokenService.getToken(), managedElement)));
+                    toEUtranCellNBIoTStatusEntity(currentMgnService.getMocList(
+                            tokenService.getToken(),
+                            managedElement.getUserLabel(),
+                            MocSDR.EUTRAN_CELL_NBIOT,
+                            CurrentMngBodySettingsFactory.queryMocByNE(managedElement, MocSDR.EUTRAN_CELL_NBIOT.getMocName()))));
             eUtranCellFDDMocListWrapper = new EUtranCellFDDStatusListWrapper(EUtranCellFDDStatusMapper.
-                    toEUtranCellFDDStatusEntity(currentMgnService.getEUtranCellFDDMocSimplified(tokenService.getToken(), managedElement)));
+                    toEUtranCellFDDStatusEntity(currentMgnService.getMocList(
+                            tokenService.getToken(),
+                            managedElement.getUserLabel(),
+                            MocSDR.EUTRAN_CELL_FDD_LTE,
+                            CurrentMngBodySettingsFactory.queryMocByNE(managedElement, MocSDR.EUTRAN_CELL_FDD_LTE.getMocName()))));
             paStatusWrapper = new PAStatusWrapper(PAStatusMapper.
-                    toPAStatusSDR(currentMgnService.getTxChannelMoc(tokenService.getToken(), managedElement)));
+                    toPAStatusSDR(currentMgnService.getMocList(
+                            tokenService.getToken(),
+                            managedElement.getUserLabel(),
+                            MocSDR.TX_CHANNEL,
+                            CurrentMngBodySettingsFactory.queryMocByNE(managedElement, MocSDR.TX_CHANNEL.getMocName()))));
         } else {
-            uCellMap = UCellMocSimplified.toMap(currentMgnService.getUCellMocSimplified(tokenService.getToken(), managedElement));
-            iTBBUULocalCellList = currentMgnService.getITBBUULocalCellMocSimplified(tokenService.getToken(), managedElement);
+//            same to SDR !!!!!!!
+            uCellMap = UCellMoc.toMap(currentMgnService.getMocList(
+                    tokenService.getToken(),
+                    managedElement.getUserLabel(),
+                    MocSDR.U_CELL,
+                    CurrentMngBodySettingsFactory.queryMocByNE(managedElement, MocSDR.U_CELL.getMocName())));
+            iTBBUULocalCellList = currentMgnService.getMocList(
+                    tokenService.getToken(),
+                    managedElement.getUserLabel(),
+                    MocITBBU.U_LOCAL_CELL,
+                    CurrentMngBodySettingsFactory.queryMocByNE(managedElement, MocITBBU.U_LOCAL_CELL.getMocName()));
             uLocalCellMocListWrapper = new ULocalCellStatusListWrapper(ITBBUULocalCellStatusMapper.
                     toULocalCellStatusEntity(iTBBUULocalCellList, uCellMap));
             eUtranCellNBIoTMocListWrapper = new EUtranCellNBIoTStatusListWrapper(ITBBUCUEUtranCellNBIoTStatusMapper.
-                    toEUtranCellNBIoTStatusEntity(currentMgnService.getITBBUCUEUtranCellNBIoTMocSimplified(tokenService.getToken(), managedElement)));
+                    toEUtranCellNBIoTStatusEntity(currentMgnService.getMocList(
+                            tokenService.getToken(),
+                            managedElement.getUserLabel(),
+                            MocITBBU.CU_EUTRAN_CELL_NBIOT,
+                            CurrentMngBodySettingsFactory.queryMocByNE(managedElement, MocITBBU.CU_EUTRAN_CELL_NBIOT.getMocName()))));
             eUtranCellFDDMocListWrapper = new EUtranCellFDDStatusListWrapper(ITBBUCUEUtranCellFDDLTEStatusMapper.
-                    toEUtranCellFDDStatusEntity(currentMgnService.getITBBUCUEUtranCellFDDLTEMocSimplified(tokenService.getToken(), managedElement)));
+                    toEUtranCellFDDStatusEntity(currentMgnService.getMocList(
+                            tokenService.getToken(),
+                            managedElement.getUserLabel(),
+                            MocITBBU.CU_EUTRAN_CELL_FDD_LTE,
+                            CurrentMngBodySettingsFactory.queryMocByNE(managedElement, MocITBBU.CU_EUTRAN_CELL_FDD_LTE.getMocName()))));
             paStatusWrapper = new PAStatusWrapper(PAStatusMapper.
-                    toPAStatusITBBU(currentMgnService.getITBBUTxChannelMoc(tokenService.getToken(), managedElement)));
+                    toPAStatusITBBU(currentMgnService.getMocList(
+                            tokenService.getToken(),
+                            managedElement.getUserLabel(),
+                            MocITBBU.TX_CHANNEL,
+                            CurrentMngBodySettingsFactory.queryMocByNE(managedElement, MocITBBU.TX_CHANNEL.getMocName()))));
         }
         GCellStatusListWrapper gCellStatusListWrapper = new GCellStatusListWrapper(
                 GCellStatusMapper.toGCellStatusEntity(
-                        currentMgnService.getGGsmCellMocSimplified(
-                                tokenService.getToken(), managedElement), activeAlarmService.getHasAlarmSetByMEonBSC(
+                        currentMgnService.getMocList(
+                                tokenService.getToken(),
+                                managedElement.getUserLabel(),
+                                MocMRNC.G_GSM_CELL,
+                                CurrentMngBodySettingsFactory.queryGGsmCellMocByOMMBManagedElement(managedElement)),
+                        activeAlarmService.getHasAlarmSetByMEonBSC(
                                         tokenService.getToken(), managedElement)));
 
 //        System.out.println(uLocalCellMocListWrapper);

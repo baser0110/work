@@ -3,6 +3,7 @@ package bsshelper.externalapi.perfmng.mapper;
 import bsshelper.externalapi.configurationmng.currentmng.entity.itbbu.IpMoc;
 import bsshelper.externalapi.configurationmng.currentmng.entity.sdr.IpLayerConfigMoc;
 import bsshelper.externalapi.perfmng.entity.InfoGeneral;
+import bsshelper.localservice.externalcustomdata.service.CustomDataService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,14 +11,7 @@ import java.util.List;
 public class InfoIpMapper {
     static public InfoGeneral.InfoIp toInfoIpForSDR(IpLayerConfigMoc ipInfo) {
         if (ipInfo == null) {return null;}
-            String tech = "";
-            switch (Integer.parseInt(ipInfo.getMoId())) {
-                case 1 -> tech = "GSM";
-                case 2 -> tech = "UMTS";
-                case 3 -> tech = "NBIoT";
-                case 4 -> tech = "OAM";
-                case 5 -> tech = "LTE";
-            }
+        String tech = CustomDataService.VLANMap.getOrDefault(ipInfo.getVid(), "UNK");
         return new InfoGeneral.InfoIp(
                 tech,
                 ipInfo.getVid(),
@@ -39,17 +33,11 @@ public class InfoIpMapper {
 
     static public InfoGeneral.InfoIp toInfoIpForITBBU(IpMoc ipInfo) {
         if (ipInfo == null) {return null;}
-        String tech = "";
-        switch (Integer.parseInt(ipInfo.getMoId())) {
-            case 1 -> tech = "OAM";
-            case 2 -> tech = "GSM";
-            case 3 -> tech = "UMTS";
-            case 4 -> tech = "NBIoT";
-            case 5 -> tech = "LTE";
-        }
+        String vlan = ipInfo.getRefInterface().replace("TransportNetwork=1,Interface=", "");
+        String tech = CustomDataService.VLANMap.getOrDefault(vlan, "UNK");
         return new InfoGeneral.InfoIp(
                 tech,
-                ipInfo.getRefInterface().replace("TransportNetwork=1,Interface=", ""),
+                vlan,
                 ipInfo.getIpAddress(),
                 "/" + ipInfo.getPrefixLength(),
                 ipInfo.getGatewayIp());

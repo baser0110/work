@@ -2,6 +2,9 @@ package bsshelper.maincontroller;
 
 import bsshelper.externalapi.configurationmng.currentmng.entity.ManagedElement;
 import bsshelper.externalapi.configurationmng.currentmng.service.CurrentMgnService;
+import bsshelper.externalapi.configurationmng.currentmng.util.CurrentMngBodySettingsFactory;
+import bsshelper.externalapi.configurationmng.currentmng.util.MocITBBU;
+import bsshelper.externalapi.configurationmng.currentmng.util.MocSDR;
 import bsshelper.externalapi.configurationmng.plannedmng.service.PlanMgnService;
 import bsshelper.externalapi.configurationmng.plannedserv.entity.DryContactCableMocData;
 import bsshelper.externalapi.configurationmng.plannedserv.entity.DryContactDeviceMocData;
@@ -76,10 +79,18 @@ public class DryContactController {
         }
         if (managedElement.getManagedElementType() == ManagedElementType.SDR) {
             mocDataWrapper = new DryContactDeviceMocDataWrapper(DryContactDeviceMocDataMapper.
-                    toDryContactDeviceMocDataTo(currentMgnService.getDryContactDeviceMoc(tokenService.getToken(), managedElement)));
+                    toDryContactDeviceMocDataTo(currentMgnService.getMocList(
+                            tokenService.getToken(),
+                            managedElement.getUserLabel(),
+                            MocSDR.DRY_CONTACT_DEVICE,
+                            CurrentMngBodySettingsFactory.queryMocByNE(managedElement, MocSDR.DRY_CONTACT_DEVICE.getMocName()))));
         } else {
             mocDataWrapper = new DryContactCableMocDataWrapper(DryContactCableMocDataMapper.
-                    toDryContactCableMocDataTo(currentMgnService.getDryContactCableMoc(tokenService.getToken(), managedElement)));
+                    toDryContactCableMocDataTo(currentMgnService.getMocList(
+                            tokenService.getToken(),
+                            managedElement.getUserLabel(),
+                            MocITBBU.DRY_CONTACT_CABLE,
+                            CurrentMngBodySettingsFactory.queryMocByNE(managedElement, MocITBBU.DRY_CONTACT_CABLE.getMocName()))));
         }
         localCacheService.mocDataRepositoryMap.put(id + "_" + managedElement.getUserLabel(), mocDataWrapper);
 

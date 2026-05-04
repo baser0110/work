@@ -9,16 +9,15 @@
           crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        /* Ensure buttons are the same size */
         .btn-custom1-size {
-            width: 70px; /* Adjust this as needed for uniform button size */
+            width: 90px;
         }
         .btn-custom2-size {
-            width: 120px; /* Adjust this as needed for uniform button size */
+            width: 120px;
         }
         .action-cell {
             vertical-align: middle;
-            text-align: center; /* Horizontally center the buttons */
+            text-align: center;
         }
         /* Centering the action buttons */
         .button-container {
@@ -102,7 +101,7 @@
                     <td class="action-cell">
                         <a href="/helper/appAccessMng/users/management/${user.id}" class="btn btn-warning btn-sm">Edit</a>
                         <form action="/helper/appAccessMng/users/management/delete/${user.id}" method="post" style="display:inline">
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Confirm operation!')">Delete</button>
                         </form>
                     </td>
                 </tr>
