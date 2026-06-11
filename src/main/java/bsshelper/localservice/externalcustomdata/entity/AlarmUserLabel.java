@@ -17,4 +17,11 @@ public class AlarmUserLabel {
 
     @Column(nullable = false)
     private String userLabel;
+
+    @PrePersist
+    private void prePersist() {
+        if (this.id != null && this.id.trim().isEmpty()) {
+            this.id = null;
+        }
+    }
 }

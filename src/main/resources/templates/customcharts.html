@@ -105,9 +105,14 @@
     <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
         <div th:if="${chartMEAN_JITTERData != null && !chartMEAN_JITTERData.isEmpty()}" id="MEAN_JITTERChartContainer" style="height: 400px; width: 90%;"></div>
     </div>
+
+    <div th:if="${customKPI_UMTSCellDataList != null && !customKPI_UMTSCellDataList.isEmpty()}" id="dynamicKPIChartsWrapper"></div>
 </div>
 
+
+
 <script th:inline="javascript">
+
     /* Convert the Java map to a JSON object */
     let chartRTWPData = /*[[${chartRTWPData}]]*/ {};
     let dataSeriesRTWP = [];
@@ -145,6 +150,44 @@
     let dataSeriesLOST_PACKET = [];
     let chartMEAN_JITTERData = /*[[${chartMEAN_JITTERData}]]*/ {};
     let dataSeriesMEAN_JITTER = [];
+    let kpiDataList = /*[[${customKPI_UMTSCellDataList}]]*/ [];
+    let dynamicChartsData = [];
+
+    // Process CUSTOM data
+    if (Array.isArray(kpiDataList)) {
+        kpiDataList.forEach((kpiWrapper, index) => {
+            const kpiConfig = kpiWrapper.kpi || {};
+            const kpiMapData = kpiWrapper.data || {};
+            let dataSeriesArray = [];
+
+            for (let seriesName in kpiMapData) {
+                if (kpiMapData.hasOwnProperty(seriesName)) {
+                    const pointsArray = Array.isArray(kpiMapData[seriesName]) ? kpiMapData[seriesName] : [];
+
+                    let dataPoints = pointsArray.map(point => {
+                        return { x: new Date(point.time), y: point.value };
+                    });
+
+                    dataSeriesArray.push({
+                        type: "line",
+                        markerSize: 0,
+                        name: seriesName,
+                        showInLegend: true,
+                        yValueFormatString: (kpiConfig.format && kpiConfig.format.trim() !== "") ? kpiConfig.format.trim() : undefined,
+                        xValueFormatString: "DD-MM HH:mm",
+                        dataPoints: dataPoints
+                    });
+                }
+            }
+
+            if (dataSeriesArray.length > 0) {
+                dynamicChartsData.push({
+                    config: kpiConfig,
+                    series: dataSeriesArray
+                });
+            }
+        });
+    }
 
     // Process RTWP data
     for (let seriesRTWP in chartRTWPData) {
@@ -473,6 +516,75 @@
     }
 
     window.onload = function () {
+
+        const dynamicWrapper = document.getElementById("dynamicKPIChartsWrapper");
+        if (dynamicWrapper && dynamicChartsData.length > 0) {
+
+            dynamicChartsData.forEach((chartItem, index) => {
+                const containerId = `dynamic_chart_container_${index}`;
+
+                // 1. ??????? ??????????? <div style="height: 5px;"></div>
+                const spacer = document.createElement("div");
+                spacer.style.height = "5px";
+                dynamicWrapper.appendChild(spacer);
+
+                // 2. ??????? ?????-????????? ??? ????????????? ???????
+                const flexRow = document.createElement("div");
+                flexRow.style.display = "flex";
+                flexRow.style.flexDirection = "row";
+                flexRow.style.alignItems = "center";
+                flexRow.style.justifyContent = "center";
+
+                // 3. ??????? ??? ???? ??????? <div id="..." style="height: 400px; width: 90%;"></div>
+                const chartContainer = document.createElement("div");
+                chartContainer.id = containerId;
+                chartContainer.style.height = "400px";
+                chartContainer.style.width = "90%";
+
+                // ???????? HTML ????????? ???????
+                flexRow.appendChild(chartContainer);
+                dynamicWrapper.appendChild(flexRow);
+                dynamicWrapper.style.paddingBottom = "150px";
+
+                // 4. ????????? CanvasJS ? ??????????? ????? ?????? offsetWidth
+                const containerWidth = chartContainer.offsetWidth || mainWrapper.offsetWidth || 1000;
+                const legendMaxWidth = containerWidth * 0.9;
+
+                let kpiChart = new CanvasJS.Chart(containerId, {
+                    theme: "light2",
+                    animationEnabled: true,
+                    title: {
+                        text: chartItem.config.info || chartItem.config.code || "KPI Chart"
+                    },
+                    axisX: {
+                        valueFormatString: "DD-MM HH:mm"
+                    },
+                    axisY: {
+                        title: chartItem.config.unit || ""
+                    },
+                    toolTip: {
+                        shared: true
+                    },
+                    legend: {
+                        cursor: "pointer",
+                        textAlign: "center",
+                        maxWidth: legendMaxWidth,
+                        verticalAlign: "top",
+                        horizontalAlign: "center",
+                        itemclick: function (e) {
+                            e.dataSeries.visible = !e.dataSeries.visible;
+                            kpiChart.render(); // ???????????? ?????? ????? ??? ??????????
+                        }
+                    },
+                    data: chartItem.series
+                });
+
+                chartItem.instance = kpiChart; // ????????? ???????
+                kpiChart.render();
+            });
+        }
+
+
         const RTWPChartContainer = document.getElementById("RTWPChartContainer");
         if (RTWPChartContainer) {
             const containerWidthRTWP = RTWPChartContainer.offsetWidth;

@@ -46,8 +46,10 @@ public class UserService {
     public Optional<User> getUserById(String id) {
         return userRepository.findById(id);
     }
+
     @Transactional
     public User createUser(User user) {
+        user.setId(null);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setUsername(user.getUsername().toLowerCase());
         user.setIsFirstLogin(true);

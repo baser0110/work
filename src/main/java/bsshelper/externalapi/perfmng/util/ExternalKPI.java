@@ -21,11 +21,11 @@ public class ExternalKPI implements KPIable {
     public static List<ExternalKPI> getTest() {
         List<ExternalKPI> list = new ArrayList<>();
         list.add(new ExternalKPI("300520","Success Rate of Transfer from HS-DSCH to DCH Due to UE Mobility (Intra-Frequency)","wm.UtranCell","%",""));
-        list.add(new ExternalKPI("900329","3G PS Call Drop Rate(PCH)","wm.UtranCell","",""));
-        list.add(new ExternalKPI("300199","Average time of RAB establishment(CS)","wm.UtranCell","ms",""));
-        list.add(new ExternalKPI("300572","Traffic of HSUPA","wm.LogicCell","Erl",""));
-        list.add(new ExternalKPI("300593","PS R99 streaming traffic UL Throughput(MAC)in best cell","wm.LogicCell","KByte/s",""));
-        list.add(new ExternalKPI("300995","Average time of RAB PS R99 Traffic Volume DL 64K(MAC)(CS)","wm.LogicCell","kBytes",""));
+        list.add(new ExternalKPI("900329","3G PS Call Drop Rate(PCH)","wm.UtranCell","","#,##0.00%"));
+        list.add(new ExternalKPI("300199","Average time of RAB establishment(CS)","wm.UtranCell","ms","#,##0.####"));
+        list.add(new ExternalKPI("300572","Traffic of HSUPA","wm.LogicCell","Erl","#,##0.####"));
+        list.add(new ExternalKPI("300593","PS R99 streaming traffic UL Throughput(MAC)in best cell","wm.LogicCell","KByte/s","#,##0.####"));
+        list.add(new ExternalKPI("300995","Average time of RAB PS R99 Traffic Volume DL 64K(MAC)(CS)","wm.LogicCell","kBytes","#,##0.####"));
         return list;
     }
 

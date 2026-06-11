@@ -58,6 +58,7 @@ public class ProfileService {
 
     @Transactional
     public Profile createProfile(Profile profile) {
+        profile.setId(null);
         profile.setName(profile.getName().toLowerCase());
         return profileRepository.save(profile);
     }

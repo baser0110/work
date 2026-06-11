@@ -12,7 +12,6 @@ public class HistorySDRForULocalCellMapper {
     static public HistoryForULocalCell toFinalEntity(String raw) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         if (raw == null) {return null;}
-        System.out.println(raw);
         String[] split = raw.split(",");
         return new HistoryForULocalCell(
                 split[10],

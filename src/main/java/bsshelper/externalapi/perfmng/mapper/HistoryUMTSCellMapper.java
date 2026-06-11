@@ -12,18 +12,9 @@ import java.util.List;
 
 public class HistoryUMTSCellMapper {
     static public HistoryForUMTSCell toFinalEntity(String raw, KPIable kpi) {
-        System.out.println(raw);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         if (raw == null) {return null;}
         String[] split = raw.split(",");
-//        if (kpi.equals(KPI.RLC) || kpi.equals(KPI.HSUPA)) {
-//            return new HistoryForUMTSCell(
-//                    split[8],
-//                    split[12],
-//                    Integer.parseInt(split[11]),
-//                    Double.parseDouble(split[17]),
-//                    LocalDateTime.parse(split[1], formatter));
-//        }
         return new HistoryForUMTSCell(
                 split[8],
                 split[12],

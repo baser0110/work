@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/helper/cellStatus/cellStatusDetails").hasAnyAuthority("CELL_STAT_MNG_SINGLE_VIEW", "CELL_STAT_MNG_SINGLE_FULL")
                         .requestMatchers("/helper/cellStatus/**").hasAnyAuthority("CELL_STAT_MNG_SINGLE_FULL")
                         .requestMatchers("/helper/cellStatusBatch/**").hasAnyAuthority("CELL_STAT_MNG_BATCH_FULL")
+                        .requestMatchers(HttpMethod.POST,"/helper/acceptanceMeasurement/customCharts").hasAnyAuthority("ACCEPT_MEASUREMENT_VIEW", "ACCEPT_MEASUREMENT_FULL")
                         .requestMatchers(HttpMethod.GET,"/helper/acceptanceMeasurement/**").hasAnyAuthority("ACCEPT_MEASUREMENT_VIEW", "ACCEPT_MEASUREMENT_FULL")
                         .requestMatchers("/helper/acceptanceMeasurement/**").hasAnyAuthority("ACCEPT_MEASUREMENT_FULL")
                         .requestMatchers("/helper/packetLossStat/**").hasAnyAuthority("PACKET_LOSS_INSPECTOR_VIEW", "PACKET_LOSS_INSPECTOR_FULL")

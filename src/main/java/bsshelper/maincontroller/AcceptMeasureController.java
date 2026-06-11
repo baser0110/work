@@ -36,6 +36,7 @@ import bsshelper.globalutil.ManagedElementType;
 import bsshelper.globalutil.Severity;
 import bsshelper.globalutil.entity.MessageEntity;
 import bsshelper.globalutil.logger.LoggerUtil;
+import bsshelper.localservice.externalcustomdata.service.CustomDataService;
 import bsshelper.localservice.localcache.LocalCacheService;
 import bsshelper.localservice.searchcache.SearchCacheService;
 import bsshelper.localservice.token.TokenService;
@@ -235,11 +236,13 @@ public class AcceptMeasureController {
         // CHARTS
         CellSelectedToWrapper cellSelectedToWrapper = null;
         KPISelectedToWrapper kpiSelectedToWrapper = null;
+        List<ExternalKPI> KPIList = new ArrayList<>();
 
         if (measurementQuerySet.contains(QueryType.CUSTOM_HISTORY.getInfo())) {
             cellSelectedToWrapper = setCellSelectedToForModel(managedElement, umts);
             kpiSelectedToWrapper = setKPISelectedToForModel();
             isSelected.add(QueryType.CUSTOM_HISTORY.getInfo());
+            KPIList.addAll(CustomDataService.externalKPIMap.values());
         }
 
         if (!localCacheService.managedElementMap.containsKey(managedElement.getUserLabel())) {
@@ -263,8 +266,8 @@ public class AcceptMeasureController {
         model.addAttribute("acceptanceMeasurementId", id);
         model.addAttribute("title", pageTitle);
         model.addAttribute("searchCache", searchCacheService.getList());
+        model.addAttribute("KPIList", KPIList);
 
-        model.addAttribute("KPIList", ExternalKPI.getTest());
         return "measurement";
     }
 

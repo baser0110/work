@@ -17,4 +17,5 @@ public interface CustomDataService {
     ConcurrentHashMap<String, String> CommentsMap = new ConcurrentHashMap<>();
     ConcurrentHashMap<String, String> VLANMap = new ConcurrentHashMap<>();
     ConcurrentHashMap<String, ExternalKPI> externalKPIMap = new ConcurrentHashMap<>();
+    void populateFromExcelKPI();
 }

@@ -39,11 +39,7 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
         }
         String json = null;
         List<HistoryForUMTSCell> result = null;
-        HistoryQueryBodySettings bodySettings;
-//        if (kpi.getMoType().contains("oglic")) {
-//            bodySettings = getLogicCellBodySettings(me, cellsQuery, time, granularity, kpi);
-//        } else
-            bodySettings = getUMTSCellBodySettings(me, cellsQuery, time, granularity, kpi);
+        HistoryQueryBodySettings bodySettings = getUMTSCellBodySettings(me, cellsQuery, time, granularity, kpi);
         if (bodySettings != null) {
             json = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettings));
         }
@@ -257,7 +253,6 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
         HistoryQueryBodySettings bodySettings = getSDROrITBBUBodySettings(managedElement, time, granularity, kpi);
         if (bodySettings != null) {
             json = rawDataQuery(token, managedElement, dataQueryRequest(token, bodySettings));
-//            System.out.println(json);
         }
         HistoryTo historyTo = getHistoryTo(json, kpi);
         if (historyTo != null) {
@@ -351,20 +346,6 @@ public class HistoryQueryServiceImpl implements HistoryQueryService {
                 .starttime(TimeToString.nHoursAgoTime(time))
                 .endtime(TimeToString.nowTime())
                 .filterlayer("WV4.UtranCell")
-                .build();
-    }
-
-    private HistoryQueryBodySettings getLogicCellBodySettings(String me, List<String> cellsQuery, int time, int granularity, KPIable kpi) {
-        return   HistoryQueryBodySettings.builder()
-                .nfctid("MRNC")
-                .gr(granularity)
-                .me(me)
-                .mois(cellsQuery)
-                .items(List.of(kpi.getCode()))
-                .showobjectname(true)
-                .starttime(TimeToString.nHoursAgoTime(time))
-                .endtime(TimeToString.nowTime())
-                .filterlayer("WV4.LogicCell")
                 .build();
     }
 

@@ -104,27 +104,29 @@
                 const isAnyCheckedKPIs = Array.from(checkboxesKPI).some(checkbox => checkbox.checked)
                 const checkboxesKPINoCell = document.querySelectorAll('#KPINoCell-table input[type="checkbox"]')
                 const isAnyCheckedKPIsNoCell = Array.from(checkboxesKPINoCell).some(checkbox => checkbox.checked)
-                if (!isAnyCheckedCells && !checkboxesKPINoCell && !isAnyCheckedKPIsNoCell) {
+                const selectedCustomKPIs = tomSelectKpi ? tomSelectKpi.items : [];
+                const isAnyCheckedCustomKPI = selectedCustomKPIs.length > 0;
+                const hasStandaloneKPI = isAnyCheckedKPIs || isAnyCheckedCustomKPI;
+
+                if (!isAnyCheckedCells && !hasStandaloneKPI && !isAnyCheckedKPIsNoCell) {
+                    event.preventDefault();
+                    alert("No KPIs or/and cells selected!")
+                }
+                if (isAnyCheckedCells && !hasStandaloneKPI && !isAnyCheckedKPIsNoCell) {
                     event.preventDefault();
                     alert("No KPIs selected!")
                 }
-                if (!isAnyCheckedKPIsNoCell) {
-                    if (!isAnyCheckedCells) {
-                        event.preventDefault();
-                        alert("No cells selected!")
-                    } else {
-                        if (!isAnyCheckedKPIs) {
-                            event.preventDefault();
-                            alert("No KPIs selected!")
-                        }
-                    }
+                if (!isAnyCheckedCells && hasStandaloneKPI) {
+                    event.preventDefault();
+                    alert("No cells selected!")
                 }
-                if (isAnyCheckedKPIsNoCell && isAnyCheckedKPIs) {
-                    if (!isAnyCheckedCells) {
-                        event.preventDefault();
-                        alert("No cells selected!")
-                    }
-                }
+
+                // if (isAnyCheckedKPIsNoCell && isAnyCheckedKPIs) {
+                //     if (!isAnyCheckedCells && !isAnyCheckedCustomKPI) {
+                //         event.preventDefault();
+                //         alert("No cells selected!")
+                //     }
+                // }
             }
 
             document.addEventListener('DOMContentLoaded', function () {
@@ -1011,8 +1013,6 @@
                                     <div>
                                     <label for="select-kpi" class="form-label fw-bold">Custom KPI (LogicCell & Cell)</label>
                                     <select id="select-kpi" name="kpiCodes" autocomplete="off">
-<!--                                        <option value="325346578567" >111111111 | U31_Den of 300911&300912_1505444259999-13_551161_10207477_UROP.RNC-MO</option>-->
-<!--                                        <option value="3435345353434">jgjg</option>-->
                                         <option th:each="kpi : ${KPIList}"
                                                 th:value="${kpi.code}"
                                                 th:text="${kpi.code} + ' | ' + ${kpi.info}">
@@ -1020,31 +1020,28 @@
                                     </select>
                                         </div>
                                     <script>
-                                        const tomSelectKpi = new TomSelect("#select-kpi", {
-                                            create: false,
-                                            allowEmptyOption: true,
-                                            maxItems: 5,
-                                            placeholder: "Search KPI...",
-                                            plugins: ['remove_button', 'change_listener'],
-                                                    maxOptions: 11,
-    dropdownDirection: 'top',
-<!--                                            onInitialize: function() {-->
-<!--                                                this.setValue('', true);-->
+    const tomSelectKpi = new TomSelect("#select-kpi", {
+        create: false,
+        allowEmptyOption: true,
+        maxItems: 10,
+        placeholder: "Search KPI...",
+        plugins: ['remove_button', 'change_listener'],
+        maxOptions: 100,
+        dropdownDirection: 'top',
 
         render: {
-            // ????????? ??????? ???????????? ??????? ??????? ??? ?????????? ?????
             item: function(data, escape) {
                 return '<div class="item" style="' +
-                       'background-color: #E6E6FA !important; ' + // ??????-????? ??????? ????
-<!--                       'border: 1px solid #cbd5e1 !important; ' + // ??????? ?????? ????-->
-                       'border-radius: 4px !important; ' +         // ?????????? ????? ??????
-                       'padding: 3px 3px !important; ' +           // ?????????? ???????
-                                              'padding-left: 10px !important; ' +           // ?????????? ???????
-                       'color: #334155 !important; ' +             // ???? ?????? ????
+                       'background-color: #E6E6FA !important; ' +
+<!--                       'border: 1px solid #cbd5e1 !important; ' + -->
+                       'border-radius: 4px !important; ' +
+                       'padding: 3px 3px !important; ' +
+                        'padding-left: 10px !important; ' +
+                       'color: #334155 !important; ' +
                        'font-weight: 500 !important; ' +
                        'display: inline-flex !important; ' +
                        'align-items: center !important; ' +
-                                              'margin-right: 5px !important;' +
+                        'margin-right: 5px !important;' +
                        '">' + escape(data.value) + '</div>';
             },
             option: function(data, escape) {
@@ -1053,75 +1050,72 @@
         },
 
         onInitialize: function() {
-            // 1. ?????????? ?????????????? ????? ??????? ???????? ??? ???????? ????????
             this.setValue('', true);
 
-            // 2. ????????? ??????? ??????? ?????? ? ???????? ??? ?? ?????
             const control = this.control;
             if (control) {
                 control.style.setProperty('font-size', '1.0rem', 'important');
-                control.style.setProperty('padding', '8px 12px', 'important'); // ???????? ???????
-                control.style.setProperty('border', '1px solid #ced4da', 'important'); // ?????????? ????? ?????? ?????
-                control.style.setProperty('border-radius', '0.375rem', 'important'); // ?????????? ??? ? ????? Bootstrap 5
+                control.style.setProperty('padding', '8px 12px', 'important');
+                control.style.setProperty('border', '1px solid #ced4da', 'important');
+                control.style.setProperty('border-radius', '0.375rem', 'important');
                 control.style.setProperty('background-color', '#fffsd', 'important');
                 control.style.setProperty('display', 'flex', 'important');
                 control.style.setProperty('align-items', 'center', 'important');
-                control.style.setProperty('min-height', '38px', 'important'); // ??????????? ?????? ???????? ??????
+                control.style.setProperty('min-height', '38px', 'important');
                 control.style.setProperty('box-shadow', 'none', 'important');
                 control.style.setProperty('transition', 'border-color 0.15s ease, box-shadow 0.15s ease', 'important');
             }
 
-            // 3. ????????? ?????????? ?????? ?????????
             const dropdown = this.dropdown;
             if (dropdown) {
                 dropdown.style.setProperty('font-size', '1.0rem', 'important');
                 dropdown.style.setProperty('border', '1px solid #ced4da', 'important');
                 dropdown.style.setProperty('border-radius', '0.375rem', 'important');
                 dropdown.style.setProperty('box-shadow', '0 -4px 6px -1px rgba(0,0,0,0.1)', 'important');
-                    dropdown.style.setProperty('width', '150%', 'important');
-
-
-                                dropdown.style.setProperty('top', 'auto', 'important');
-            dropdown.style.setProperty('bottom', '100%', 'important');
-            dropdown.style.setProperty('margin-bottom', '5px', 'important');
-            dropdown.style.setProperty('margin-top', '0px', 'important');
+                dropdown.style.setProperty('width', '150%', 'important');
+                dropdown.style.setProperty('top', 'auto', 'important');
+                dropdown.style.setProperty('bottom', '100%', 'important');
+                dropdown.style.setProperty('margin-bottom', '5px', 'important');
+                dropdown.style.setProperty('margin-top', '0px', 'important');
+                const content = dropdown.querySelector('.ts-dropdown-content');
+                if (content) {
+                    content.style.setProperty('max-height', '310px', 'important');
+                }
             }
 
-            // 4. ????? ??? placeholder
             const input = this.control_input;
             if (input) {
                 input.style.setProperty('font-size', '1.0rem', 'important');
             }
 
-            // 5. ????????????? ??????? ?????? ?????? ???? ?? ????? ?????
             const clearBtn = this.control.querySelector('.clear-button');
             if (clearBtn) {
                 clearBtn.style.setProperty('font-size', '1.2rem', 'important');
-                clearBtn.style.setProperty('right', '12px', 'important'); // ?????? ?? ??????? ???? ?????
-                clearBtn.style.setProperty('color', '#94a3b8', 'important'); // ???????? ??????????? ????? ????
+                clearBtn.style.setProperty('right', '12px', 'important');
+                clearBtn.style.setProperty('color', '#94a3b8', 'important');
                 clearBtn.style.setProperty('opacity', '1', 'important');
 
-                // ?????? ??? ????????? ?? ???????
                 clearBtn.addEventListener('mouseenter', () => clearBtn.style.setProperty('color', '#ef4444', 'important'));
                 clearBtn.addEventListener('mouseleave', () => clearBtn.style.setProperty('color', '#94a3b8', 'important'));
             }
         },
-            onFocus: function() {
-        const control = this.control;
-        if (control) {
-            control.style.setProperty('border-color', '#10b981', 'important');
-            control.style.setProperty('box-shadow', '0 0 0 3px rgba(16, 185, 129, 0.15)', 'important');
-        }
-    },
 
-    onBlur: function() {
-        const control = this.control;
-        if (control) {
-            control.style.setProperty('border-color', '#ced4da', 'important');
-            control.style.setProperty('box-shadow', 'none', 'important');
+        onFocus: function() {
+            const control = this.control;
+            if (control) {
+                control.style.setProperty('border-color', '#10b981', 'important');
+                control.style.setProperty('box-shadow', '0 0 0 3px rgba(16, 185, 129, 0.15)', 'important');
+            }
+        },
+
+        onBlur: function() {
+            const control = this.control;
+            if (control) {
+                control.style.setProperty('border-color', '#ced4da', 'important');
+                control.style.setProperty('box-shadow', 'none', 'important');
+            }
         }
-    }
-                                        });
+    });
                                     </script>
                                 </div>
                                 <div class="col-md-3">

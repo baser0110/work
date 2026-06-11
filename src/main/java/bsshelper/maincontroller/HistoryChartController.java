@@ -9,7 +9,6 @@ import bsshelper.externalapi.perfmng.service.HistoryQueryService;
 import bsshelper.externalapi.perfmng.util.ExternalKPI;
 import bsshelper.externalapi.perfmng.util.KPI;
 import bsshelper.externalapi.perfmng.util.KPIable;
-import bsshelper.externalapi.perfmng.wrapper.KPI_ULocalCellWrapper;
 import bsshelper.externalapi.perfmng.wrapper.KPI_UMTSCellWrapper;
 import bsshelper.globalutil.entity.MessageEntity;
 import bsshelper.localservice.localcache.LocalCacheService;
@@ -79,13 +78,12 @@ public class HistoryChartController {
                              @RequestParam(name = "checkedKPIsNoCellList", required = false) Set<String> checkedKPIsNoCellList,
                              @RequestParam(name = "kpiCodes", required = false) List<String> kpiCodes,
                              Model model, HttpSession session) {
-        System.out.println(kpiCodes);
         String id = session.getId();
         setMessage(id, model);
         List<UUtranCellFDDMoc> checkedCellList = new ArrayList<>();
         ManagedElement managedElement = localCacheService.managedElementMap.get(userLabel);
 
-        if (checkedKPIsList != null) {
+        if (checkedKPIsList != null || (kpiCodes != null && !kpiCodes.isEmpty())) {
             List<UUtranCellFDDMoc> allCellList = localCacheService.UMTSCellMap.get(userLabel);
             for (UUtranCellFDDMoc cell : allCellList) {
                 if (checkedCustomCellsList.contains(cell.getUserLabel())) {
@@ -159,11 +157,11 @@ public class HistoryChartController {
                 checkedANT_RSSI_2DataMap = allToChecked(allANT_RSSI_2DataMap, checkedCellList);
             }
             if (checkedKPIsList.contains(KPI.ANT_RSSI_1AND2.getInfo())) {
-                if (allANT_RSSI_1DataMap.isEmpty()) {
+                if (allANT_RSSI_1DataMap != null && allANT_RSSI_1DataMap.isEmpty()) {
                     allANT_RSSI_1DataMap = HistoryForULocalCell
                             .getChart(historyQueryService.getHistoryCellWithIgnoreRestrictionOnStringCapacity(tokenService.getToken(), managedElement, getTime(time,granularity), granularity, KPI.ANT_RSSI_1));
                 }
-                if (allANT_RSSI_2DataMap.isEmpty()) {
+                if (allANT_RSSI_2DataMap != null && allANT_RSSI_2DataMap.isEmpty()) {
                     allANT_RSSI_2DataMap = HistoryForULocalCell
                             .getChart(historyQueryService.getHistoryCellWithIgnoreRestrictionOnStringCapacity(tokenService.getToken(), managedElement, getTime(time,granularity), granularity, KPI.ANT_RSSI_2));
                 }
@@ -202,30 +200,16 @@ public class HistoryChartController {
             }
         }
 
-        List<KPI_ULocalCellWrapper> KPI_ULocalCellDataMap = new ArrayList<>();
-        List<KPI_UMTSCellWrapper> KPI_UMTSCellDataMap = new ArrayList<>();
+        List<KPI_UMTSCellWrapper> KPI_UMTSCellDataList = new ArrayList<>();
 
         if (kpiCodes != null && !kpiCodes.isEmpty()) {
-            Map<String, ExternalKPI> kpiMap = ExternalKPI.getTestMap(ExternalKPI.getTest());
+//            Map<String, ExternalKPI> kpiMap = ExternalKPI.getTestMap(ExternalKPI.getTest());
             for (String k: kpiCodes) {
 
-//                ExternalKPI kpi = externalKPIMap.get(k);
-                ExternalKPI kpi = kpiMap.get(k);
+                ExternalKPI kpi = externalKPIMap.get(k);
+//                ExternalKPI kpi = kpiMap.get(k);
 
-                if (kpi.getMoType().equals("wm.LogicCell")) {
-                    KPI_ULocalCellDataMap.add(new KPI_ULocalCellWrapper(
-                            kpi,
-                            allToChecked(
-                                    HistoryForULocalCell.getChart(
-                                            historyQueryService.getHistoryCellWithIgnoreRestrictionOnStringCapacity(
-                                                    tokenService.getToken(),
-                                                    managedElement,
-                                                    getTime(time,granularity),
-                                                    granularity,
-                                                    kpi)), checkedCellList)));
-                    continue;
-                }
-                if (kpi.getMoType().equals("wm.UtranCell")) KPI_UMTSCellDataMap.add(new KPI_UMTSCellWrapper(
+                KPI_UMTSCellDataList.add(new KPI_UMTSCellWrapper(
                         kpi,
                         HistoryForUMTSCell.getChart(
                                 uploadHistoryWithIgnoreRestrictionOnStringCapacityForUMTSCell(
@@ -257,6 +241,7 @@ public class HistoryChartController {
         model.addAttribute("chartMAX_OPTIC_RX_POWERData", MAX_OPTIC_RX_POWERDataMap);
         model.addAttribute("chartLOST_PACKETData", LOST_PACKETDataMap);
         model.addAttribute("chartMEAN_JITTERData", MEAN_JITTERDataMap);
+        model.addAttribute("customKPI_UMTSCellDataList", KPI_UMTSCellDataList);
         model.addAttribute("managedElement", managedElement);
         model.addAttribute("title", null);
         return "customcharts";

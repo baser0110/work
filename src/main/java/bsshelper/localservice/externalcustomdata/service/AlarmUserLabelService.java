@@ -2,11 +2,11 @@ package bsshelper.localservice.externalcustomdata.service;
 
 import bsshelper.localservice.externalcustomdata.entity.AlarmUserLabel;
 import bsshelper.localservice.externalcustomdata.repository.AlarmUserLabelRepository;
-import bsshelper.localservice.externalcustomdata.service.aop.CachePopulator;
-import bsshelper.localservice.externalcustomdata.service.aop.RefreshCache;
+import bsshelper.localservice.externalcustomdata.service.listener.*;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +18,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class AlarmUserLabelService implements CachePopulator {
+public class AlarmUserLabelService implements CacheUpdater {
     private final AlarmUserLabelRepository alarmUserLabelRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @PostConstruct
@@ -38,6 +39,9 @@ public class AlarmUserLabelService implements CachePopulator {
         CustomDataService.alarmCodeToAlarmUserLabelMap.putAll(alarmCodeToAlarmUserLabelMap);
     }
 
+    @Override
+    public boolean supports(Class<?> clazz) { return clazz == AlarmUserLabel.class; }
+
     public List<AlarmUserLabel> getAllAlarmUserLabel() {
         return alarmUserLabelRepository.findAll();
     }
@@ -51,27 +55,35 @@ public class AlarmUserLabelService implements CachePopulator {
     }
 
     @Transactional
-    @RefreshCache
-    public AlarmUserLabel createAlarmUserLabel(AlarmUserLabel alarmUserLabel) {
-        return alarmUserLabelRepository.save(alarmUserLabel);
+    public AlarmUserLabel createAlarmUserLabel(AlarmUserLabel entity) {
+        entity.setId(null);
+        AlarmUserLabel saved = alarmUserLabelRepository.save(entity);
+        eventPublisher.publishEvent(new CacheRefreshEvent<>(saved));
+        return saved;
     }
 
     @Transactional
-    @RefreshCache
-    public void deleteAlarmUserLabel(String id) {
-        alarmUserLabelRepository.deleteById(id);
+    public AlarmUserLabel deleteAlarmUserLabel(String id) {
+        AlarmUserLabel entity = alarmUserLabelRepository.findById(id).orElse(null);
+        if (entity != null) {
+            alarmUserLabelRepository.delete(entity);
+            eventPublisher.publishEvent(new CacheRefreshEvent<>(entity));
+            return entity;
+        }
+        return null;
     }
 
     @Transactional
-    @RefreshCache
-    public AlarmUserLabel updateAlarmUserLabel(AlarmUserLabel alarmUserLabel) {
-        AlarmUserLabel existingAlarmUserLabel = alarmUserLabelRepository.findById(alarmUserLabel.getId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        existingAlarmUserLabel.setUserLabel(alarmUserLabel.getUserLabel());
-        return alarmUserLabelRepository.save(alarmUserLabel);
+    public AlarmUserLabel updateAlarmUserLabel(AlarmUserLabel entity) {
+        AlarmUserLabel existing = alarmUserLabelRepository.findById(entity.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Not found"));
+        AlarmUserLabel saved = alarmUserLabelRepository.save(entity);
+        eventPublisher.publishEvent(new CacheRefreshEvent<>(saved));
+        return saved;
     }
 
     public Optional<AlarmUserLabel> findByCode(String code) {
         return alarmUserLabelRepository.findByCode(code);
+
     }
 }

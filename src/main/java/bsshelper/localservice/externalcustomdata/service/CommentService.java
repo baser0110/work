@@ -2,11 +2,12 @@ package bsshelper.localservice.externalcustomdata.service;
 
 import bsshelper.localservice.externalcustomdata.entity.Comment;
 import bsshelper.localservice.externalcustomdata.repository.CommentRepository;
-import bsshelper.localservice.externalcustomdata.service.aop.CachePopulator;
-import bsshelper.localservice.externalcustomdata.service.aop.RefreshCache;
+import bsshelper.localservice.externalcustomdata.service.listener.CacheRefreshEvent;
+import bsshelper.localservice.externalcustomdata.service.listener.CacheUpdater;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class CommentService implements CachePopulator {
+public class CommentService implements CacheUpdater {
     private final CommentRepository commentRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @PostConstruct
@@ -35,6 +37,9 @@ public class CommentService implements CachePopulator {
         CustomDataService.CommentsMap.putAll(commentsMap);
     }
 
+    @Override
+    public boolean supports(Class<?> clazz) { return clazz == Comment.class; }
+
     public List<Comment> getAllComment() {
         return commentRepository.findAll();
     }
@@ -48,14 +53,21 @@ public class CommentService implements CachePopulator {
     }
 
     @Transactional
-    @RefreshCache
-    public Comment createComment(Comment comment) {
-        return commentRepository.save(comment);
+    public Comment createComment(Comment entity) {
+        entity.setId(null);
+        Comment saved = commentRepository.save(entity);
+        eventPublisher.publishEvent(new CacheRefreshEvent<>(saved));
+        return commentRepository.save(saved);
     }
 
     @Transactional
-    @RefreshCache
-    public void deleteComment(String id) {
-        commentRepository.deleteById(id);
+    public Comment deleteComment(String id) {
+        Comment entity = commentRepository.findById(id).orElse(null);
+        if (entity != null) {
+            commentRepository.delete(entity);
+            eventPublisher.publishEvent(new CacheRefreshEvent<>(entity));
+            return entity;
+        }
+        return null;
     }
 }

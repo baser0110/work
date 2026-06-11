@@ -2,11 +2,12 @@ package bsshelper.localservice.externalcustomdata.service;
 
 import bsshelper.localservice.externalcustomdata.entity.VLAN;
 import bsshelper.localservice.externalcustomdata.repository.VLANRepository;
-import bsshelper.localservice.externalcustomdata.service.aop.CachePopulator;
-import bsshelper.localservice.externalcustomdata.service.aop.RefreshCache;
+import bsshelper.localservice.externalcustomdata.service.listener.CacheRefreshEvent;
+import bsshelper.localservice.externalcustomdata.service.listener.CacheUpdater;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class VLANService implements CachePopulator {
+public class VLANService implements CacheUpdater {
     private final VLANRepository vlanRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @PostConstruct
@@ -35,6 +37,10 @@ public class VLANService implements CachePopulator {
         CustomDataService.VLANMap.putAll(VLANMap);
     }
 
+    @Override
+    public boolean supports(Class<?> clazz) { return clazz == VLAN.class; }
+
+
     public List<VLAN> getAllVlan() {
         return vlanRepository.findAll();
     }
@@ -48,23 +54,30 @@ public class VLANService implements CachePopulator {
     }
 
     @Transactional
-    @RefreshCache
-    public VLAN createVlan(VLAN vlan) {
-        return vlanRepository.save(vlan);
+    public VLAN createVlan(VLAN entity) {
+        entity.setId(null);
+        VLAN saved = vlanRepository.save(entity);
+        eventPublisher.publishEvent(new CacheRefreshEvent<>(saved));
+        return vlanRepository.save(saved);
     }
 
     @Transactional
-    @RefreshCache
-    public void deleteVlan(String id) {
-        vlanRepository.deleteById(id);
+    public VLAN deleteVlan(String id) {
+        VLAN entity = vlanRepository.findById(id).orElse(null);
+        if (entity != null) {
+            vlanRepository.delete(entity);
+            eventPublisher.publishEvent(new CacheRefreshEvent<>(entity));
+            return entity;
+        }
+        return null;
     }
 
     @Transactional
-    @RefreshCache
-    public VLAN updateVlan(VLAN vlan) {
-        VLAN existingVlan = vlanRepository.findById(vlan.getId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        existingVlan.setTechnology(vlan.getTechnology());
-        return vlanRepository.save(vlan);
+    public VLAN updateVlan(VLAN entity) {
+        VLAN existing = vlanRepository.findById(entity.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Not found"));
+        VLAN saved = vlanRepository.save(entity);
+        eventPublisher.publishEvent(new CacheRefreshEvent<>(saved));
+        return saved;
     }
 }
